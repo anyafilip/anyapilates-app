@@ -1,0 +1,152 @@
+'use client'
+
+import { useState, useMemo } from 'react'
+import { cancelSession } from '@/app/actions/admin'
+
+const TZ_OFFSET = 7 // Bangkok UTC+7
+
+function getBangkokMidnight(date: Date) {
+  const local = new Date(date.getTime() + TZ_OFFSET * 60 * 60 * 1000)
+  local.setUTCHours(0, 0, 0, 0)
+  return local
+}
+
+export default function AdminInteractiveSchedule({
+  sessions,
+}: {
+  sessions: any[]
+}) {
+  // Determine the dates to show. We'll show the past 7 days + today + the next 13 days (21 days total).
+  const todayLocal = getBangkokMidnight(new Date())
+  
+  const dates = Array.from({ length: 21 }).map((_, i) => {
+    const d = new Date(todayLocal.getTime() + (i - 7) * 24 * 60 * 60 * 1000)
+    return {
+      dateObj: d,
+      timestamp: d.getTime(),
+      dayName: d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
+      dateNumber: d.getUTCDate(),
+      monthName: d.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' })
+    }
+  })
+
+  const [selectedTimestamp, setSelectedTimestamp] = useState(dates[0].timestamp)
+
+  // Filter classes by selected date
+  const filteredSessions = useMemo(() => {
+    return sessions.filter(cls => {
+      const clsBkkMidnight = getBangkokMidnight(new Date(cls.date))
+      return clsBkkMidnight.getTime() === selectedTimestamp
+    })
+  }, [sessions, selectedTimestamp])
+
+  return (
+    <div>
+      {/* Horizontal Date Picker */}
+      <div className="mb-12">
+        <div className="flex overflow-x-auto py-6 px-4 gap-4 snap-x hide-scrollbar -mx-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {dates.map(d => {
+            const isSelected = d.timestamp === selectedTimestamp
+            
+            // Check if there are ANY classes on this day
+            const hasClasses = sessions.some(cls => getBangkokMidnight(new Date(cls.date)).getTime() === d.timestamp)
+
+            return (
+              <button
+                key={d.timestamp}
+                onClick={() => setSelectedTimestamp(d.timestamp)}
+                className={`
+                  relative snap-start flex-shrink-0 flex flex-col items-center justify-center w-[72px] h-[100px] rounded-full transition-all duration-300 border
+                  ${isSelected 
+                    ? 'bg-[var(--foreground)] border-[var(--foreground)] text-[var(--background)] shadow-xl scale-110' 
+                    : 'bg-transparent border-[var(--border)] text-[var(--foreground)] hover:border-[var(--foreground)] hover:bg-black/5'
+                  }
+                  ${!hasClasses && !isSelected ? 'opacity-40 hover:opacity-70' : ''}
+                `}
+              >
+                <span className={`text-[10px] tracking-[0.2em] uppercase mb-2 ${isSelected ? 'text-[var(--background)]/80' : 'text-[var(--foreground-muted)]'}`}>{d.dayName}</span>
+                <span className="text-2xl font-light">{d.dateNumber}</span>
+                {hasClasses && !isSelected && (
+                  <div className="absolute bottom-4 w-1 h-1 rounded-full bg-[var(--accent)]"></div>
+                )}
+                {hasClasses && isSelected && (
+                  <div className="absolute bottom-4 w-1 h-1 rounded-full bg-[var(--background)]"></div>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Sessions list */}
+      <div className="bg-white/60 backdrop-blur-xl border border-white rounded-[2.5rem] p-6 md:p-12 shadow-sm">
+        {/* Header Row */}
+        <div className="hidden md:flex items-center px-6 pb-6 border-b border-[var(--border)] text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
+          <div className="flex-1 min-w-[200px]">Class & Date</div>
+          <div className="w-[160px]">Instructor</div>
+          <div className="w-[120px] text-center">Bookings</div>
+          <div className="w-[120px] text-center">Status</div>
+          <div className="w-[100px] text-right">Actions</div>
+        </div>
+
+        <div className="divide-y divide-[var(--border)]">
+          {filteredSessions.map(cls => {
+            const localDate = new Date(cls.date.getTime() + TZ_OFFSET * 60 * 60 * 1000)
+            const dateStr = localDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })
+            return (
+              <div key={cls.id} className={`group py-6 md:py-8 flex flex-col md:flex-row md:items-center gap-6 hover:bg-white/40 transition-colors -mx-6 px-6 md:-mx-12 md:px-12 rounded-3xl ${cls.status === 'CANCELLED' ? 'opacity-40' : ''}`}>
+                
+                {/* Date & Class */}
+                <div className="flex-1 min-w-[200px]">
+                  <p className="text-xl font-medium text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors">{cls.name}</p>
+                  <p className="text-sm font-light text-[var(--foreground-muted)] mt-1">
+                    {dateStr} <span className="mx-1">·</span> {cls.startTime} – {cls.endTime}
+                  </p>
+                </div>
+
+                {/* Instructor */}
+                <div className="w-full md:w-[160px] flex flex-row md:flex-col justify-between md:justify-center border-t md:border-0 border-[var(--border)] pt-4 md:pt-0 mt-2 md:mt-0">
+                  <span className="md:hidden text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Instructor</span>
+                  <span className="text-sm font-medium text-[var(--foreground)]">{cls.instructor?.name ?? '—'}</span>
+                </div>
+
+                {/* Bookings */}
+                <div className="w-full md:w-[120px] flex items-center justify-between md:justify-center border-t md:border-0 border-[var(--border)] pt-4 md:pt-0">
+                  <span className="md:hidden text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Bookings</span>
+                  <span className="text-xl font-light text-[var(--foreground)]">{cls.bookedCount}<span className="text-sm text-[var(--foreground-muted)]">/{cls.capacity}</span></span>
+                </div>
+
+                {/* Status */}
+                <div className="w-full md:w-[120px] flex items-center justify-between md:justify-center border-t md:border-0 border-[var(--border)] pt-4 md:pt-0">
+                  <span className="md:hidden text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Status</span>
+                  <span className={`text-[9px] tracking-[0.2em] uppercase px-4 py-2 rounded-full border ${cls.status === 'SCHEDULED' ? 'border-green-200 bg-green-50 text-green-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
+                    {cls.status}
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="w-full md:w-[100px] flex items-center justify-end border-t md:border-0 border-[var(--border)] pt-4 md:pt-0">
+                  {cls.status === 'SCHEDULED' && (
+                    <button 
+                      onClick={async () => { await cancelSession(cls.id) }} 
+                      className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-red-900 transition-colors pb-1 border-b border-transparent hover:border-red-900"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+
+              </div>
+            )
+          })}
+          {filteredSessions.length === 0 && (
+            <div className="py-12 text-center">
+              <p className="text-[var(--foreground-muted)] font-serif italic text-lg mb-2">No sessions on this date.</p>
+              <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/70">The studio is resting</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

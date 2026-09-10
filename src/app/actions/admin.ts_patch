@@ -1,0 +1,72 @@
+--- src/app/actions/admin.ts
++++ src/app/actions/admin.ts
+@@ -2,7 +2,7 @@
+ 
+ import { prisma } from '@/lib/prisma'
+ import { auth } from '@/auth'
+-import { revalidatePath } from 'next/cache'
++import { revalidatePath, revalidateTag } from 'next/cache'
+ 
+ async function requireAdmin() {
+   const session = await auth()
+@@ -40,6 +40,33 @@
+   revalidatePath('/', 'layout')
+ }
+ 
++export async function updateClassType(formData: FormData) {
++  await requireAdmin()
++  
++  const id = formData.get('id') as string
++  const name = formData.get('name') as string
++  const description = formData.get('description') as string
++  const creditCost = parseInt(formData.get('creditCost') as string, 10)
++  const file = formData.get('imageFile') as File | null
++
++  let imageUrl = undefined
++  if (file && file.size > 0) {
++    const buffer = Buffer.from(await file.arrayBuffer())
++    const mimeType = file.type || 'image/jpeg'
++    const base64 = buffer.toString('base64')
++    imageUrl = `data:${mimeType};base64,${base64}`
++  }
++
++  await prisma.classType.update({
++    where: { id },
++    data: {
++      name, description, creditCost,
++      ...(imageUrl ? { imageUrl } : {})
++    }
++  })
++  revalidatePath('/', 'layout')
++}
++
+ export async function deleteClassType(id: string) {
+   await requireAdmin()
+   await prisma.classType.update({
+@@ -74,6 +101,23 @@
+   revalidatePath('/', 'layout')
+ }
+ 
++export async function updateSession(formData: FormData) {
++  await requireAdmin()
++  const id = formData.get('id') as string
++  const classTypeId = formData.get('classTypeId') as string
++  const date = new Date(formData.get('date') as string)
++  const startTime = formData.get('startTime') as string
++  const endTime = formData.get('endTime') as string
++  const capacity = parseInt(formData.get('capacity') as string, 10)
++  const duration = parseInt(formData.get('duration') as string, 10)
++  const instructorId = formData.get('instructorId') as string || null
++
++  const classType = await prisma.classType.findUniqueOrThrow({ where: { id: classTypeId } })
++  const name = classType.name
++
++  await prisma.class.update({
++    where: { id },
++    data: { name, classTypeId, date, startTime, endTime, capacity, duration, instructorId }
++  })
++  revalidatePath('/', 'layout')
++}
++
+ export async function cancelSession(id: string) {
+   await requireAdmin()

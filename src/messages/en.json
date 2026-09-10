@@ -1,0 +1,20 @@
+{
+  "Auth": {
+    "login": "Log In",
+    "register": "Create Account",
+    "email": "Email Address",
+    "password": "Password",
+    "name": "Full Name",
+    "phone": "Phone Number (Optional)",
+    "submitLogin": "Sign In",
+    "submitRegister": "Sign Up",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?"
+  },
+  "Navigation": {
+    "schedule": "Schedule",
+    "packages": "Packages",
+    "dashboard": "Dashboard",
+    "logout": "Log Out"
+  }
+}

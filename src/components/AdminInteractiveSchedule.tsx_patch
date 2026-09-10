@@ -1,0 +1,22 @@
+--- src/components/AdminInteractiveSchedule.tsx
++++ src/components/AdminInteractiveSchedule.tsx
+@@ -102,14 +102,9 @@
+ 
+                 {/* Actions */}
+-                <div className="w-full md:w-[100px] flex items-center justify-end border-t md:border-0 border-[var(--border)] pt-4 md:pt-0">
+-                  {cls.status === 'SCHEDULED' && (
+-                    <button 
+-                      onClick={async () => { await cancelSession(cls.id) }} 
+-                      className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-red-900 transition-colors pb-1 border-b border-transparent hover:border-red-900"
+-                    >
+-                      Cancel
+-                    </button>
+-                  )}
+-                </div>
++                <div className="w-full md:w-[100px] flex items-center justify-end border-t md:border-0 border-[var(--border)] pt-4 md:pt-0">
++                  <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
++                    —
++                  </span>
++                </div>
+ 
+               </div>

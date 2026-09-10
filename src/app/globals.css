@@ -1,26 +1,162 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ── Anya Pilates Premium Beige Palette ─────────── */
+  --background:      #EDE8E2;   /* Warm linen cream */
+  --surface:         #F5F1ED;   /* Slightly lighter cream */
+  --foreground:      #3C2A1E;   /* Deep warm brown – body text */
+  --foreground-muted:#9C8878;   /* Muted warm taupe – subtitles */
+  
+  --accent:          #8A7055;   /* Logo mocha brown – primary accent */
+  --accent-light:    #C4B09A;   /* Light tan – dividers, borders */
+  --accent-dark:     #5C4A38;   /* Deep brown – hover states */
+
+  --border:          rgba(138, 112, 85, 0.2); /* Thin elegant mocha borders */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background:      var(--background);
+  --color-surface:         var(--surface);
+  --color-foreground:      var(--foreground);
+  --color-muted:           var(--foreground-muted);
+  --color-accent:          var(--accent);
+  --color-accent-light:    var(--accent-light);
+  --color-accent-dark:     var(--accent-dark);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base ──────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Typography utilities ──────────────────────────── */
+.font-serif {
+  font-family: var(--font-lora), Georgia, serif;
+}
+
+/* ── Reusable minimalist utility classes ───────────── */
+@layer components {
+
+  /* Editorial Card */
+  .studio-card {
+    background: var(--surface);
+    border: none;
+    border-radius: 1rem;
+  }
+
+  /* Minimal Input */
+  .studio-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--foreground);
+    border-radius: 0;
+    padding: 0.75rem 0;
+    width: 100%;
+    transition: border-color 0.3s ease;
+    outline: none;
+    font-size: 0.9rem;
+  }
+  .studio-input::placeholder {
+    color: var(--foreground-muted);
+    font-weight: 300;
+  }
+  .studio-input:focus {
+    border-bottom-color: var(--accent);
+  }
+
+  /* Primary Button – Pill shape, solid color */
+  .btn-primary {
+    background: var(--accent);
+    color: #FAF7F4;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 0.85rem 2rem;
+    border-radius: 9999px; /* Fully rounded pill */
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-primary:hover {
+    background: var(--accent-dark);
+  }
+
+  /* Ghost/Outline Button – Pill shape */
+  .btn-ghost {
+    background: transparent;
+    color: var(--foreground);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 0.85rem 2rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-ghost:hover {
+    border-color: var(--foreground);
+    background: rgba(138, 112, 85, 0.05);
+  }
+
+  /* Status Badges */
+  .badge {
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+  }
+  .badge-neutral {
+    background: var(--surface);
+    color: var(--foreground-muted);
+  }
+  .badge-accent {
+    background: rgba(138, 112, 85, 0.1);
+    color: var(--accent-dark);
+  }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+@keyframes modal-overlay-fade {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(8px); }
+}
+
+@keyframes modal-content-scale {
+  from { opacity: 0; transform: scale(0.98) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-modal-overlay {
+  animation: modal-overlay-fade 0.3s ease-out forwards;
+}
+
+.animate-modal-content {
+  animation: modal-content-scale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

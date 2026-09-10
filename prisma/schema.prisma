@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Class Types (managed by admin) ─────────────────────
+// e.g. "Group Reformer", "Private Session", "Barre"
+model ClassType {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  imageUrl    String?
+  creditCost  Int      @default(1)
+  isActive    Boolean  @default(true)
+  classes     Class[]
+  createdAt   DateTime @default(now())
+}
+
+model User {
+  id                String    @id @default(cuid())
+  name              String
+  email             String    @unique
+  phone             String?
+  password          String    // bcrypt hash
+  role              Role      @default(CLIENT)
+  credits           Int       @default(0)
+  
+  // Instructor specific fields
+  imageUrl          String?
+  bio               String?
+  availabilityNotes String?
+
+  bookings          Booking[]
+  payments          Payment[]
+  classes           Class[]   @relation("InstructorClasses")
+  creditLedger      CreditLedger[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Class {
+  id           String      @id @default(cuid())
+  classType    ClassType?  @relation(fields: [classTypeId], references: [id])
+  classTypeId  String?
+  name         String      // display name (can mirror classType.name or be custom)
+  description  String?
+  instructor   User?       @relation("InstructorClasses", fields: [instructorId], references: [id])
+  instructorId String?     // optional — admin can assign later
+  date         DateTime    // date + time of session in UTC
+  startTime    String      // display string e.g. "09:00"
+  endTime      String      // display string e.g. "10:00"
+  duration     Int         // minutes
+  capacity     Int
+  bookedCount  Int         @default(0)
+  status       ClassStatus @default(SCHEDULED)
+  bookings     Booking[]
+  createdAt    DateTime    @default(now())
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  client         User          @relation(fields: [clientId], references: [id])
+  clientId       String
+  class          Class         @relation(fields: [classId], references: [id])
+  classId        String
+  status         BookingStatus @default(BOOKED)
+  creditRefunded Boolean       @default(false)
+  bookedAt       DateTime      @default(now())
+  cancelledAt    DateTime?
+}
+
+model Package {
+  id        String    @id @default(cuid())
+  name      String
+  credits   Int
+  price     Int       // in THB satang (e.g. 50000 = 500 THB)
+  isActive  Boolean   @default(true)
+  payments  Payment[]
+  createdAt DateTime  @default(now())
+}
+
+model Payment {
+  id          String         @id @default(cuid())
+  client      User           @relation(fields: [clientId], references: [id])
+  clientId    String
+  package     Package        @relation(fields: [packageId], references: [id])
+  packageId   String
+  method      PayMethod
+  status      PayStatus      @default(PENDING)
+  amount      Int            // THB satang
+  refCode     String         @unique // short reference e.g. "AYP-0042"
+  slipUrl     String?        // base64 or URL of uploaded slip
+  notes       String?        // admin notes
+  confirmedAt DateTime?
+  confirmedBy String?        // admin user ID who confirmed
+  createdAt   DateTime       @default(now())
+  ledgerEntry CreditLedger?
+}
+
+model CreditLedger {
+  id           String          @id @default(cuid())
+  user         User            @relation(fields: [userId], references: [id])
+  userId       String
+  type         LedgerEntryType
+  delta        Int             // positive = added, negative = deducted
+  balanceAfter Int             // balance snapshot after this entry
+  reason       String
+  payment      Payment?        @relation(fields: [paymentId], references: [id])
+  paymentId    String?         @unique
+  bookingId    String?
+  adminId      String?
+  createdAt    DateTime        @default(now())
+}
+
+enum Role {
+  CLIENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum ClassStatus {
+  SCHEDULED
+  CANCELLED
+}
+
+enum BookingStatus {
+  BOOKED
+  ATTENDED
+  CANCELLED
+  NO_SHOW
+}
+
+enum PayMethod {
+  QR
+  COUNTER
+}
+
+enum PayStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum LedgerEntryType {
+  PURCHASE
+  BOOKING
+  REFUND
+  ADMIN_ADJUSTMENT
+}
