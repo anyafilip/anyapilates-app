@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { debitCredits, refundCredits } from '@/lib/credits'
 
 const BOOKING_CUTOFF_HOURS = 12
 
@@ -22,9 +23,9 @@ export async function bookClass(classId: string): Promise<BookingResult> {
   }
   const userId = session.user.id
 
-  const cls = await prisma.class.findUnique({ 
+  const cls = await prisma.class.findUnique({
     where: { id: classId },
-    include: { classType: true }
+    include: { classType: true },
   })
   if (!cls) return { success: false, message: 'Class not found.' }
   if (cls.status === 'CANCELLED') return { success: false, message: 'This class has been cancelled.' }
@@ -52,15 +53,19 @@ export async function bookClass(classId: string): Promise<BookingResult> {
   const existing = await prisma.booking.findFirst({
     where: { clientId: userId, classId, status: 'BOOKED' },
   })
-  if (existing) return { success: false, message: 'You\'ve already booked this class.' }
+  if (existing) return { success: false, message: "You've already booked this class." }
 
-  await prisma.$transaction([
-    prisma.booking.create({
-      data: { clientId: userId, classId },
-    }),
-    prisma.user.update({
-      where: { id: userId },
-      data: { credits: { decrement: cost } },
+  // Create the booking and atomically debit credits via the ledger
+  const booking = await prisma.booking.create({
+    data: { clientId: userId, classId },
+  })
+
+  await Promise.all([
+    debitCredits({
+      userId,
+      amount: cost,
+      reason: `Class booking: ${cls.name}`,
+      bookingId: booking.id,
     }),
     prisma.class.update({
       where: { id: classId },
@@ -96,14 +101,16 @@ export async function cancelBooking(bookingId: string): Promise<BookingResult> {
 
   const cost = booking.class.classType?.creditCost ?? 1
 
-  await prisma.$transaction([
+  await Promise.all([
     prisma.booking.update({
       where: { id: bookingId },
       data: { status: 'CANCELLED', cancelledAt: new Date(), creditRefunded: true },
     }),
-    prisma.user.update({
-      where: { id: userId },
-      data: { credits: { increment: cost } },
+    refundCredits({
+      userId,
+      amount: cost,
+      reason: `Cancellation: ${booking.class.name}`,
+      bookingId,
     }),
     prisma.class.update({
       where: { id: booking.classId },

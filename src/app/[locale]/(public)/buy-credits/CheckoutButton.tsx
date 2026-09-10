@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { purchasePackage } from '@/app/actions/billing'
+import { requestPackagePurchase } from '@/app/actions/billing'
 import toast from 'react-hot-toast'
 
 export default function CheckoutButton({ packageId }: { packageId: string }) {
@@ -11,7 +11,7 @@ export default function CheckoutButton({ packageId }: { packageId: string }) {
     <form action={async () => {
       setLoading(true)
       try {
-        await purchasePackage(packageId)
+        await requestPackagePurchase(packageId)
       } catch (e: any) {
         toast.error(e.message || 'Payment failed')
         setLoading(false)

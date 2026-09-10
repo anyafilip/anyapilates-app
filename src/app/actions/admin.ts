@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { adminAdjustCredits } from '@/lib/credits'
 
 async function requireAdmin() {
   const session = await auth()
@@ -176,15 +177,22 @@ export async function updateUserRole(userId: string, role: string) {
   revalidatePath('/en/admin/users')
 }
 
-export async function updateUserAccess(userId: string, role: string, credits: number) {
+export async function updateUserAccess(userId: string, role: string, delta: number, reason: string) {
+  const session = await auth()
+  const adminId = (session?.user as any)?.id
   await requireAdmin()
   if (!['CLIENT', 'INSTRUCTOR', 'ADMIN'].includes(role)) {
     throw new Error('Invalid role')
   }
+  // Always update role directly
   await prisma.user.update({
     where: { id: userId },
-    data: { role: role as any, credits },
+    data: { role: role as any },
   })
+  // Only adjust credits if a delta was specified
+  if (delta !== 0) {
+    await adminAdjustCredits({ userId, delta, reason: reason || 'Admin adjustment', adminId })
+  }
   revalidatePath('/', 'layout')
 }
 

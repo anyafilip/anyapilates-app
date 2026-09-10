@@ -4,7 +4,14 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 
-export async function purchasePackage(packageId: string) {
+// Generate a short unique reference code e.g. "AYP-0042"
+async function generateRefCode(): Promise<string> {
+  const count = await prisma.payment.count()
+  const n = (count + 1).toString().padStart(4, '0')
+  return `AYP-${n}`
+}
+
+export async function requestPackagePurchase(packageId: string) {
   const session = await auth()
   const user = session?.user as any
 
@@ -12,33 +19,21 @@ export async function purchasePackage(packageId: string) {
     throw new Error('You must be logged in to purchase credits')
   }
 
-  const pkg = await prisma.package.findUnique({ where: { id: packageId } })
-  if (!pkg) {
-    throw new Error('Package not found')
-  }
+  const pkg = await prisma.package.findUnique({ where: { id: packageId, isActive: true } })
+  if (!pkg) throw new Error('Package not found')
 
-  // Simulate successful payment processing (e.g. Stripe checkout completion)
-  // Create the payment record
-  await prisma.payment.create({
+  const refCode = await generateRefCode()
+
+  const payment = await prisma.payment.create({
     data: {
       clientId: user.id,
       packageId: pkg.id,
-      method: 'QR', // default simulated method
-      status: 'PAID',
+      method: 'QR',
+      status: 'PENDING',
       amount: pkg.price,
-      confirmedAt: new Date()
-    }
+      refCode,
+    },
   })
 
-  // Increment the user's credits
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      credits: {
-        increment: pkg.credits
-      }
-    }
-  })
-
-  redirect('/en/account?purchase=success')
+  redirect(`/en/buy-credits/pending?paymentId=${payment.id}`)
 }
