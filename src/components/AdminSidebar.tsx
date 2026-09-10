@@ -14,6 +14,7 @@ export default function AdminSidebar() {
     { href: '/en/admin/bookings', label: 'Bookings' },
     { href: '/en/admin/users', label: 'Users' },
     { href: '/en/admin/packages', label: 'Packages' },
+    { href: '/en/admin/payments', label: 'Payments' },
   ]
 
   return (
