@@ -84,6 +84,11 @@ export default async function HomePage() {
         </div>
         <div className="relative z-10 flex-1 flex items-center justify-center px-4 md:px-8 py-12 text-center">
           <div className="max-w-4xl mx-auto">
+            {isLoggedIn && user?.name && (
+              <p className="text-xs md:text-sm tracking-[0.3em] uppercase text-white/90 mb-6 font-light drop-shadow-sm">
+                Welcome, {user.name}
+              </p>
+            )}
             <h1 className="font-serif font-normal text-5xl md:text-7xl lg:text-8xl text-white leading-tight mb-8">
               Move with intention<br />Find your balance
             </h1>
