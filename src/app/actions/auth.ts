@@ -51,7 +51,7 @@ export async function register(
   })
 
   // Auto-login after registration
-  await signIn('credentials', { email, password, redirectTo: '/en/account' })
+  await signIn('credentials', { email, password, redirectTo: '/en' })
 
   return { message: 'Account created successfully!' }
 }
@@ -72,7 +72,7 @@ export async function login(
   const user = await prisma.user.findUnique({ where: { email } })
   const role = user?.role || 'CLIENT'
   
-  let redirectUrl = '/en/account'
+  let redirectUrl = '/en'
   if (role === 'ADMIN') redirectUrl = '/en/admin'
   if (role === 'INSTRUCTOR') redirectUrl = '/en/instructor'
 
