@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { cancelBooking } from '@/app/actions/booking'
 
 import PublicNavbar from '@/components/PublicNavbar'
+import CancelBookingButton from './CancelBookingButton'
 
 const TZ_OFFSET = 7
 
@@ -80,7 +81,7 @@ export default async function AccountPage() {
           ) : (
             <div className="divide-y divide-[var(--border)]">
               {upcoming.map(booking => {
-                const canCancel = booking.class.date.getTime() - now > CUTOFF_MS
+                const isLateCancel = booking.class.date.getTime() - now <= CUTOFF_MS
                 return (
                   <div key={booking.id} className="py-5 flex items-center justify-between gap-4">
                     <div>
@@ -89,19 +90,7 @@ export default async function AccountPage() {
                         {bangkokDate(booking.class.date)} · {booking.class.startTime}–{booking.class.endTime}
                       </p>
                     </div>
-                    <form action={async () => {
-                      'use server'
-                      await cancelBooking(booking.id)
-                    }}>
-                      <button
-                        type="submit"
-                        disabled={!canCancel}
-                        className="text-[11px] tracking-widest uppercase font-light text-[var(--foreground-muted)] hover:text-red-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                        title={!canCancel ? 'Cancellation window has passed (12hr rule)' : 'Cancel booking'}
-                      >
-                        Cancel
-                      </button>
-                    </form>
+                    <CancelBookingButton bookingId={booking.id} isLateCancel={isLateCancel} />
                   </div>
                 )
               })}

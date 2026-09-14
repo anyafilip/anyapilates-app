@@ -95,30 +95,46 @@ export async function cancelBooking(bookingId: string): Promise<BookingResult> {
   if (booking.clientId !== userId) return { success: false, message: 'Not your booking.' }
   if (booking.status !== 'BOOKED') return { success: false, message: 'This booking is already cancelled.' }
 
-  if (isWithinCutoff(booking.class.date)) {
-    return { success: false, message: 'Cancellations close 12 hours before class starts.' }
-  }
-
   const cost = booking.class.classType?.creditCost ?? 1
+  const isLateCancel = isWithinCutoff(booking.class.date)
 
-  await Promise.all([
-    prisma.booking.update({
-      where: { id: bookingId },
-      data: { status: 'CANCELLED', cancelledAt: new Date(), creditRefunded: true },
-    }),
-    refundCredits({
-      userId,
-      amount: cost,
-      reason: `Cancellation: ${booking.class.name}`,
-      bookingId,
-    }),
-    prisma.class.update({
-      where: { id: booking.classId },
-      data: { bookedCount: { decrement: 1 } },
-    }),
-  ])
+  if (isLateCancel) {
+    // Late cancellation: no refund
+    await Promise.all([
+      prisma.booking.update({
+        where: { id: bookingId },
+        data: { status: 'CANCELLED', cancelledAt: new Date(), creditRefunded: false },
+      }),
+      prisma.class.update({
+        where: { id: booking.classId },
+        data: { bookedCount: { decrement: 1 } },
+      }),
+    ])
+    
+    revalidatePath('/')
+    revalidatePath('/en/account')
+    return { success: true, message: 'Booking cancelled. Note: Credits are not refunded for late cancellations.' }
+  } else {
+    // Regular cancellation: full refund
+    await Promise.all([
+      prisma.booking.update({
+        where: { id: bookingId },
+        data: { status: 'CANCELLED', cancelledAt: new Date(), creditRefunded: true },
+      }),
+      refundCredits({
+        userId,
+        amount: cost,
+        reason: `Cancellation: ${booking.class.name}`,
+        bookingId,
+      }),
+      prisma.class.update({
+        where: { id: booking.classId },
+        data: { bookedCount: { decrement: 1 } },
+      }),
+    ])
 
-  revalidatePath('/')
-  revalidatePath('/en/account')
-  return { success: true, message: 'Booking cancelled. Your credits have been refunded.' }
+    revalidatePath('/')
+    revalidatePath('/en/account')
+    return { success: true, message: 'Booking cancelled. Your credits have been refunded.' }
+  }
 }

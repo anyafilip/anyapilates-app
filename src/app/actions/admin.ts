@@ -3,12 +3,13 @@
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { adminAdjustCredits } from '@/lib/credits'
+import { adminAdjustCredits, refundCredits } from '@/lib/credits'
 
 async function requireAdmin() {
   const session = await auth()
-  const role = (session?.user as any)?.role
-  if (role !== 'ADMIN') throw new Error('Unauthorized')
+  const user = session?.user as any
+  if (user?.role !== 'ADMIN') throw new Error('Unauthorized')
+  return user.id
 }
 
 // ── ClassType CRUD ────────────────────────────────────────────────────────────
@@ -137,27 +138,39 @@ export async function updateSession(formData: FormData) {
 }
 
 export async function cancelSession(id: string) {
-  await requireAdmin()
-  // Cancel the class and refund all active bookings
-  const bookings = await prisma.booking.findMany({
-    where: { classId: id, status: 'BOOKED' },
+  const adminId = await requireAdmin()
+  
+  const cls = await prisma.class.findUnique({
+    where: { id },
+    include: { classType: true, bookings: { where: { status: 'BOOKED' } } }
   })
+  
+  if (!cls) throw new Error('Class not found')
+  if (cls.status === 'CANCELLED') return
+  
+  const cost = cls.classType?.creditCost ?? 1
 
+  // Mark class and bookings as cancelled first
   await prisma.$transaction([
     prisma.class.update({ where: { id }, data: { status: 'CANCELLED' } }),
-    // Refund credits to all booked clients
-    ...bookings.map(b =>
-      prisma.user.update({
-        where: { id: b.clientId },
-        data: { credits: { increment: 1 } },
-      })
-    ),
-    // Mark all bookings as cancelled
     prisma.booking.updateMany({
       where: { classId: id, status: 'BOOKED' },
       data: { status: 'CANCELLED', creditRefunded: true, cancelledAt: new Date() },
     }),
   ])
+
+  // Then refund each user individually via the ledger
+  // (We use Promise.all to do it in parallel since each refund manages its own transaction)
+  await Promise.all(
+    cls.bookings.map(b => 
+      refundCredits({
+        userId: b.clientId,
+        amount: cost,
+        reason: `Studio cancelled class: ${cls.name}`,
+        bookingId: b.id,
+      })
+    )
+  )
 
   revalidatePath('/en/admin/schedule')
   revalidatePath('/')
