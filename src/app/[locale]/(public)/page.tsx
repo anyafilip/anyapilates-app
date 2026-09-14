@@ -187,11 +187,11 @@ export default async function HomePage() {
                 
                 <h3 className="text-2xl font-serif font-normal text-[var(--foreground)] mb-1 z-10">{pkg.name}</h3>
                 <p className="text-[9px] tracking-[0.3em] uppercase text-[var(--foreground-muted)] mb-10 z-10">
-                  {pkg.credits} Class{pkg.credits > 1 ? 'es' : ''}
+                  {pkg.credits} Credit{pkg.credits > 1 ? 's' : ''}
                 </p>
                 
                 <div className="flex-1 flex flex-col justify-center items-center mb-10 z-10 w-full">
-                  <span className="text-[9px] tracking-widest uppercase text-[var(--foreground-muted)] mb-3">Investment</span>
+                  <span className="text-[9px] tracking-widest uppercase text-[var(--foreground-muted)] mb-3">Price</span>
                   <div className="text-5xl font-light text-[var(--foreground)] tracking-tight">
                     <span className="text-xl font-normal align-top mr-1">฿</span>
                     {(pkg.price / 100).toLocaleString('en-US')}
