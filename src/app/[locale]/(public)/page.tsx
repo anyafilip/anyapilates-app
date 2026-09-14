@@ -172,23 +172,39 @@ export default async function HomePage() {
           </div>
           
           <div className={packages.length > 3 
-            ? "flex overflow-x-auto snap-x snap-mandatory gap-6 md:gap-8 pb-8 mb-16 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide" 
+            ? "flex overflow-x-auto snap-x snap-mandatory gap-6 md:gap-8 pb-12 mb-12 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide" 
             : "flex flex-col md:flex-row justify-center items-center md:items-stretch gap-6 md:gap-8 mb-16"
           }>
             {packages.map(pkg => (
               <div 
                 key={pkg.id} 
-                className={`studio-card p-8 md:p-12 text-center flex flex-col items-center shadow-sm ${
-                  packages.length > 3 ? 'w-[85vw] md:w-[340px] shrink-0 snap-center' : 'w-full md:w-[340px]'
+                className={`relative group bg-white/40 hover:bg-white/60 backdrop-blur-md border border-white/60 hover:border-white rounded-[2.5rem] p-10 md:p-12 text-center flex flex-col items-center shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.06)] transition-all duration-500 overflow-hidden ${
+                  packages.length > 3 ? 'w-[85vw] md:w-[360px] shrink-0 snap-center' : 'w-full md:w-[360px]'
                 }`}
               >
-                <h3 className="text-xl font-medium text-[var(--foreground)] mb-2">{pkg.name}</h3>
-                <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-8">{pkg.credits} Class{pkg.credits > 1 ? 'es' : ''}</p>
-                <div className="text-4xl font-light text-[var(--foreground)] mb-8">
-                  <span className="text-2xl mr-1">฿</span>{(pkg.price / 100).toLocaleString('en-US')}
+                {/* Decorative background element */}
+                <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--accent)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700 pointer-events-none"></div>
+                
+                <h3 className="text-2xl font-serif font-normal text-[var(--foreground)] mb-1 z-10">{pkg.name}</h3>
+                <p className="text-[9px] tracking-[0.3em] uppercase text-[var(--foreground-muted)] mb-10 z-10">
+                  {pkg.credits} Class{pkg.credits > 1 ? 'es' : ''}
+                </p>
+                
+                <div className="flex-1 flex flex-col justify-center items-center mb-10 z-10 w-full">
+                  <span className="text-[9px] tracking-widest uppercase text-[var(--foreground-muted)] mb-3">Investment</span>
+                  <div className="text-5xl font-light text-[var(--foreground)] tracking-tight">
+                    <span className="text-xl font-normal align-top mr-1">฿</span>
+                    {(pkg.price / 100).toLocaleString('en-US')}
+                  </div>
                 </div>
-                <Link href={isLoggedIn ? `/en/buy-credits?packageId=${pkg.id}` : "/en/register"} className="btn-ghost w-full">
-                  Purchase
+
+                <div className="w-full h-px bg-gradient-to-r from-transparent via-black/10 to-transparent mb-8 z-10"></div>
+                
+                <Link 
+                  href={isLoggedIn ? `/en/buy-credits?packageId=${pkg.id}` : "/en/register"} 
+                  className="relative z-10 w-full bg-transparent border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium transition-colors duration-300 shadow-sm text-center"
+                >
+                  Select Package
                 </Link>
               </div>
             ))}
