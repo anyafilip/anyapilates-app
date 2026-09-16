@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { removeInstructorRole, updateInstructorProfile } from '@/app/actions/instructors'
+import { updateInstructorProfile } from '@/app/actions/instructors'
 
 export default function InstructorRow({ instructor }: { instructor: any }) {
   const [isEditing, setIsEditing] = useState(false)
@@ -18,18 +18,6 @@ export default function InstructorRow({ instructor }: { instructor: any }) {
         alert(e.message || 'Failed to update')
       }
     })
-  }
-
-  const handleRemove = () => {
-    if (confirm('Remove instructor role?')) {
-      startTransition(async () => {
-        try {
-          await removeInstructorRole(instructor.id)
-        } catch (e: any) {
-          alert(e.message || 'Failed to remove role')
-        }
-      })
-    }
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,13 +91,6 @@ export default function InstructorRow({ instructor }: { instructor: any }) {
                 className="px-4 py-2 bg-stone-200 text-stone-800 rounded-full text-sm hover:bg-stone-300 transition disabled:opacity-50"
               >
                 Edit Profile
-              </button>
-              <button 
-                onClick={handleRemove}
-                disabled={isPending}
-                className="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm hover:bg-red-200 transition disabled:opacity-50"
-              >
-                Remove Role
               </button>
             </div>
           </>

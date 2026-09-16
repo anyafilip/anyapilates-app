@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma'
 import InstructorRow from './InstructorRow'
-import AssignInstructorForm from './AssignInstructorForm'
 
 export default async function InstructorsPage() {
   const instructors = await prisma.user.findMany({
@@ -12,13 +11,8 @@ export default async function InstructorsPage() {
     <div className="p-8 max-w-5xl mx-auto space-y-12">
       <div>
         <h1 className="text-4xl font-serif mb-2 text-stone-800">Instructors</h1>
-        <p className="text-stone-600 font-sans">Manage instructor profiles and roles.</p>
+        <p className="text-stone-600 font-sans">Manage instructor profiles and biographies.</p>
       </div>
-
-      <section>
-        <h2 className="text-2xl font-serif mb-6 text-stone-800">Assign New Instructor</h2>
-        <AssignInstructorForm />
-      </section>
 
       <section>
         <h2 className="text-2xl font-serif mb-6 text-stone-800">Current Instructors</h2>
