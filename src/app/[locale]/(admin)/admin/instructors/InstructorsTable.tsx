@@ -26,6 +26,7 @@ export default function InstructorsTable({ instructors }: { instructors: any[] }
             <tr className="border-b border-black/5 text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
               <th className="font-medium py-6 pl-8 w-24">Photo</th>
               <th className="font-medium py-6">Instructor</th>
+              <th className="font-medium py-6">Phone</th>
               <th className="font-medium py-6">Bio</th>
               <th className="font-medium py-6 pr-8 text-right">Show on Frontpage</th>
             </tr>
@@ -45,7 +46,9 @@ export default function InstructorsTable({ instructors }: { instructors: any[] }
                 <td className="py-4">
                   <p className="font-medium text-[var(--foreground)]">{instructor.name}</p>
                   <p className="text-[11px] text-[var(--foreground-muted)] mt-1">{instructor.email}</p>
-                  {instructor.phone && <p className="text-[11px] text-[var(--foreground-muted)]">{instructor.phone}</p>}
+                </td>
+                <td className="py-4 text-[12px] text-[var(--foreground-muted)]">
+                  {instructor.phone || '—'}
                 </td>
                 <td className="py-4">
                   <p className="text-[12px] text-[var(--foreground-muted)] truncate max-w-[200px] md:max-w-[300px]">
@@ -74,7 +77,7 @@ export default function InstructorsTable({ instructors }: { instructors: any[] }
             ))}
             {instructors.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-12 text-center text-sm italic text-[var(--foreground-muted)]">
+                <td colSpan={5} className="py-12 text-center text-sm italic text-[var(--foreground-muted)]">
                   No instructors found. Change a user's role to Instructor on the Users page.
                 </td>
               </tr>
