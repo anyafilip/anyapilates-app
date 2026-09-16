@@ -16,6 +16,7 @@ model ClassType {
   creditCost  Int      @default(1)
   isActive    Boolean  @default(true)
   classes     Class[]
+  templates   WeeklyScheduleTemplate[]
   createdAt   DateTime @default(now())
 }
 
@@ -36,6 +37,7 @@ model User {
   bookings          Booking[]
   payments          Payment[]
   classes           Class[]   @relation("InstructorClasses")
+  templates         WeeklyScheduleTemplate[] @relation("InstructorTemplates")
   creditLedger      CreditLedger[]
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -149,4 +151,20 @@ enum LedgerEntryType {
   BOOKING
   REFUND
   ADMIN_ADJUSTMENT
+}
+
+// ── Recurring Schedule Templates ───────────────────────
+model WeeklyScheduleTemplate {
+  id           String    @id @default(cuid())
+  classTypeId  String
+  classType    ClassType @relation(fields: [classTypeId], references: [id])
+  instructorId String?
+  instructor   User?     @relation("InstructorTemplates", fields: [instructorId], references: [id])
+  dayOfWeek    Int       // 0 = Sunday, 1 = Monday, etc.
+  startTime    String    // e.g. "09:00"
+  endTime      String    // e.g. "10:00"
+  duration     Int       // minutes
+  capacity     Int       @default(3)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
 }
