@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import TemplateForm from './TemplateForm'
 import TemplateGenerator from './TemplateGenerator'
+import TemplateDeleteButton from './TemplateDeleteButton'
 import Link from 'next/link'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -51,7 +52,7 @@ export default async function TemplatesPage() {
                         <p className="font-medium text-[var(--foreground)]">{t.startTime} – {t.endTime}</p>
                         <p className="text-sm text-[var(--foreground-muted)] mt-1">{t.classType.name} • {t.instructor?.name || 'No Instructor'}</p>
                       </div>
-                      <TemplateForm.DeleteButton id={t.id} />
+                      <TemplateDeleteButton id={t.id} />
                     </div>
                   ))}
                 </div>

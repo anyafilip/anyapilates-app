@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createTemplate, deleteTemplate } from '@/app/actions/templates'
+import { createTemplate } from '@/app/actions/templates'
 import toast from 'react-hot-toast'
 
 interface Props {
@@ -97,25 +97,3 @@ export default function TemplateForm({ classTypes, instructors }: Props) {
   )
 }
 
-TemplateForm.DeleteButton = function DeleteButton({ id }: { id: string }) {
-  const [isPending, startTransition] = useTransition()
-  return (
-    <button
-      onClick={() => {
-        if (!confirm('Delete this template?')) return
-        startTransition(async () => {
-          try {
-            await deleteTemplate(id)
-            toast.success('Template deleted')
-          } catch (e: any) {
-            toast.error(e.message)
-          }
-        })
-      }}
-      disabled={isPending}
-      className="text-[10px] tracking-widest uppercase text-red-500/70 hover:text-red-700 transition-colors disabled:opacity-50"
-    >
-      {isPending ? '...' : 'Remove'}
-    </button>
-  )
-}
