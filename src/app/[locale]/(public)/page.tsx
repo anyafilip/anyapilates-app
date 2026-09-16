@@ -36,7 +36,7 @@ export default async function HomePage() {
 
   // Fetch instructors for the new section
   const instructors = await prisma.user.findMany({
-    where: { role: 'INSTRUCTOR' },
+    where: { role: 'INSTRUCTOR', showOnFrontpage: true },
     select: { id: true, name: true, bio: true, imageUrl: true },
   })
 

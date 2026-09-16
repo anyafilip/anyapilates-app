@@ -33,6 +33,7 @@ model User {
   imageUrl          String?
   bio               String?
   availabilityNotes String?
+  showOnFrontpage   Boolean   @default(true)
 
   bookings          Booking[]
   payments          Payment[]
