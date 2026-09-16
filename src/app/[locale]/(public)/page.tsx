@@ -34,6 +34,12 @@ export default async function HomePage() {
     credits = dbUser?.credits ?? 0
   }
 
+  // Fetch instructors for the new section
+  const instructors = await prisma.user.findMany({
+    where: { role: 'INSTRUCTOR' },
+    select: { id: true, name: true, bio: true, imageUrl: true },
+  })
+
   // Fetch upcoming scheduled classes
   const now = new Date()
   const classes = await prisma.class.findMany({
@@ -241,6 +247,41 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── Our Instructors ────────────────────────────── */}
+      {instructors.length > 0 && (
+        <section id="instructors" className="py-24 md:py-32 bg-[var(--surface)]">
+          <div className="container mx-auto px-6 max-w-6xl">
+            <div className="mb-16 text-center">
+              <h2 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-4">Our Instructors</h2>
+              <div className="w-16 h-px bg-[var(--accent-light)] mx-auto"></div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-12 lg:gap-16">
+              {instructors.map(instructor => (
+                <div key={instructor.id} className="flex flex-col items-center text-center group w-full md:w-[300px]">
+                  <div className="w-48 h-48 rounded-full overflow-hidden mb-6 bg-[var(--background)] border-2 border-[var(--background)] shadow-sm group-hover:shadow-md transition-shadow flex items-center justify-center">
+                    {instructor.imageUrl ? (
+                      <img 
+                        src={instructor.imageUrl} 
+                        alt={instructor.name} 
+                        className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" 
+                      />
+                    ) : (
+                      <span className="font-serif text-4xl text-[var(--foreground-muted)] opacity-50">
+                        {instructor.name.charAt(0)}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-serif text-[var(--foreground)] mb-2">{instructor.name}</h3>
+                  <p className="text-sm font-light text-[var(--foreground-muted)] leading-relaxed max-w-xs whitespace-pre-wrap">
+                    {instructor.bio || 'Pilates Instructor'}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Footer ───────────────────────────────────── */}
       <footer id="contact" className="bg-[var(--foreground)] text-[var(--background)] border-t border-white/10">

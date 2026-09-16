@@ -48,9 +48,17 @@ export default async function AdminSchedulePage({ searchParams }: { searchParams
         </Modal>
       )}
 
-      <div className="mb-12">
-        <h1 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-2">Schedule</h1>
-        <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Manage Studio Calendar</p>
+      <div className="flex justify-between items-end mb-12">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-2">Schedule</h1>
+          <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Manage Classes & Instructors</p>
+        </div>
+        <Link 
+          href="/en/admin/schedule/templates"
+          className="border border-[var(--foreground)] text-[var(--foreground)] px-6 py-3 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black/5 transition-colors"
+        >
+          Weekly Templates
+        </Link>
       </div>
 
       <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 md:p-12 mb-12 shadow-sm">
