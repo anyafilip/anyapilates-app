@@ -3,15 +3,40 @@ import { deleteClassType } from '@/app/actions/admin'
 import ClassTypeForm from './ClassTypeForm'
 import Link from 'next/link'
 import Modal from '@/components/Modal'
+import DataTableTools from '@/components/admin/DataTableTools'
+import Pagination from '@/components/admin/Pagination'
 
-export default async function AdminClassTypesPage({ searchParams }: { searchParams: Promise<{ editId?: string, deleteId?: string }> }) {
+export default async function AdminClassTypesPage({ searchParams }: { searchParams: Promise<{ editId?: string, deleteId?: string, q?: string, page?: string, filter?: string }> }) {
   const resolvedSearchParams = await searchParams
   const editId = resolvedSearchParams.editId
   const deleteId = resolvedSearchParams.deleteId
+  const q = resolvedSearchParams.q || ''
+  const page = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page, 10) : 1
+  
+  const skip = (page - 1) * 20
+  const take = 20
 
-  const classTypes = await prisma.classType.findMany({ orderBy: { name: 'asc' } })
-  const editingClassType = editId ? classTypes.find(c => c.id === editId) : null
-  const deletingClassType = deleteId ? classTypes.find(c => c.id === deleteId) : null
+  const where = q ? { name: { contains: q, mode: 'insensitive' as const } } : {}
+
+  const [classTypes, totalCount] = await Promise.all([
+    prisma.classType.findMany({ 
+      where,
+      orderBy: { name: 'asc' },
+      skip,
+      take
+    }),
+    prisma.classType.count({ where })
+  ])
+
+  let editingClassType = editId ? classTypes.find(c => c.id === editId) : null
+  if (editId && !editingClassType) {
+    editingClassType = await prisma.classType.findUnique({ where: { id: editId } })
+  }
+  
+  let deletingClassType = deleteId ? classTypes.find(c => c.id === deleteId) : null
+  if (deleteId && !deletingClassType) {
+    deletingClassType = await prisma.classType.findUnique({ where: { id: deleteId } })
+  }
 
   return (
     <div className="max-w-6xl mx-auto pb-12">
@@ -45,6 +70,7 @@ export default async function AdminClassTypesPage({ searchParams }: { searchPara
         <ClassTypeForm />
       </div>
 
+      <DataTableTools searchPlaceholder="Search classes..." />
       <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-nowrap">
@@ -103,6 +129,7 @@ export default async function AdminClassTypesPage({ searchParams }: { searchPara
           </table>
         </div>
       </div>
+      <Pagination totalCount={totalCount} pageSize={20} />
     </div>
   )
 }

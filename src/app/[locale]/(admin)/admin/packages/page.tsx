@@ -3,15 +3,46 @@ import { deletePackage } from '@/app/actions/admin'
 import PackageForm from './PackageForm'
 import Link from 'next/link'
 import Modal from '@/components/Modal'
+import DataTableTools from '@/components/admin/DataTableTools'
+import Pagination from '@/components/admin/Pagination'
 
-export default async function AdminPackagesPage({ searchParams }: { searchParams: Promise<{ editId?: string, deleteId?: string }> }) {
+export default async function AdminPackagesPage({ searchParams }: { searchParams: Promise<{ editId?: string, deleteId?: string, q?: string, page?: string, filter?: string }> }) {
   const resolvedSearchParams = await searchParams
   const editId = resolvedSearchParams.editId
   const deleteId = resolvedSearchParams.deleteId
+  const q = resolvedSearchParams.q || ''
+  const filter = resolvedSearchParams.filter || ''
+  const page = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page, 10) : 1
+  
+  const skip = (page - 1) * 20
+  const take = 20
 
-  const packages = await prisma.package.findMany({ orderBy: { price: 'asc' } })
-  const editingPackage = editId ? packages.find(p => p.id === editId) : null
-  const deletingPackage = deleteId ? packages.find(p => p.id === deleteId) : null
+  const where: any = {
+    ...(q ? { name: { contains: q, mode: 'insensitive' as const } } : {})
+  }
+  
+  if (filter === 'active') where.isActive = true
+  if (filter === 'inactive') where.isActive = false
+
+  const [packages, totalCount] = await Promise.all([
+    prisma.package.findMany({ 
+      where,
+      orderBy: { price: 'asc' },
+      skip,
+      take
+    }),
+    prisma.package.count({ where })
+  ])
+
+  let editingPackage = editId ? packages.find(p => p.id === editId) : null
+  if (editId && !editingPackage) {
+    editingPackage = await prisma.package.findUnique({ where: { id: editId } })
+  }
+  
+  let deletingPackage = deleteId ? packages.find(p => p.id === deleteId) : null
+  if (deleteId && !deletingPackage) {
+    deletingPackage = await prisma.package.findUnique({ where: { id: deleteId } })
+  }
 
   return (
     <div className="max-w-6xl mx-auto pb-12">
@@ -45,6 +76,13 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
         <PackageForm />
       </div>
 
+      <DataTableTools 
+        searchPlaceholder="Search packages..." 
+        filterOptions={[
+          { label: 'Active', value: 'active' },
+          { label: 'Inactive', value: 'inactive' }
+        ]} 
+      />
       <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-nowrap">
@@ -97,6 +135,7 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
           </table>
         </div>
       </div>
+      <Pagination totalCount={totalCount} pageSize={20} />
     </div>
   )
 }

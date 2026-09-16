@@ -3,16 +3,40 @@ import { auth } from '@/auth'
 import UserRowForm from './UserRowForm'
 import Modal from '@/components/Modal'
 import Link from 'next/link'
+import DataTableTools from '@/components/admin/DataTableTools'
+import Pagination from '@/components/admin/Pagination'
 
-export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<{ historyId?: string }> }) {
+export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<{ historyId?: string, q?: string, page?: string, filter?: string }> }) {
   const resolvedParams = await searchParams
   const historyId = resolvedParams.historyId
+  const q = resolvedParams.q || ''
+  const page = parseInt(resolvedParams.page || '1')
+  const role = resolvedParams.filter
 
   const session = await auth()
   const currentUser = session?.user as any
 
+  const where: any = {}
+  if (q) {
+    where.OR = [
+      { name: { contains: q, mode: 'insensitive' } },
+      { email: { contains: q, mode: 'insensitive' } }
+    ]
+  }
+  if (role) {
+    where.role = role
+  }
+
+  const skip = (page - 1) * 20
+  const take = 20
+
+  const totalCount = await prisma.user.count({ where })
+
   const users = await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' }
+    where,
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take
   })
 
   let historyUser = null
@@ -33,6 +57,15 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
         <h1 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-2">Users</h1>
         <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Manage Studio Members & Roles</p>
       </div>
+
+      <DataTableTools 
+        searchPlaceholder="Search users by name or email..." 
+        filterOptions={[
+          {label: 'Admin', value: 'ADMIN'},
+          {label: 'Instructor', value: 'INSTRUCTOR'},
+          {label: 'Client', value: 'CLIENT'}
+        ]}
+      />
 
       <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
@@ -80,6 +113,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
             </tbody>
           </table>
         </div>
+        <Pagination totalCount={totalCount} pageSize={20} />
       </div>
 
       {historyUser && (

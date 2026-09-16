@@ -3,15 +3,42 @@ import TemplateForm from './TemplateForm'
 import TemplateGenerator from './TemplateGenerator'
 import TemplateDeleteButton from './TemplateDeleteButton'
 import Link from 'next/link'
+import DataTableTools from '@/components/admin/DataTableTools'
+import Pagination from '@/components/admin/Pagination'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-export default async function TemplatesPage() {
-  const [templates, classTypes, instructors] = await Promise.all([
+export default async function TemplatesPage({ searchParams }: { searchParams: Promise<{ q?: string, page?: string, filter?: string }> }) {
+  const resolvedSearchParams = await searchParams
+  const q = resolvedSearchParams.q || ''
+  const filter = resolvedSearchParams.filter || ''
+  const page = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page, 10) : 1
+  
+  const skip = (page - 1) * 20
+  const take = 20
+
+  const where: any = {}
+  
+  if (q) {
+    where.OR = [
+      { classType: { name: { contains: q, mode: 'insensitive' as const } } },
+      { instructor: { name: { contains: q, mode: 'insensitive' as const } } }
+    ]
+  }
+
+  if (filter) {
+    where.dayOfWeek = parseInt(filter, 10)
+  }
+
+  const [templates, totalCount, classTypes, instructors] = await Promise.all([
     prisma.weeklyScheduleTemplate.findMany({
+      where,
       include: { classType: true, instructor: { select: { name: true } } },
-      orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }]
+      orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
+      skip,
+      take
     }),
+    prisma.weeklyScheduleTemplate.count({ where }),
     prisma.classType.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } }),
     prisma.user.findMany({ where: { role: 'INSTRUCTOR' }, select: { id: true, name: true } })
   ])
@@ -38,6 +65,10 @@ export default async function TemplatesPage() {
         </div>
 
         <div className="lg:col-span-2">
+          <DataTableTools 
+            searchPlaceholder="Search templates..." 
+            filterOptions={DAYS.map((d, i) => ({ label: d, value: i.toString() }))}
+          />
           {DAYS.map((dayName, dayIndex) => {
             const dayTemplates = templates.filter(t => t.dayOfWeek === dayIndex)
             if (dayTemplates.length === 0) return null
@@ -65,6 +96,7 @@ export default async function TemplatesPage() {
               No weekly templates found. Add one to get started.
             </div>
           )}
+          <Pagination totalCount={totalCount} pageSize={20} />
         </div>
       </div>
     </div>
