@@ -10,6 +10,7 @@ export default function InstructorsTable({ instructors }: { instructors: any[] }
   // Modal state
   const [bio, setBio] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [phone, setPhone] = useState('')
   const [showOnFrontpage, setShowOnFrontpage] = useState(true)
   
   const [isPending, startTransition] = useTransition()
@@ -19,6 +20,7 @@ export default function InstructorsTable({ instructors }: { instructors: any[] }
   const handleEditClick = (instructor: any) => {
     setBio(instructor.bio || '')
     setImageUrl(instructor.imageUrl || '')
+    setPhone(instructor.phone || '')
     setShowOnFrontpage(instructor.showOnFrontpage ?? true)
     setEditingId(instructor.id)
   }
@@ -27,7 +29,7 @@ export default function InstructorsTable({ instructors }: { instructors: any[] }
     if (!editingId) return
     startTransition(async () => {
       try {
-        await updateInstructorProfile(editingId, bio, imageUrl, showOnFrontpage)
+        await updateInstructorProfile(editingId, bio, imageUrl, showOnFrontpage, phone)
         toast.success('Instructor updated')
         setEditingId(null)
       } catch (e: any) {
@@ -75,6 +77,7 @@ export default function InstructorsTable({ instructors }: { instructors: any[] }
                   <td className="py-4">
                     <p className="font-medium text-[var(--foreground)]">{instructor.name}</p>
                     <p className="text-[11px] text-[var(--foreground-muted)] mt-1">{instructor.email}</p>
+                    {instructor.phone && <p className="text-[11px] text-[var(--foreground-muted)]">{instructor.phone}</p>}
                   </td>
                   <td className="py-4">
                     <span className={`text-[9px] tracking-[0.2em] uppercase ${instructor.showOnFrontpage ? 'text-[var(--foreground)]' : 'text-[var(--foreground-muted)]'}`}>
@@ -157,6 +160,17 @@ export default function InstructorsTable({ instructors }: { instructors: any[] }
                   onChange={(e) => setShowOnFrontpage(e.target.checked)} 
                 />
               </label>
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">Phone Number</label>
+              <input 
+                type="tel"
+                className="w-full rounded-2xl bg-white/50 border border-black/10 p-4 text-sm font-light focus:outline-none focus:border-black/20 transition-colors"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+66 123 456 789"
+              />
             </div>
 
             <div className="mb-8">
