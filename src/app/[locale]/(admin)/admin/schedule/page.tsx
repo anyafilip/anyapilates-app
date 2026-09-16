@@ -14,7 +14,7 @@ export default async function AdminSchedulePage({ searchParams }: { searchParams
 
   const [classTypes, instructors, sessions] = await Promise.all([
     prisma.classType.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } }),
-    prisma.user.findMany({ where: { role: { in: ['INSTRUCTOR', 'ADMIN'] } }, select: { id: true, name: true, availabilityNotes: true } }),
+    prisma.user.findMany({ where: { role: 'INSTRUCTOR' }, select: { id: true, name: true, availabilityNotes: true } }),
     prisma.class.findMany({
       where: { date: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } }, // last 7 days + future
       include: { classType: true, instructor: { select: { name: true } } },
