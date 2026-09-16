@@ -40,6 +40,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
             <thead>
               <tr className="border-b border-black/5 text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
                 <th className="font-medium py-6 pl-8">Member</th>
+                <th className="font-medium py-6">Phone</th>
                 <th className="font-medium py-6">Credits</th>
                 <th className="font-medium py-6">Role</th>
                 <th className="font-medium py-6 pr-8 text-right">Actions</th>
@@ -51,6 +52,9 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                   <td className="py-4 pl-8">
                     <p className="font-medium text-[var(--foreground)]">{u.name}</p>
                     <p className="text-[11px] text-[var(--foreground-muted)] mt-1">{u.email}</p>
+                  </td>
+                  <td className="py-4 text-[13px] text-[var(--foreground-muted)]">
+                    {u.phone || '—'}
                   </td>
                   
                   {u.id !== currentUser?.id ? (

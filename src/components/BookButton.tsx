@@ -47,7 +47,7 @@ export default function BookButton({ classId, isLoggedIn, isFull, isPast, userRo
       disabled={isPending}
       className="btn-primary px-6 py-2 text-[11px] disabled:opacity-50"
     >
-      {isPending ? 'Booking...' : isLoggedIn ? 'Book' : 'Sign in to Book'}
+      {isPending ? 'Reserving...' : isLoggedIn ? 'Reserve' : 'Sign in to Reserve'}
     </button>
   )
 }

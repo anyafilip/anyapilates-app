@@ -53,7 +53,7 @@ export default function InteractiveSchedule({
     <div>
       {/* Horizontal Date Picker */}
       <div className="mb-14">
-        <div className="flex overflow-x-auto py-6 px-4 gap-4 snap-x hide-scrollbar -mx-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="flex overflow-x-auto py-6 px-1 md:px-4 gap-1 md:gap-4 snap-x hide-scrollbar -mx-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {dates.map(d => {
             const isSelected = d.timestamp === selectedTimestamp
             
@@ -65,7 +65,7 @@ export default function InteractiveSchedule({
                 key={d.timestamp}
                 onClick={() => setSelectedTimestamp(d.timestamp)}
                 className={`
-                  relative snap-start flex-shrink-0 flex flex-col items-center justify-center w-[72px] h-[100px] rounded-full transition-all duration-300 border
+                  relative snap-start flex-shrink-0 flex flex-col items-center justify-center w-[46px] md:w-[72px] h-[76px] md:h-[100px] rounded-full transition-all duration-300 border
                   ${isSelected 
                     ? 'bg-[var(--foreground)] border-[var(--foreground)] text-[var(--background)] shadow-xl scale-110' 
                     : 'bg-transparent border-[var(--border)] text-[var(--foreground)] hover:border-[var(--foreground)] hover:bg-black/5'
@@ -73,13 +73,13 @@ export default function InteractiveSchedule({
                   ${!hasClasses && !isSelected ? 'opacity-40 hover:opacity-70' : ''}
                 `}
               >
-                <span className={`text-[10px] tracking-[0.2em] uppercase mb-2 ${isSelected ? 'text-[var(--background)]/80' : 'text-[var(--foreground-muted)]'}`}>{d.dayName}</span>
-                <span className="text-2xl font-light">{d.dateNumber}</span>
+                <span className={`text-[8px] md:text-[10px] tracking-widest md:tracking-[0.2em] uppercase mb-1 md:mb-2 ${isSelected ? 'text-[var(--background)]/80' : 'text-[var(--foreground-muted)]'}`}>{d.dayName}</span>
+                <span className="text-xl md:text-2xl font-light">{d.dateNumber}</span>
                 {hasClasses && !isSelected && (
-                  <div className="absolute bottom-4 w-1 h-1 rounded-full bg-[var(--accent)]"></div>
+                  <div className="absolute bottom-3 md:bottom-4 w-1 h-1 rounded-full bg-[var(--accent)]"></div>
                 )}
                 {hasClasses && isSelected && (
-                  <div className="absolute bottom-4 w-1 h-1 rounded-full bg-[var(--background)]"></div>
+                  <div className="absolute bottom-3 md:bottom-4 w-1 h-1 rounded-full bg-[var(--background)]"></div>
                 )}
               </button>
             )
@@ -164,7 +164,7 @@ export default function InteractiveSchedule({
 
                     {isBooked ? (
                       <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] border border-[var(--accent)] bg-[var(--accent)]/5 rounded-full px-8 py-4 font-medium shadow-sm">
-                        Booked ✓
+                        Reserved ✓
                       </span>
                     ) : (
                       <BookButton

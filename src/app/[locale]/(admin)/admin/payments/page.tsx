@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import PaymentActions from './PaymentActions'
+import SlipPreview from './SlipPreview'
 
 export default async function AdminPaymentsPage() {
   const payments = await prisma.payment.findMany({
@@ -44,13 +45,7 @@ export default async function AdminPaymentsPage() {
                     <td className="py-4">฿{(p.amount / 100).toLocaleString()}</td>
                     <td className="py-4 font-mono text-[11px]">{p.refCode}</td>
                     <td className="py-4 text-center">
-                      {p.slipUrl ? (
-                        <a href={p.slipUrl} target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity">
-                          <img src={p.slipUrl} alt="Slip" className="w-12 h-12 object-cover rounded-lg border border-black/5" />
-                        </a>
-                      ) : (
-                        <span className="text-[var(--foreground-muted)]">—</span>
-                      )}
+                      <SlipPreview url={p.slipUrl || ''} />
                     </td>
                     <td className="py-4 pr-8 text-right">
                       <div className="flex justify-end">
