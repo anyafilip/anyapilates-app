@@ -19,21 +19,28 @@ const RegisterSchema = z.object({
 export type RegisterState = {
   errors?: { name?: string[]; email?: string[]; password?: string[] }
   message?: string
+  inputs?: { name?: string; email?: string; phone?: string }
 }
 
 export async function register(
   prevState: RegisterState,
   formData: FormData
 ): Promise<RegisterState> {
+  const inputs = {
+    name: formData.get('name') as string,
+    email: formData.get('email') as string,
+    phone: formData.get('phone') as string,
+  }
+
   const parsed = RegisterSchema.safeParse({
-    name: formData.get('name'),
-    email: formData.get('email'),
-    phone: formData.get('phone'),
-    password: formData.get('password'),
+    name: inputs.name,
+    email: inputs.email,
+    phone: inputs.phone,
+    password: formData.get('password') as string,
   })
 
   if (!parsed.success) {
-    return { errors: parsed.error.flatten().fieldErrors }
+    return { errors: parsed.error.flatten().fieldErrors, inputs }
   }
 
   const { name, email, phone, password } = parsed.data
@@ -41,7 +48,7 @@ export async function register(
   // Check if user already exists
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) {
-    return { message: 'An account with this email already exists.' }
+    return { message: 'An account with this email already exists.', inputs }
   }
 
   const hashedPassword = await bcrypt.hash(password, 12)
@@ -51,7 +58,14 @@ export async function register(
   })
 
   // Auto-login after registration
-  await signIn('credentials', { email, password, redirectTo: '/en' })
+  try {
+    await signIn('credentials', { email, password, redirectTo: '/en' })
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return { message: 'Account created successfully, but auto-login failed. Please log in manually.', inputs }
+    }
+    throw error
+  }
 
   return { message: 'Account created successfully!' }
 }

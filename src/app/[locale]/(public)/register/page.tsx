@@ -1,12 +1,25 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
 import Link from 'next/link'
 import { register, type RegisterState } from '@/app/actions/auth'
 import LanguageToggle from '@/components/LanguageToggle'
+import toast from 'react-hot-toast'
 
 export default function RegisterPage() {
   const [state, action, isPending] = useActionState(register, {})
+
+  useEffect(() => {
+    if (state.message) {
+      if (state.message.includes('successfully')) {
+        toast.success(state.message)
+      } else {
+        toast.error(state.message)
+      }
+    } else if (state.errors) {
+      toast.error('Please fix the errors in the form.')
+    }
+  }, [state])
 
   return (
     <div className="flex-1 w-full flex flex-col md:flex-row bg-[var(--background)]">
@@ -39,6 +52,7 @@ export default function RegisterPage() {
                 name="name"
                 type="text"
                 required
+                defaultValue={state.inputs?.name || ''}
                 autoComplete="name"
                 className="studio-input"
               />
@@ -55,6 +69,7 @@ export default function RegisterPage() {
                 name="email"
                 type="email"
                 required
+                defaultValue={state.inputs?.email || ''}
                 autoComplete="email"
                 className="studio-input"
               />
@@ -70,6 +85,7 @@ export default function RegisterPage() {
               <input
                 name="phone"
                 type="tel"
+                defaultValue={state.inputs?.phone || ''}
                 autoComplete="tel"
                 className="studio-input"
               />
