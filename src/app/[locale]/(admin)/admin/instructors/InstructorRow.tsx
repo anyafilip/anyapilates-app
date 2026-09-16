@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { createPortal } from 'react-dom'
 import { updateInstructorProfile } from '@/app/actions/instructors'
 import toast from 'react-hot-toast'
 
@@ -65,7 +66,7 @@ export default function InstructorRow({ instructor }: { instructor: any }) {
         </td>
       </tr>
 
-      {isEditing && (
+      {isEditing && typeof document !== 'undefined' && createPortal(
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-modal-overlay"
           onClick={(e) => {
@@ -149,7 +150,8 @@ export default function InstructorRow({ instructor }: { instructor: any }) {
             </div>
           </div>
         </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
