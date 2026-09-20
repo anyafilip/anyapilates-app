@@ -11,9 +11,10 @@ interface Props {
   isFull: boolean
   isPast: boolean
   userRole?: string
+  fullWidth?: boolean
 }
 
-export default function BookButton({ classId, isLoggedIn, isFull, isPast, userRole }: Props) {
+export default function BookButton({ classId, isLoggedIn, isFull, isPast, userRole, fullWidth }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -45,7 +46,7 @@ export default function BookButton({ classId, isLoggedIn, isFull, isPast, userRo
     <button
       onClick={handleBook}
       disabled={isPending}
-      className="btn-primary px-6 py-2 text-[11px] disabled:opacity-50"
+      className={`btn-primary px-6 py-2 text-[11px] disabled:opacity-50 ${fullWidth ? 'w-full justify-center' : ''}`}
     >
       {isPending ? 'Reserving...' : isLoggedIn ? 'Reserve' : 'Sign in to Reserve'}
     </button>

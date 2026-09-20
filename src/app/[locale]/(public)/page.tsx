@@ -305,18 +305,18 @@ export default async function HomePage() {
             </div>
             <div>
               <h3 className="text-lg font-light uppercase tracking-widest mb-6">Social</h3>
-              <div className="flex justify-center md:justify-start gap-4 grayscale">
-                <a href="#" aria-label="Instagram" className="p-2 rounded-full border border-white/20 hover:bg-white/10 transition-colors">
-                  <IconInstagramColored size={24} />
+              <div className="flex justify-center md:justify-start gap-6">
+                <a href="#" aria-label="Instagram" className="text-white/60 hover:text-white transition-colors">
+                  <IconInstagramColored size={22} />
                 </a>
-                <a href="#" aria-label="Facebook" className="p-2 rounded-full border border-white/20 hover:bg-white/10 transition-colors">
-                  <IconFacebookColored size={24} />
+                <a href="#" aria-label="Facebook" className="text-white/60 hover:text-white transition-colors">
+                  <IconFacebookColored size={22} />
                 </a>
-                <a href="#" aria-label="Line" className="p-2 rounded-full border border-white/20 hover:bg-white/10 transition-colors">
-                  <IconLineColored size={24} />
+                <a href="#" aria-label="Line" className="text-white/60 hover:text-white transition-colors">
+                  <IconLineColored size={22} />
                 </a>
-                <a href="#" aria-label="WhatsApp" className="p-2 rounded-full border border-white/20 hover:bg-white/10 transition-colors">
-                  <IconWhatsAppColored size={24} />
+                <a href="#" aria-label="WhatsApp" className="text-white/60 hover:text-white transition-colors">
+                  <IconWhatsAppColored size={22} />
                 </a>
               </div>
             </div>

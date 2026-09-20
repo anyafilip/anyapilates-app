@@ -99,11 +99,14 @@ export default function RegisterPage() {
                 name="password"
                 type="password"
                 required
+                minLength={8}
                 autoComplete="new-password"
                 className="studio-input"
               />
-              {state.errors?.password && (
-                <p className="text-xs mt-1 text-red-700">{state.errors.password[0]}</p>
+              {state.errors?.password ? (
+                <p className="text-xs mt-1.5 text-red-700">{state.errors.password[0]}</p>
+              ) : (
+                <p className="text-[10px] mt-1.5 text-[var(--foreground-muted)] tracking-wide">Minimum 8 characters</p>
               )}
             </div>
 
