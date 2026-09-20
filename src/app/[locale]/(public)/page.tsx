@@ -7,6 +7,7 @@ import { logout } from '@/app/actions/auth'
 import { IconInstagramColored, IconFacebookColored, IconLineColored, IconWhatsAppColored } from '@/components/SocialIcons'
 import PublicNavbar from '@/components/PublicNavbar'
 import InteractiveSchedule from '@/components/InteractiveSchedule'
+import PackagesDisplay from '@/components/PackagesDisplay'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
 
@@ -163,58 +164,13 @@ export default async function HomePage() {
       {/* ── Packages ─────────────────────────────────── */}
       <section id="packages" className="py-24 md:py-32 bg-[var(--background)]">
         <div className="container mx-auto px-6 max-w-7xl">
-          <div className="mb-16 text-center">
+          <div className="mb-14 text-center">
+            <p className="text-[10px] tracking-[0.25em] uppercase text-[var(--foreground-muted)] mb-2">Price List</p>
             <h2 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-4">Packages</h2>
             <div className="w-16 h-px bg-[var(--accent-light)] mx-auto"></div>
           </div>
           
-          <div className={packages.length > 3 
-            ? "flex overflow-x-auto snap-x snap-mandatory gap-6 md:gap-8 pb-12 mb-12 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide" 
-            : "flex flex-col md:flex-row justify-center items-center md:items-stretch gap-6 md:gap-8 mb-16"
-          }>
-            {packages.map(pkg => (
-              <div 
-                key={pkg.id} 
-                className={`relative group bg-white/40 hover:bg-white/60 backdrop-blur-md border border-white/60 hover:border-white rounded-[2.5rem] p-10 md:p-12 text-center flex flex-col items-center shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.06)] transition-all duration-500 overflow-hidden ${
-                  packages.length > 3 ? 'w-[85vw] md:w-[360px] shrink-0 snap-center' : 'w-full md:w-[360px]'
-                }`}
-              >
-                {/* Decorative background element */}
-                <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--accent)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700 pointer-events-none"></div>
-                
-                <h3 className="text-2xl font-serif font-normal text-[var(--foreground)] mb-1 z-10">{pkg.name}</h3>
-                <p className="text-[9px] tracking-[0.3em] uppercase text-[var(--foreground-muted)] mb-10 z-10">
-                  {pkg.classCount} {pkg.classType.name}{pkg.classCount > 1 && !pkg.classType.name.endsWith('s') ? 's' : ''}
-                </p>
-                
-                <div className="flex-1 flex flex-col justify-center items-center mb-10 z-10 w-full">
-                  <span className="text-[9px] tracking-widest uppercase text-[var(--foreground-muted)] mb-3">Price</span>
-                  <div className="text-5xl font-light text-[var(--foreground)] tracking-tight">
-                    <span className="text-xl font-normal align-top mr-1">฿</span>
-                    {(pkg.price / 100).toLocaleString('en-US')}
-                  </div>
-                  <span className="text-[9px] tracking-widest uppercase text-[var(--foreground-muted)] mt-4">
-                    Valid for {pkg.expiresInDays} days
-                  </span>
-                </div>
-
-                <div className="w-full h-px bg-gradient-to-r from-transparent via-black/10 to-transparent mb-8 z-10"></div>
-                
-                <Link 
-                  href={isLoggedIn ? `/en/buy-credits?packageId=${pkg.id}` : "/en/register"} 
-                  className="relative z-10 w-full bg-transparent border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium transition-colors duration-300 shadow-sm text-center"
-                >
-                  Select Package
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] opacity-60">
-              All packages are non-refundable. Credits expire dynamically based on package terms from the date of purchase.
-            </p>
-          </div>
+          <PackagesDisplay packages={packages} isLoggedIn={isLoggedIn} />
         </div>
       </section>
 
