@@ -18,6 +18,15 @@ const sarabun = Sarabun({
 export const metadata: Metadata = {
   title: "Anya Pilates",
   description: "Book your Pilates classes online",
+  icons: {
+    icon: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
+  openGraph: {
+    title: "Anya Pilates",
+    description: "Book your Pilates classes online",
+    images: [{ url: "/logo.jpg" }],
+  },
 };
 
 import { Toaster } from "react-hot-toast";
