@@ -73,7 +73,7 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
 
       <div className="mb-12">
         <h1 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-2">Packages</h1>
-        <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Manage Pricing & Passes</p>
+        <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Manage Pricing & Packages</p>
       </div>
 
       <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 md:p-12 mb-12 shadow-sm">
@@ -94,7 +94,7 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
             <thead>
               <tr className="border-b border-black/5 text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
                 <th className="font-medium py-6 pl-8">Package Name</th>
-                <th className="font-medium py-6">Passes</th>
+                <th className="font-medium py-6">Classes</th>
                 <th className="font-medium py-6">Valid For</th>
                 <th className="font-medium py-6">Price</th>
                 <th className="font-medium py-6">Status</th>

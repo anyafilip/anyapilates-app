@@ -21,6 +21,11 @@ export async function requestPackagePurchase(packageId: string) {
     throw new Error('You must be logged in to purchase packages')
   }
 
+  const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } })
+  if (dbUser?.role === 'ADMIN') {
+    throw new Error('Admins cannot purchase packages.')
+  }
+
   const pkg = await prisma.package.findUnique({ where: { id: packageId, isActive: true } })
   if (!pkg) throw new Error('Package not found')
 

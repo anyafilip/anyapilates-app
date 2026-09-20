@@ -32,6 +32,10 @@ export default function BookButton({ classId, isLoggedIn, isFull, isPast, userRo
       router.push('/en/login?callbackUrl=/')
       return
     }
+    if (userRole === 'ADMIN') {
+      toast.error('Admins cannot book classes.')
+      return
+    }
     startTransition(async () => {
       const result = await bookClass(classId)
       if (result.success) {

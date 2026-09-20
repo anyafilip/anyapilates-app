@@ -76,7 +76,7 @@ export default async function ClassTypePage({ params }: { params: Promise<{ id: 
               <div className="flex items-center gap-4">
                 <div>
                   <p className="text-2xl font-serif text-[var(--foreground)] leading-none mb-1">1</p>
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Pass</p>
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Class</p>
                 </div>
               </div>
             </div>

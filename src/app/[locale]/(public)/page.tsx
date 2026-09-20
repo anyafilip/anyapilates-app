@@ -170,7 +170,7 @@ export default async function HomePage() {
             <div className="w-16 h-px bg-[var(--accent-light)] mx-auto"></div>
           </div>
           
-          <PackagesDisplay packages={packages} isLoggedIn={isLoggedIn} />
+          <PackagesDisplay packages={packages} isLoggedIn={isLoggedIn} userRole={user?.role} />
         </div>
       </section>
 

@@ -55,17 +55,17 @@ export default async function AccountPage() {
           </h1>
         </div>
 
-        {/* Passes */}
+        {/* Classes */}
         <div className="py-8 border-y border-[var(--border)] mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-serif text-[var(--foreground)]">My Passes</h2>
+            <h2 className="text-xl font-serif text-[var(--foreground)]">My Classes</h2>
             <Link href="/en/#packages" className="btn-ghost text-[11px] px-6 py-3">
-              Buy Passes
+              Buy Classes
             </Link>
           </div>
           
           {user.userPasses.length === 0 ? (
-            <p className="text-[var(--foreground-muted)] font-light italic">No active passes available.</p>
+            <p className="text-[var(--foreground-muted)] font-light italic">No active classes available.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {user.userPasses.map(pass => (

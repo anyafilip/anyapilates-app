@@ -160,6 +160,13 @@ async function main() {
       price: 5400 * 100, // 5,400 THB (450 THB/class)
       expiresInDays: 60,
     },
+    {
+      name: 'Group (50 Classes)',
+      classTypeName: 'Group Class',
+      classCount: 50,
+      price: 20000 * 100, // 20,000 THB (400 THB/class)
+      expiresInDays: 365, // 1 Year
+    },
 
     // ── DUO PACKAGES ──
     {

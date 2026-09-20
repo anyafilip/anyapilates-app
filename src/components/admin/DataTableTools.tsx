@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useCallback, useState, useEffect } from 'react'
+import CustomDropdown from '@/components/CustomDropdown'
 
 interface DataTableToolsProps {
   searchPlaceholder?: string
@@ -65,22 +66,14 @@ export default function DataTableTools({
       </div>
 
       {filterOptions && filterOptions.length > 0 && (
-        <div className="relative min-w-[160px]">
-          <select
+        <div className="min-w-[160px]">
+          <CustomDropdown
             value={searchParams.get(filterParamName) || ''}
-            onChange={(e) => router.push(pathname + '?' + createQueryString(filterParamName, e.target.value))}
-            className="w-full appearance-none pl-4 pr-10 py-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-black/20 text-stone-800 cursor-pointer"
-          >
-            <option value="">{filterPlaceholder}</option>
-            {filterOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-          <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-            <svg className="w-4 h-4 text-black/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
+            onChange={(val) => router.push(pathname + '?' + createQueryString(filterParamName, val))}
+            options={filterOptions}
+            placeholder={filterPlaceholder}
+            variant="filter"
+          />
         </div>
       )}
     </div>

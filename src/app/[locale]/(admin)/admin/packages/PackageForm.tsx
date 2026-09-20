@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import { createPackage, updatePackage } from '@/app/actions/admin'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import CustomDropdown from '@/components/CustomDropdown'
 
 export default function PackageForm({ initialData, classTypes = [] }: { initialData?: any, classTypes?: any[] }) {
   const formRef = useRef<HTMLFormElement>(null)
@@ -36,16 +37,17 @@ export default function PackageForm({ initialData, classTypes = [] }: { initialD
 
       <div className="md:col-span-1">
         <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3 pl-2">Class Type *</label>
-        <select name="classTypeId" defaultValue={initialData?.classTypeId || ''} required className="w-full border-b border-[var(--border)] px-4 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors appearance-none">
-          <option value="" disabled>Select a type...</option>
-          {classTypes.map(ct => (
-            <option key={ct.id} value={ct.id}>{ct.name}</option>
-          ))}
-        </select>
+        <CustomDropdown
+          name="classTypeId"
+          defaultValue={initialData?.classTypeId || ''}
+          required
+          placeholder="Select a type..."
+          options={classTypes.map(ct => ({ value: ct.id, label: ct.name }))}
+        />
       </div>
       
       <div className="md:col-span-1">
-        <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3 pl-2">Passes Included *</label>
+        <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3 pl-2">Classes Included *</label>
         <input name="classCount" defaultValue={initialData?.classCount} type="number" min="1" required className="w-full border-b border-[var(--border)] px-4 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors" />
       </div>
 

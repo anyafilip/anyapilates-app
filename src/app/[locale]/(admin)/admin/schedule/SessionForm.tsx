@@ -4,6 +4,7 @@ import { useRef, useEffect } from 'react'
 import { createSession, updateSession } from '@/app/actions/admin'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import CustomDropdown from '@/components/CustomDropdown'
 
 export default function SessionForm({ classTypes, instructors, initialData }: { classTypes: any[], instructors: any[], initialData?: any }) {
   const formRef = useRef<HTMLFormElement>(null)
@@ -45,12 +46,12 @@ export default function SessionForm({ classTypes, instructors, initialData }: { 
         
         <div className="col-span-2 md:col-span-1">
           <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3 pl-2">Class Type</label>
-          <select name="classTypeId" defaultValue={initialData?.classTypeId || ''} className="w-full appearance-none border-b border-[var(--border)] px-4 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors cursor-pointer">
-            <option value="">— Select —</option>
-            {classTypes.map(ct => (
-              <option key={ct.id} value={ct.id}>{ct.name}</option>
-            ))}
-          </select>
+          <CustomDropdown
+            name="classTypeId"
+            defaultValue={initialData?.classTypeId || ''}
+            placeholder="— Select —"
+            options={classTypes.map(ct => ({ value: ct.id, label: ct.name }))}
+          />
         </div>
 
         <div>
@@ -80,12 +81,12 @@ export default function SessionForm({ classTypes, instructors, initialData }: { 
 
         <div>
           <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3 pl-2">Instructor</label>
-          <select name="instructorId" defaultValue={initialData?.instructorId || ''} className="w-full appearance-none border-b border-[var(--border)] px-4 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors cursor-pointer">
-            <option value="">— Unassigned —</option>
-            {instructors.map(i => (
-              <option key={i.id} value={i.id}>{i.name}</option>
-            ))}
-          </select>
+          <CustomDropdown
+            name="instructorId"
+            defaultValue={initialData?.instructorId || ''}
+            placeholder="— Unassigned —"
+            options={instructors.map(i => ({ value: i.id, label: i.name }))}
+          />
         </div>
 
         <div className="col-span-2 md:col-span-1 pb-1 flex flex-col gap-3">

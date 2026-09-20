@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 
 type PackageItem = {
   id: string
@@ -18,10 +19,24 @@ type PackageItem = {
 interface PackagesDisplayProps {
   packages: PackageItem[]
   isLoggedIn: boolean
+  userRole?: string
 }
 
-export default function PackagesDisplay({ packages, isLoggedIn }: PackagesDisplayProps) {
+export default function PackagesDisplay({ packages, isLoggedIn, userRole }: PackagesDisplayProps) {
+  const router = useRouter()
   const [selectedTab, setSelectedTab] = useState<'ALL' | 'GROUP' | 'DUO' | 'PRIVATE' | 'INTRO'>('ALL')
+
+  const handleSelectPackage = (pkgId: string) => {
+    if (!isLoggedIn) {
+      router.push('/en/register')
+      return
+    }
+    if (userRole === 'ADMIN') {
+      toast.error('Admins cannot purchase packages.')
+      return
+    }
+    router.push(`/en/buy-credits?packageId=${pkgId}`)
+  }
 
   const tabs = [
     { key: 'ALL', label: 'All Packages' },
@@ -107,7 +122,7 @@ export default function PackagesDisplay({ packages, isLoggedIn }: PackagesDispla
                   )}
                   {!isSingle && !isIntro && (
                     <span className="text-[9px] tracking-[0.25em] uppercase text-[var(--foreground-muted)]/70">
-                      Multi-Class Pass
+                      Class Package
                     </span>
                   )}
                 </div>
@@ -146,8 +161,9 @@ export default function PackagesDisplay({ packages, isLoggedIn }: PackagesDispla
               <div>
                 <div className="w-full h-px bg-gradient-to-r from-transparent via-black/10 to-transparent mb-6 z-10" />
 
-                <Link
-                  href={isLoggedIn ? `/en/buy-credits?packageId=${pkg.id}` : "/en/register"}
+                <button
+                  type="button"
+                  onClick={() => handleSelectPackage(pkg.id)}
                   className={`
                     relative z-10 w-full block py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium transition-all duration-300 shadow-sm text-center cursor-pointer
                     ${isIntro
@@ -157,7 +173,7 @@ export default function PackagesDisplay({ packages, isLoggedIn }: PackagesDispla
                   `}
                 >
                   Select Package
-                </Link>
+                </button>
               </div>
             </div>
           )

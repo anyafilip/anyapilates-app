@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { createTemplate } from '@/app/actions/templates'
 import toast from 'react-hot-toast'
+import CustomDropdown from '@/components/CustomDropdown'
 
 interface Props {
   classTypes: any[]
@@ -42,30 +43,41 @@ export default function TemplateForm({ classTypes, instructors }: Props) {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">Day of Week</label>
-        <select name="dayOfWeek" required className="studio-input w-full">
-          <option value="1">Monday</option>
-          <option value="2">Tuesday</option>
-          <option value="3">Wednesday</option>
-          <option value="4">Thursday</option>
-          <option value="5">Friday</option>
-          <option value="6">Saturday</option>
-          <option value="0">Sunday</option>
-        </select>
+        <CustomDropdown
+          name="dayOfWeek"
+          required
+          defaultValue="1"
+          options={[
+            { value: '1', label: 'Monday' },
+            { value: '2', label: 'Tuesday' },
+            { value: '3', label: 'Wednesday' },
+            { value: '4', label: 'Thursday' },
+            { value: '5', label: 'Friday' },
+            { value: '6', label: 'Saturday' },
+            { value: '0', label: 'Sunday' },
+          ]}
+        />
       </div>
 
       <div>
         <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">Class Type</label>
-        <select name="classTypeId" required className="studio-input w-full">
-          {classTypes.map(ct => <option key={ct.id} value={ct.id}>{ct.name}</option>)}
-        </select>
+        <CustomDropdown
+          name="classTypeId"
+          required
+          placeholder="Select a class type..."
+          defaultValue={classTypes[0]?.id || ''}
+          options={classTypes.map(ct => ({ value: ct.id, label: ct.name }))}
+        />
       </div>
 
       <div>
         <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">Instructor</label>
-        <select name="instructorId" className="studio-input w-full">
-          <option value="">-- None --</option>
-          {instructors.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
-        </select>
+        <CustomDropdown
+          name="instructorId"
+          placeholder="-- None --"
+          defaultValue=""
+          options={instructors.map(i => ({ value: i.id, label: i.name }))}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">

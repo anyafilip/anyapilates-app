@@ -16,6 +16,10 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
     redirect('/en/login')
   }
 
+  if (user?.role === 'ADMIN') {
+    redirect('/en/#packages')
+  }
+
   if (!packageId) {
     redirect('/en/#packages')
   }
@@ -49,7 +53,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
 
           <div className="space-y-4 mb-8">
             <div className="flex justify-between items-center pb-4 border-b border-black/5">
-              <span className="text-sm font-light text-[var(--foreground)]">Passes Included</span>
+              <span className="text-sm font-light text-[var(--foreground)]">Classes Included</span>
               <span className="text-lg font-medium text-[var(--foreground)]">{pkg.classCount} <span className="text-[10px] text-[var(--foreground-muted)] ml-1 uppercase font-normal tracking-widest">{pkg.classType.name}</span></span>
             </div>
             <div className="flex justify-between items-center pb-4 border-b border-black/5">
