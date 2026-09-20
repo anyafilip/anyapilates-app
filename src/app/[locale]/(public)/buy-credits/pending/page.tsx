@@ -16,15 +16,13 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
     redirect('/en/login')
   }
 
-  const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { credits: true } })
-
   if (!paymentId) {
     redirect('/en/#packages')
   }
 
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
-    include: { package: true, client: { select: { name: true } } }
+    include: { package: { include: { classType: true } }, client: { select: { name: true } } }
   })
 
   if (!payment || payment.clientId !== user.id) {
@@ -33,7 +31,7 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
 
   return (
     <div className="flex-1 w-full flex flex-col relative min-h-screen">
-      <PublicNavbar isLoggedIn={true} user={user} credits={dbUser?.credits || 0} />
+      <PublicNavbar isLoggedIn={true} user={user} />
 
       <main className="flex-1 container mx-auto px-6 pt-32 pb-16 max-w-lg flex flex-col justify-center">
         <h1 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-12 text-center">Payment Status</h1>
@@ -70,7 +68,7 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
           <div className="space-y-4 mb-8">
             <div className="flex justify-between items-center pb-4 border-b border-black/5">
               <span className="text-sm font-light text-[var(--foreground)]">{payment.package.name}</span>
-              <span className="text-sm font-medium text-[var(--foreground)]">{payment.package.credits} <span className="text-[9px] text-[var(--foreground-muted)] ml-1 uppercase font-normal tracking-widest">Cr</span></span>
+              <span className="text-sm font-medium text-[var(--foreground)]">{payment.package.classCount} <span className="text-[9px] text-[var(--foreground-muted)] ml-1 uppercase font-normal tracking-widest">{payment.package.classType.name}</span></span>
             </div>
             <div className="flex justify-between items-center pt-2">
               <span className="text-[11px] tracking-widest uppercase text-[var(--foreground-muted)]">Total Amount</span>

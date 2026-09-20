@@ -24,16 +24,6 @@ export default async function HomePage() {
   const user = session?.user as any
   const isLoggedIn = !!user
 
-  // Fetch user credits if logged in
-  let credits = 0
-  if (isLoggedIn) {
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { credits: true },
-    })
-    credits = dbUser?.credits ?? 0
-  }
-
   // Fetch instructors for the new section
   const instructors = await prisma.user.findMany({
     where: { role: 'INSTRUCTOR', showOnFrontpage: true },
@@ -76,12 +66,13 @@ export default async function HomePage() {
   // Fetch active packages
   const packages = await prisma.package.findMany({
     where: { isActive: true },
+    include: { classType: true },
     orderBy: { price: 'asc' }
   })
 
   return (
     <div className="flex-1 w-full flex flex-col">
-      <PublicNavbar isLoggedIn={isLoggedIn} user={user} credits={credits} />
+      <PublicNavbar isLoggedIn={isLoggedIn} user={user} />
 
       {/* ── Hero ─────────────────────────────────────── */}
       <section className="relative min-h-screen flex flex-col overflow-hidden pt-32 bg-[#DED6CC]">
@@ -193,7 +184,7 @@ export default async function HomePage() {
                 
                 <h3 className="text-2xl font-serif font-normal text-[var(--foreground)] mb-1 z-10">{pkg.name}</h3>
                 <p className="text-[9px] tracking-[0.3em] uppercase text-[var(--foreground-muted)] mb-10 z-10">
-                  {pkg.credits} Credit{pkg.credits > 1 ? 's' : ''}
+                  {pkg.classCount} {pkg.classType.name}{pkg.classCount > 1 && !pkg.classType.name.endsWith('s') ? 's' : ''}
                 </p>
                 
                 <div className="flex-1 flex flex-col justify-center items-center mb-10 z-10 w-full">
@@ -202,6 +193,9 @@ export default async function HomePage() {
                     <span className="text-xl font-normal align-top mr-1">฿</span>
                     {(pkg.price / 100).toLocaleString('en-US')}
                   </div>
+                  <span className="text-[9px] tracking-widest uppercase text-[var(--foreground-muted)] mt-4">
+                    Valid for {pkg.expiresInDays} days
+                  </span>
                 </div>
 
                 <div className="w-full h-px bg-gradient-to-r from-transparent via-black/10 to-transparent mb-8 z-10"></div>
@@ -216,9 +210,9 @@ export default async function HomePage() {
             ))}
           </div>
 
-          <div className="flex justify-center">
-            <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] text-center max-w-md leading-relaxed">
-              All packages are non-refundable. Credits expire 6 months from the date of purchase.
+          <div className="text-center mt-12">
+            <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] opacity-60">
+              All packages are non-refundable. Credits expire dynamically based on package terms from the date of purchase.
             </p>
           </div>
         </div>

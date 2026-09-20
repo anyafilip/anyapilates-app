@@ -8,10 +8,10 @@ import { logout } from '@/app/actions/auth'
 type PublicNavbarProps = {
   isLoggedIn: boolean
   user: { name?: string | null, role?: string } | null
-  credits: number
+  
 }
 
-export default function PublicNavbar({ isLoggedIn, user, credits }: PublicNavbarProps) {
+export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -75,10 +75,6 @@ export default function PublicNavbar({ isLoggedIn, user, credits }: PublicNavbar
                   <div>
                     <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">Welcome back</p>
                     <span className="text-2xl font-serif text-[var(--foreground)]">{user?.name}</span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-3xl font-light text-[var(--foreground)]">{credits}</span>
-                    <span className="text-[9px] tracking-widest uppercase text-[var(--foreground-muted)] mt-1">Credit{credits !== 1 ? 's' : ''}</span>
                   </div>
                 </div>
                 

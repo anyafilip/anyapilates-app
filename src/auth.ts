@@ -57,7 +57,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               name:     (profile.name ?? profile.email.split('@')[0]),
               password: '', // No password for OAuth users
               role:     'CLIENT',
-              credits:  0,
             },
           })
         }

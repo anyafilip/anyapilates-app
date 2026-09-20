@@ -24,7 +24,11 @@ export default async function AccountPage() {
     select: {
       name: true,
       email: true,
-      credits: true,
+      userPasses: {
+        where: { remainingCount: { gt: 0 } },
+        include: { classType: true },
+        orderBy: { expiresAt: 'asc' }
+      },
       bookings: {
         include: { class: { include: { classType: true } } },
         orderBy: { bookedAt: 'desc' },
@@ -40,7 +44,7 @@ export default async function AccountPage() {
 
   return (
     <div className="flex-1 w-full flex flex-col relative">
-      <PublicNavbar isLoggedIn={true} user={user} credits={user.credits} />
+      <PublicNavbar isLoggedIn={true} user={user} />
 
       <main className="flex-1 container mx-auto px-6 pt-32 pb-16 max-w-4xl">
         {/* Header */}
@@ -51,20 +55,35 @@ export default async function AccountPage() {
           </h1>
         </div>
 
-        {/* Credits */}
-        <div className="flex items-center gap-6 py-8 border-y border-[var(--border)] mb-12">
-          <div>
-            <p className="text-[11px] tracking-widest uppercase text-[var(--foreground-muted)] mb-1">Available Credits</p>
-            <p className="text-5xl font-light text-[var(--foreground)]">
-              {user.credits}
-              <span className="text-lg text-[var(--foreground-muted)] ml-2">class{user.credits !== 1 ? 'es' : ''}</span>
-            </p>
-          </div>
-          <div className="ml-auto">
+        {/* Passes */}
+        <div className="py-8 border-y border-[var(--border)] mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-serif text-[var(--foreground)]">My Passes</h2>
             <Link href="/en/#packages" className="btn-ghost text-[11px] px-6 py-3">
-              Buy Credits
+              Buy Passes
             </Link>
           </div>
+          
+          {user.userPasses.length === 0 ? (
+            <p className="text-[var(--foreground-muted)] font-light italic">No active passes available.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {user.userPasses.map(pass => (
+                <div key={pass.id} className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-2xl p-6 shadow-sm">
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="font-serif text-lg text-[var(--foreground)]">{pass.classType.name}</span>
+                    <span className="text-2xl font-light text-[var(--foreground)]">{pass.remainingCount} <span className="text-xs uppercase tracking-widest text-[var(--foreground-muted)]">Left</span></span>
+                  </div>
+                  <div className="w-full bg-black/5 h-1 rounded-full mb-3 overflow-hidden">
+                    <div className="bg-[var(--foreground)] h-full" style={{ width: `${(pass.remainingCount / pass.originalCount) * 100}%` }}></div>
+                  </div>
+                  <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">
+                    Expires {bangkokDate(pass.expiresAt)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Upcoming Bookings */}

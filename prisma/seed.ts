@@ -34,7 +34,6 @@ async function main() {
       name:     'Anya Admin',
       password: hashedPassword,
       role:     'ADMIN',
-      credits:  0,
     },
   })
 

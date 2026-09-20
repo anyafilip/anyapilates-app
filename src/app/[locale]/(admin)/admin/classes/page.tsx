@@ -77,7 +77,6 @@ export default async function AdminClassTypesPage({ searchParams }: { searchPara
             <thead>
               <tr className="border-b border-black/5 text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
                 <th className="font-medium py-6 pl-8">Class Type</th>
-                <th className="font-medium py-6">Cost</th>
                 <th className="font-medium py-6">Status</th>
                 <th className="font-medium py-6 pr-8 text-right">Actions</th>
               </tr>
@@ -97,9 +96,6 @@ export default async function AdminClassTypesPage({ searchParams }: { searchPara
                         <p className="text-[11px] text-[var(--foreground-muted)] mt-1 max-w-[200px] truncate">{ct.description ?? '—'}</p>
                       </div>
                     </div>
-                  </td>
-                  <td className="py-4">
-                    {ct.creditCost} <span className="text-[10px] text-[var(--foreground-muted)] ml-1 uppercase">Cr</span>
                   </td>
                   <td className="py-4">
                     <span className={ct.isActive ? 'text-[var(--foreground)]' : 'text-[var(--foreground-muted)]'}>

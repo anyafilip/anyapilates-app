@@ -24,9 +24,14 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
   if (filter === 'active') where.isActive = true
   if (filter === 'inactive') where.isActive = false
 
+  const classTypes = await prisma.classType.findMany({
+    orderBy: { name: 'asc' }
+  })
+
   const [packages, totalCount] = await Promise.all([
     prisma.package.findMany({ 
       where,
+      include: { classType: true },
       orderBy: { price: 'asc' },
       skip,
       take
@@ -36,19 +41,19 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
 
   let editingPackage = editId ? packages.find(p => p.id === editId) : null
   if (editId && !editingPackage) {
-    editingPackage = await prisma.package.findUnique({ where: { id: editId } })
+    editingPackage = await prisma.package.findUnique({ where: { id: editId }, include: { classType: true } })
   }
   
   let deletingPackage = deleteId ? packages.find(p => p.id === deleteId) : null
   if (deleteId && !deletingPackage) {
-    deletingPackage = await prisma.package.findUnique({ where: { id: deleteId } })
+    deletingPackage = await prisma.package.findUnique({ where: { id: deleteId }, include: { classType: true } })
   }
 
   return (
     <div className="max-w-6xl mx-auto pb-12">
       {editingPackage && (
         <Modal title="Edit Package" onCloseUrl="/en/admin/packages">
-          <PackageForm initialData={editingPackage} />
+          <PackageForm initialData={editingPackage} classTypes={classTypes} />
         </Modal>
       )}
 
@@ -68,12 +73,12 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
 
       <div className="mb-12">
         <h1 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-2">Packages</h1>
-        <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Manage Pricing & Credits</p>
+        <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Manage Pricing & Passes</p>
       </div>
 
       <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 md:p-12 mb-12 shadow-sm">
         <h2 className="text-xl font-serif text-[var(--foreground)] mb-8">Add New Package</h2>
-        <PackageForm />
+        <PackageForm classTypes={classTypes} />
       </div>
 
       <DataTableTools 
@@ -89,20 +94,24 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
             <thead>
               <tr className="border-b border-black/5 text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
                 <th className="font-medium py-6 pl-8">Package Name</th>
-                <th className="font-medium py-6">Credits</th>
+                <th className="font-medium py-6">Passes</th>
+                <th className="font-medium py-6">Valid For</th>
                 <th className="font-medium py-6">Price</th>
                 <th className="font-medium py-6">Status</th>
                 <th className="font-medium py-6 pr-8 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="text-sm font-light text-[var(--foreground)]">
-              {packages.map(pkg => (
+              {packages.map((pkg: any) => (
                 <tr key={pkg.id} className="border-b border-black/5 last:border-0 hover:bg-black/[0.02] transition-colors">
                   <td className="py-4 pl-8 font-medium text-[var(--foreground)]">
                     {pkg.name}
                   </td>
                   <td className="py-4">
-                    {pkg.credits} <span className="text-[10px] text-[var(--foreground-muted)] ml-1 uppercase">Cr</span>
+                    {pkg.classCount} <span className="text-[10px] text-[var(--foreground-muted)] ml-1 uppercase">{pkg.classType.name}</span>
+                  </td>
+                  <td className="py-4 text-[12px] text-[var(--foreground-muted)]">
+                    {pkg.expiresInDays} Days
                   </td>
                   <td className="py-4">
                     ฿{(pkg.price / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -126,7 +135,7 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
               ))}
               {packages.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-16 text-center">
+                  <td colSpan={6} className="py-16 text-center">
                     <p className="text-[var(--foreground-muted)] font-serif italic text-lg mb-2">No packages yet.</p>
                   </td>
                 </tr>

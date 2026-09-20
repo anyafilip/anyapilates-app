@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { adminAdjustCredits, refundCredits } from '@/lib/credits'
+
 
 async function requireAdmin() {
   const session = await auth()
@@ -33,7 +33,6 @@ export async function createClassType(formData: FormData) {
       name:        String(formData.get('name')),
       description: formData.get('description') ? String(formData.get('description')) : null,
       imageUrl:    imageUrl,
-      creditCost:  parseInt(String(formData.get('creditCost') || '1'), 10),
     },
   })
   revalidatePath('/en/admin/classes')
@@ -57,7 +56,6 @@ export async function updateClassType(formData: FormData) {
   const data: any = {
     name:        String(formData.get('name')),
     description: formData.get('description') ? String(formData.get('description')) : null,
-    creditCost:  parseInt(String(formData.get('creditCost') || '1'), 10),
     isActive:    formData.get('isActive') !== 'false',
   }
   if (imageUrl !== undefined) {
@@ -148,29 +146,33 @@ export async function cancelSession(id: string) {
   if (!cls) throw new Error('Class not found')
   if (cls.status === 'CANCELLED') return
   
-  const cost = cls.classType?.creditCost ?? 1
-
   // Mark class and bookings as cancelled first
-  await prisma.$transaction([
-    prisma.class.update({ where: { id }, data: { status: 'CANCELLED' } }),
-    prisma.booking.updateMany({
-      where: { classId: id, status: 'BOOKED' },
-      data: { status: 'CANCELLED', creditRefunded: true, cancelledAt: new Date() },
-    }),
-  ])
+  await prisma.class.update({
+    where: { id: id },
+    data: { status: 'CANCELLED' }
+  })
 
-  // Then refund each user individually via the ledger
-  // (We use Promise.all to do it in parallel since each refund manages its own transaction)
-  await Promise.all(
-    cls.bookings.map(b => 
-      refundCredits({
-        userId: b.clientId,
-        amount: cost,
-        reason: `Studio cancelled class: ${cls.name}`,
-        bookingId: b.id,
+  await prisma.booking.updateMany({
+    where: { id },
+    data: { status: 'CANCELLED', cancelledAt: new Date() },
+  })
+
+  // We should also refund passes for all bookings
+  // Since updateMany doesn't let us trigger the refund logic easily,
+  // we can iterate over the bookings and increment the pass remaining count.
+  const bookings = await prisma.booking.findMany({
+    where: { id },
+    include: { userPass: true }
+  })
+
+  for (const b of bookings) {
+    if (b.userPassId) {
+      await prisma.userPass.update({
+        where: { id: b.userPassId },
+        data: { remainingCount: { increment: 1 } }
       })
-    )
-  )
+    }
+  }
 
   revalidatePath('/en/admin/schedule')
   revalidatePath('/')
@@ -190,7 +192,7 @@ export async function updateUserRole(userId: string, role: string) {
   revalidatePath('/en/admin/users')
 }
 
-export async function updateUserAccess(userId: string, role: string, delta: number, reason: string) {
+export async function updateUserAccess(userId: string, role: string) {
   const session = await auth()
   const adminId = (session?.user as any)?.id
   await requireAdmin()
@@ -202,42 +204,43 @@ export async function updateUserAccess(userId: string, role: string, delta: numb
     where: { id: userId },
     data: { role: role as any },
   })
-  // Only adjust credits if a delta was specified
-  if (delta !== 0) {
-    await adminAdjustCredits({ userId, delta, reason: reason || 'Admin adjustment', adminId })
-  }
-  revalidatePath('/', 'layout')
+  
+  revalidatePath('/en/admin/users')
 }
 
 export async function createPackage(formData: FormData) {
   await requireAdmin()
   const name = formData.get('name') as string
-  const credits = parseInt(formData.get('credits') as string, 10)
+  const classCount = parseInt(formData.get('classCount') as string, 10)
+  const expiresInDays = parseInt(formData.get('expiresInDays') as string, 10) || 180
+  const classTypeId = formData.get('classTypeId') as string
   const price = parseFloat(formData.get('price') as string) * 100 // Convert THB to Satang
 
   await prisma.package.create({
-    data: { name, credits, price: Math.round(price) }
+    data: { name, classCount, expiresInDays, classTypeId, price: Math.round(price) }
   })
-  revalidatePath('/', 'layout')
+  revalidatePath('/en/admin/packages')
 }
 
 export async function updatePackage(formData: FormData) {
   await requireAdmin()
   const id = formData.get('id') as string
   const name = formData.get('name') as string
-  const credits = parseInt(formData.get('credits') as string, 10)
+  const classCount = parseInt(formData.get('classCount') as string, 10)
+  const expiresInDays = parseInt(formData.get('expiresInDays') as string, 10) || 180
+  const classTypeId = formData.get('classTypeId') as string
   const price = parseFloat(formData.get('price') as string) * 100 // Convert THB to Satang
   const isActive = formData.get('isActive') === 'on'
 
   await prisma.package.update({
     where: { id },
-    data: { name, credits, price: Math.round(price), isActive }
+    data: { name, classCount, expiresInDays, classTypeId, price: Math.round(price), isActive }
   })
-  revalidatePath('/', 'layout')
+  revalidatePath('/en/admin/packages')
 }
 
 export async function deletePackage(id: string) {
   await requireAdmin()
   await prisma.package.delete({ where: { id } })
-  revalidatePath('/', 'layout')
+  revalidatePath('/en/admin/packages')
 }

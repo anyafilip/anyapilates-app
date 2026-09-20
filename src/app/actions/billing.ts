@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import { creditFromPayment } from '@/lib/credits'
+import { grantPassFromPayment } from '@/lib/passes'
 import { revalidatePath } from 'next/cache'
 
 // Generate a short unique reference code e.g. "AYP-0042"
@@ -18,7 +18,7 @@ export async function requestPackagePurchase(packageId: string) {
   const user = session?.user as any
 
   if (!user?.id) {
-    throw new Error('You must be logged in to purchase credits')
+    throw new Error('You must be logged in to purchase packages')
   }
 
   const pkg = await prisma.package.findUnique({ where: { id: packageId, isActive: true } })
@@ -79,12 +79,11 @@ export async function confirmPayment(paymentId: string) {
     data: { status: 'PAID', confirmedAt: new Date(), confirmedBy: adminId },
   })
 
-  // Atomically credit the user via the ledger
-  await creditFromPayment({
+  // Atomically create the user pass
+  await grantPassFromPayment({
     userId: payment.clientId,
-    amount: payment.package.credits,
-    reason: `Package purchase: ${payment.package.name} (${payment.refCode})`,
     paymentId: payment.id,
+    packageId: payment.packageId,
     adminId,
   })
 

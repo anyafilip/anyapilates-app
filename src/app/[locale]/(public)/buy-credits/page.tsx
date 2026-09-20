@@ -16,13 +16,14 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
     redirect('/en/login')
   }
 
-  const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { credits: true } })
-
   if (!packageId) {
     redirect('/en/#packages')
   }
 
-  const pkg = await prisma.package.findUnique({ where: { id: packageId } })
+  const pkg = await prisma.package.findUnique({ 
+    where: { id: packageId },
+    include: { classType: true }
+  })
 
   if (!pkg) {
     redirect('/en/#packages')
@@ -30,7 +31,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
 
   return (
     <div className="flex-1 w-full flex flex-col relative min-h-screen">
-      <PublicNavbar isLoggedIn={true} user={user} credits={dbUser?.credits || 0} />
+      <PublicNavbar isLoggedIn={true} user={user} />
 
       <main className="flex-1 container mx-auto px-6 pt-32 pb-16 max-w-lg flex flex-col justify-center">
         <Link href="/en/#packages" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors mb-12 inline-block">
@@ -48,8 +49,12 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
 
           <div className="space-y-4 mb-8">
             <div className="flex justify-between items-center pb-4 border-b border-black/5">
-              <span className="text-sm font-light text-[var(--foreground)]">Credits Included</span>
-              <span className="text-lg font-medium text-[var(--foreground)]">{pkg.credits} <span className="text-[10px] text-[var(--foreground-muted)] ml-1 uppercase font-normal tracking-widest">Cr</span></span>
+              <span className="text-sm font-light text-[var(--foreground)]">Passes Included</span>
+              <span className="text-lg font-medium text-[var(--foreground)]">{pkg.classCount} <span className="text-[10px] text-[var(--foreground-muted)] ml-1 uppercase font-normal tracking-widest">{pkg.classType.name}</span></span>
+            </div>
+            <div className="flex justify-between items-center pb-4 border-b border-black/5">
+              <span className="text-sm font-light text-[var(--foreground)]">Validity</span>
+              <span className="text-sm font-medium text-[var(--foreground)]">{pkg.expiresInDays} Days</span>
             </div>
             <div className="flex justify-between items-center pb-4 border-b border-black/5">
               <span className="text-sm font-light text-[var(--foreground)]">Subtotal</span>
@@ -64,7 +69,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
           <CheckoutButton packageId={pkg.id} />
           
           <p className="text-[9px] tracking-widest uppercase text-[var(--foreground-muted)] text-center mt-6 leading-relaxed">
-            Payment is simulated. No real charge will be made. Credits will instantly appear in your account.
+            By proceeding, you agree to our terms. Packages are non-refundable.
           </p>
         </div>
       </main>

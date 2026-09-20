@@ -30,25 +30,23 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
   const skip = (page - 1) * 20
   const take = 20
 
-  const totalCount = await prisma.user.count({ where })
-
-  const users = await prisma.user.findMany({
-    where,
-    orderBy: { createdAt: 'desc' },
-    skip,
-    take
-  })
+  const [users, totalCount] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take
+    }),
+    prisma.user.count({ where })
+  ])
 
   let historyUser = null
   let ledger: any[] = []
+
+  // If we wanted to fetch pass history, we would query UserPass/Bookings here
+  // For now, leave ledger empty.
   if (historyId) {
-    historyUser = users.find(u => u.id === historyId)
-    if (historyUser) {
-      ledger = await prisma.creditLedger.findMany({
-        where: { userId: historyId },
-        orderBy: { createdAt: 'desc' }
-      })
-    }
+    historyUser = await prisma.user.findUnique({ where: { id: historyId }, select: { name: true } })
   }
 
   return (
@@ -96,7 +94,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                     </td>
                   ) : (
                     <>
-                      <td className="py-4">{u.credits}</td>
+                      <td>—</td>
                       <td className="py-4">{u.role}</td>
                       <td className="py-4 pr-8 text-right text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/50">Current User</td>
                     </>

@@ -13,10 +13,11 @@ model ClassType {
   name        String
   description String?
   imageUrl    String?
-  creditCost  Int      @default(1)
   isActive    Boolean  @default(true)
   classes     Class[]
   templates   WeeklyScheduleTemplate[]
+  packages    Package[]
+  userPasses  UserPass[]
   createdAt   DateTime @default(now())
 }
 
@@ -27,7 +28,6 @@ model User {
   phone             String?
   password          String    // bcrypt hash
   role              Role      @default(CLIENT)
-  credits           Int       @default(0)
   
   // Instructor specific fields
   imageUrl          String?
@@ -39,7 +39,7 @@ model User {
   payments          Payment[]
   classes           Class[]   @relation("InstructorClasses")
   templates         WeeklyScheduleTemplate[] @relation("InstructorTemplates")
-  creditLedger      CreditLedger[]
+  userPasses        UserPass[]
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 }
@@ -70,19 +70,23 @@ model Booking {
   class          Class         @relation(fields: [classId], references: [id])
   classId        String
   status         BookingStatus @default(BOOKED)
-  creditRefunded Boolean       @default(false)
+  userPass       UserPass?     @relation(fields: [userPassId], references: [id])
+  userPassId     String?
   bookedAt       DateTime      @default(now())
   cancelledAt    DateTime?
 }
 
 model Package {
-  id        String    @id @default(cuid())
-  name      String
-  credits   Int
-  price     Int       // in THB satang (e.g. 50000 = 500 THB)
-  isActive  Boolean   @default(true)
-  payments  Payment[]
-  createdAt DateTime  @default(now())
+  id            String    @id @default(cuid())
+  name          String
+  classType     ClassType @relation(fields: [classTypeId], references: [id])
+  classTypeId   String
+  classCount    Int
+  expiresInDays Int       @default(180)
+  price         Int       // in THB satang (e.g. 50000 = 500 THB)
+  isActive      Boolean   @default(true)
+  payments      Payment[]
+  createdAt     DateTime  @default(now())
 }
 
 model Payment {
@@ -100,22 +104,26 @@ model Payment {
   confirmedAt DateTime?
   confirmedBy String?        // admin user ID who confirmed
   createdAt   DateTime       @default(now())
-  ledgerEntry CreditLedger?
+  userPass    UserPass?
 }
 
-model CreditLedger {
-  id           String          @id @default(cuid())
-  user         User            @relation(fields: [userId], references: [id])
-  userId       String
-  type         LedgerEntryType
-  delta        Int             // positive = added, negative = deducted
-  balanceAfter Int             // balance snapshot after this entry
-  reason       String
-  payment      Payment?        @relation(fields: [paymentId], references: [id])
-  paymentId    String?         @unique
-  bookingId    String?
-  adminId      String?
-  createdAt    DateTime        @default(now())
+model UserPass {
+  id              String    @id @default(cuid())
+  user            User      @relation(fields: [userId], references: [id])
+  userId          String
+  classType       ClassType @relation(fields: [classTypeId], references: [id])
+  classTypeId     String
+  originalCount   Int
+  remainingCount  Int
+  expiresAt       DateTime
+  
+  payment         Payment?  @relation(fields: [paymentId], references: [id])
+  paymentId       String?   @unique
+  adminId         String?   // If granted manually by admin
+  
+  bookings        Booking[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 enum Role {
@@ -145,13 +153,6 @@ enum PayStatus {
   PENDING
   PAID
   FAILED
-}
-
-enum LedgerEntryType {
-  PURCHASE
-  BOOKING
-  REFUND
-  ADMIN_ADJUSTMENT
 }
 
 // ── Recurring Schedule Templates ───────────────────────

@@ -18,13 +18,11 @@ export default async function ClassTypePage({ params }: { params: Promise<{ id: 
   const user = session?.user as any
   const isLoggedIn = !!user
 
-  let credits = 0
   if (isLoggedIn) {
     const dbUser = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { credits: true },
+      select: { id: true },
     })
-    credits = dbUser?.credits ?? 0
   }
 
   // Find upcoming sessions of this type
@@ -41,7 +39,7 @@ export default async function ClassTypePage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="min-h-screen bg-[var(--background)] flex flex-col selection:bg-[var(--foreground)] selection:text-[var(--background)]">
-      <PublicNavbar isLoggedIn={isLoggedIn} user={user} credits={credits} />
+      <PublicNavbar isLoggedIn={isLoggedIn} user={user} />
       
       <main className="flex-1 pt-32 pb-24 px-6 max-w-7xl mx-auto w-full">
         <div className="mb-12">
@@ -77,8 +75,8 @@ export default async function ClassTypePage({ params }: { params: Promise<{ id: 
             <div className="flex items-center gap-6 mb-12 pb-12 border-b border-[var(--border)]">
               <div className="flex items-center gap-4">
                 <div>
-                  <p className="text-2xl font-serif text-[var(--foreground)] leading-none mb-1">{classType.creditCost}</p>
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Credits</p>
+                  <p className="text-2xl font-serif text-[var(--foreground)] leading-none mb-1">1</p>
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Pass</p>
                 </div>
               </div>
             </div>
