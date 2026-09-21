@@ -230,12 +230,12 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        {/* Low Classes Remaining Alerts */}
+        {/* Low Credit Alerts */}
         <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
           <div className="flex justify-between items-end mb-6 border-b border-black/5 pb-4">
-            <h2 className="text-xl font-serif text-[var(--foreground)]">Running Out Soon</h2>
+            <h2 className="text-xl font-serif text-[var(--foreground)]">Low Credit Alerts</h2>
             <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
-              Renewal Reminders
+              Needs Upsell
             </span>
           </div>
           
@@ -248,9 +248,9 @@ export default async function AdminDashboard() {
                 </div>
                 <div>
                   {member.credits === 0 ? (
-                    <span className="inline-block px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] tracking-widest uppercase font-medium">0 Classes</span>
+                    <span className="inline-block px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] tracking-widest uppercase font-medium">0 Credits</span>
                   ) : (
-                    <span className="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-[10px] tracking-widest uppercase font-medium">1 Class</span>
+                    <span className="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-[10px] tracking-widest uppercase font-medium">1 Credit</span>
                   )}
                 </div>
               </div>
