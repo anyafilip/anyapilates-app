@@ -211,4 +211,9 @@ model StudioSettings {
   facebookUrl    String?
   lineUrl        String?
   whatsappUrl    String?
+
+  // About Section Images
+  aboutImage1    String?
+  aboutImage2    String?
+  aboutImage3    String?
 }

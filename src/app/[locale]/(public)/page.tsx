@@ -253,11 +253,25 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="hidden lg:grid grid-cols-2 gap-4">
-              <div className="col-span-2 h-72 bg-white/10 rounded-2xl flex items-center justify-center font-serif italic text-white/40">
-                Studio Interior
-              </div>
-              <div className="h-48 bg-white/10 rounded-2xl"></div>
-              <div className="h-48 bg-white/10 rounded-2xl"></div>
+              {settings?.aboutImage1 ? (
+                <img src={settings.aboutImage1} alt="Studio Interior" className="col-span-2 h-72 w-full object-cover rounded-2xl" />
+              ) : (
+                <div className="col-span-2 h-72 bg-white/10 rounded-2xl flex items-center justify-center font-serif italic text-white/40">
+                  Studio Interior
+                </div>
+              )}
+              
+              {settings?.aboutImage2 ? (
+                <img src={settings.aboutImage2} alt="Studio Details" className="h-48 w-full object-cover rounded-2xl" />
+              ) : (
+                <div className="h-48 bg-white/10 rounded-2xl"></div>
+              )}
+
+              {settings?.aboutImage3 ? (
+                <img src={settings.aboutImage3} alt="Studio Details" className="h-48 w-full object-cover rounded-2xl" />
+              ) : (
+                <div className="h-48 bg-white/10 rounded-2xl"></div>
+              )}
             </div>
           </div>
         </div>

@@ -275,6 +275,9 @@ export async function saveStudioSettings(data: {
   facebookUrl?: string
   lineUrl?: string
   whatsappUrl?: string
+  aboutImage1?: string
+  aboutImage2?: string
+  aboutImage3?: string
 }) {
   const adminId = await requireAdmin()
   

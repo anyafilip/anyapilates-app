@@ -7,6 +7,9 @@ import toast from 'react-hot-toast'
 export default function SettingsForm({ initialSettings }: { initialSettings: any }) {
   const [loading, setLoading] = useState(false)
   const [qrUrl, setQrUrl] = useState(initialSettings?.qrCodeUrl || '')
+  const [aboutImage1, setAboutImage1] = useState(initialSettings?.aboutImage1 || '')
+  const [aboutImage2, setAboutImage2] = useState(initialSettings?.aboutImage2 || '')
+  const [aboutImage3, setAboutImage3] = useState(initialSettings?.aboutImage3 || '')
   
   const [footer, setFooter] = useState({
     contactEmail: initialSettings?.contactEmail || '',
@@ -25,7 +28,7 @@ export default function SettingsForm({ initialSettings }: { initialSettings: any
     setFooter({ ...footer, [e.target.name]: e.target.value })
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -35,7 +38,7 @@ export default function SettingsForm({ initialSettings }: { initialSettings: any
         const img = new Image()
         img.onload = () => {
           const canvas = document.createElement('canvas')
-          const MAX_SIZE = 800
+          const MAX_SIZE = 1200 // Slightly larger for about images
           let width = img.width
           let height = img.height
           if (width > MAX_SIZE || height > MAX_SIZE) {
@@ -51,7 +54,7 @@ export default function SettingsForm({ initialSettings }: { initialSettings: any
           canvas.height = height
           const ctx = canvas.getContext('2d')
           ctx?.drawImage(img, 0, 0, width, height)
-          setQrUrl(canvas.toDataURL('image/jpeg', 0.9))
+          setter(canvas.toDataURL('image/jpeg', 0.85)) // 85% quality to save space
         }
         img.src = reader.result
       }
@@ -64,6 +67,9 @@ export default function SettingsForm({ initialSettings }: { initialSettings: any
     try {
       await saveStudioSettings({
         qrCodeUrl: qrUrl,
+        aboutImage1,
+        aboutImage2,
+        aboutImage3,
         ...footer
       })
       toast.success('Settings saved successfully.')
@@ -73,31 +79,49 @@ export default function SettingsForm({ initialSettings }: { initialSettings: any
     setLoading(false)
   }
 
+  const renderImageUploader = (label: string, value: string, setter: (val: string) => void, aspectClass: string) => (
+    <div>
+      <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">{label}</label>
+      {value ? (
+        <div className="mb-4">
+          <img src={value} alt={label} className={`object-cover border border-black/5 rounded-xl bg-white shadow-sm ${aspectClass}`} />
+          <button 
+            onClick={() => setter('')} 
+            className="text-xs text-red-600 mt-2 hover:underline inline-block"
+          >
+            Remove Image
+          </button>
+        </div>
+      ) : (
+        <div className={`flex flex-col items-center justify-center border-2 border-dashed border-black/10 rounded-xl hover:bg-black/5 transition-colors relative cursor-pointer ${aspectClass}`}>
+          <span className="text-xs text-[var(--foreground-muted)]">Click to upload</span>
+          <span className="text-[10px] text-black/30 mt-1">JPEG/PNG</span>
+          <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, setter)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <div className="space-y-12">
+      {/* Frontpage Studio Images */}
+      <div>
+        <h2 className="text-xl font-serif text-[var(--foreground)] border-b border-black/5 pb-2 mb-6">Frontpage 'About' Images</h2>
+        <p className="text-sm text-[var(--foreground-muted)] mb-6">Upload 3 beautiful photos of your studio interior for the frontpage.</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {renderImageUploader("Main Large Image (Landscape)", aboutImage1, setAboutImage1, "w-full h-48 md:h-64")}
+          <div className="space-y-6">
+            {renderImageUploader("Small Image 1 (Landscape)", aboutImage2, setAboutImage2, "w-full h-32 md:h-40")}
+            {renderImageUploader("Small Image 2 (Landscape)", aboutImage3, setAboutImage3, "w-full h-32 md:h-40")}
+          </div>
+        </div>
+      </div>
+
       {/* Payment Settings */}
       <div>
         <h2 className="text-xl font-serif text-[var(--foreground)] border-b border-black/5 pb-2 mb-6">Payment Settings</h2>
-        <div>
-          <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">PromptPay QR Code Image</label>
-          
-          {qrUrl ? (
-            <div className="mb-4">
-              <img src={qrUrl} alt="QR Code" className="w-48 h-48 object-contain border border-black/5 rounded-xl bg-white shadow-sm" />
-              <button 
-                onClick={() => setQrUrl('')} 
-                className="text-xs text-red-600 mt-2 hover:underline inline-block"
-              >
-                Remove QR Code
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center w-48 h-48 border-2 border-dashed border-black/10 rounded-xl hover:bg-black/5 transition-colors relative cursor-pointer">
-              <span className="text-xs text-[var(--foreground-muted)]">Click to upload</span>
-              <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-            </div>
-          )}
-        </div>
+        {renderImageUploader("PromptPay QR Code Image", qrUrl, setQrUrl, "w-48 h-48")}
       </div>
 
       {/* Footer Details */}
