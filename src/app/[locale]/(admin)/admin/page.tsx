@@ -8,6 +8,8 @@ export default async function AdminDashboard() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const nextWeek = new Date(startOfDay.getTime() + 7 * 86400000)
 
+  const endOfTomorrow = new Date(endOfDay.getTime() + 86400000)
+
   const [
     revenueAgg,
     trafficToday,
@@ -50,6 +52,24 @@ export default async function AdminDashboard() {
     include: { instructor: { select: { name: true } } }
   })
 
+  // Tomorrow's Schedule
+  const tomorrowSchedule = await prisma.class.findMany({
+    where: { date: { gte: endOfDay, lt: endOfTomorrow } },
+    orderBy: { startTime: 'asc' },
+    include: { instructor: { select: { name: true } } }
+  })
+
+  // Recent Sales
+  const recentSales = await prisma.payment.findMany({
+    where: { status: 'PAID' },
+    orderBy: { createdAt: 'desc' },
+    take: 6,
+    include: {
+      client: { select: { name: true } },
+      package: { select: { name: true } }
+    }
+  })
+
   // Low Credit Members
   const lowCreditPasses = await prisma.userPass.findMany({
     where: {
@@ -74,6 +94,14 @@ export default async function AdminDashboard() {
     credits: pass.remainingCount,
     passName: pass.classType.name
   })).slice(0, 6)
+
+  const formatTimeAgo = (date: Date) => {
+    const hours = Math.floor((now.getTime() - date.getTime()) / 3600000)
+    if (hours < 1) return 'Just now'
+    if (hours < 24) return `${hours}h ago`
+    const days = Math.floor(hours / 24)
+    return `${days}d ago`
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
@@ -202,7 +230,6 @@ export default async function AdminDashboard() {
           
           <div className="space-y-4">
             {todaySchedule.map(cls => {
-              const occupancyRate = (cls.bookedCount / cls.capacity) * 100
               const isFull = cls.bookedCount >= cls.capacity
               
               return (
@@ -225,6 +252,75 @@ export default async function AdminDashboard() {
             {todaySchedule.length === 0 && (
               <div className="py-8 text-center">
                 <p className="text-[var(--foreground-muted)] font-serif italic text-base mb-1">No classes today.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Tomorrow's Schedule */}
+        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+          <div className="flex justify-between items-end mb-6 border-b border-black/5 pb-4">
+            <h2 className="text-xl font-serif text-[var(--foreground)]">Tomorrow's Schedule</h2>
+            <Link href="/en/admin/schedule" className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
+              Full Calendar →
+            </Link>
+          </div>
+          
+          <div className="space-y-4">
+            {tomorrowSchedule.map(cls => {
+              const isFull = cls.bookedCount >= cls.capacity
+              return (
+                <div key={cls.id} className="p-4 bg-white/40 border border-white/60 rounded-2xl flex items-center justify-between group hover:bg-white/60 transition-colors">
+                  <div className="flex-1">
+                    <p className="text-[13px] tracking-wider uppercase text-[var(--foreground-muted)] mb-1">
+                      {cls.startTime} {cls.instructor && <span className="lowercase normal-case font-serif italic ml-1">with {cls.instructor.name}</span>}
+                    </p>
+                    <p className="text-base font-medium text-[var(--foreground)]">{cls.name}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`text-lg font-light ${isFull ? 'text-green-700' : 'text-[var(--foreground)]'}`}>
+                      {cls.bookedCount}<span className="text-[10px] text-[var(--foreground-muted)]">/{cls.capacity}</span>
+                    </span>
+                    <p className="text-[8px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mt-1">Booked</p>
+                  </div>
+                </div>
+              )
+            })}
+            {tomorrowSchedule.length === 0 && (
+              <div className="py-8 text-center">
+                <p className="text-[var(--foreground-muted)] font-serif italic text-base mb-1">No classes tomorrow.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Recent Sales Activity */}
+        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+          <div className="flex justify-between items-end mb-6 border-b border-black/5 pb-4">
+            <h2 className="text-xl font-serif text-[var(--foreground)]">Recent Sales</h2>
+            <Link href="/en/admin/payments" className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
+              All Payments →
+            </Link>
+          </div>
+          
+          <div className="space-y-4">
+            {recentSales.map(sale => (
+              <div key={sale.id} className="p-4 bg-white/40 border border-white/60 rounded-2xl flex items-center justify-between group hover:bg-white/60 transition-colors">
+                <div>
+                  <p className="text-sm font-medium text-[var(--foreground)]">{sale.client.name}</p>
+                  <p className="text-xs text-[var(--foreground-muted)] mt-1">{sale.package.name}</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-medium text-[var(--foreground)]">
+                    +฿{(sale.amount / 100).toLocaleString()}
+                  </span>
+                  <p className="text-[9px] tracking-widest uppercase text-[var(--foreground-muted)] mt-1">{formatTimeAgo(sale.createdAt)}</p>
+                </div>
+              </div>
+            ))}
+            {recentSales.length === 0 && (
+              <div className="py-8 text-center">
+                <p className="text-[var(--foreground-muted)] font-serif italic text-base mb-1">No recent sales.</p>
               </div>
             )}
           </div>
