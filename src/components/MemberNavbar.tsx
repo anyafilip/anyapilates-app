@@ -48,6 +48,20 @@ export default function MemberNavbar() {
             Dashboard
           </Link>
           <Link
+            href="/en/account/upcoming"
+            onClick={() => setIsOpen(false)}
+            className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            Upcoming Classes
+          </Link>
+          <Link
+            href="/en/account/history"
+            onClick={() => setIsOpen(false)}
+            className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            Class History
+          </Link>
+          <Link
             href="/en/account/purchases"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
