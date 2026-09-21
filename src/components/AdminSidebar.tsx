@@ -19,7 +19,7 @@ export default function AdminSidebar() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full">
+    <header className="relative z-50 w-full shrink-0">
       {/* Topbar (Always visible on all screens) */}
       <div className="flex items-center justify-between px-6 py-4 bg-[var(--foreground)] text-[var(--background)] w-full">
         <Link href="/en/admin">

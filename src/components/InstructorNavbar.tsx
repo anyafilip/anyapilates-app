@@ -8,9 +8,9 @@ export default function InstructorNavbar() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <>
+    <header className="relative z-50 w-full shrink-0">
       {/* Topbar (Always visible on all screens) */}
-      <div className="flex items-center justify-between px-6 py-4 bg-[var(--foreground)] text-[var(--background)] z-50 relative">
+      <div className="flex items-center justify-between px-6 py-4 bg-[var(--foreground)] text-[var(--background)] w-full">
         <Link href="/en">
           <span className="text-base tracking-[0.3em] uppercase font-light">ANYA</span>
           <span className="text-[9px] tracking-[0.35em] uppercase text-white/50 ml-2">Instructor</span>
@@ -37,7 +37,7 @@ export default function InstructorNavbar() {
       <aside className={`
         ${isOpen ? 'flex' : 'hidden'} 
         flex-col w-full md:w-64 shrink-0 bg-[var(--foreground)] text-[var(--background)] 
-        absolute top-[68px] left-0 bottom-0 z-40 border-t border-white/10
+        absolute top-full left-0 h-[calc(100vh-56px)] border-t border-white/10
       `}>
         <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto">
           <Link
@@ -81,6 +81,6 @@ export default function InstructorNavbar() {
           </form>
         </div>
       </aside>
-    </>
+    </header>
   )
 }
