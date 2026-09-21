@@ -15,7 +15,28 @@ export default function SettingsForm({ initialQrUrl }: { initialQrUrl: string | 
     const reader = new FileReader()
     reader.onload = () => {
       if (typeof reader.result === 'string') {
-        setQrUrl(reader.result)
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const MAX_SIZE = 800
+          let width = img.width
+          let height = img.height
+          if (width > MAX_SIZE || height > MAX_SIZE) {
+            if (width > height) {
+              height = Math.round((height * MAX_SIZE) / width)
+              width = MAX_SIZE
+            } else {
+              width = Math.round((width * MAX_SIZE) / height)
+              height = MAX_SIZE
+            }
+          }
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          ctx?.drawImage(img, 0, 0, width, height)
+          setQrUrl(canvas.toDataURL('image/jpeg', 0.9))
+        }
+        img.src = reader.result
       }
     }
     reader.readAsDataURL(file)
