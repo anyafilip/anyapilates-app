@@ -123,10 +123,16 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
             </div>
           )}
 
-          {payment.status === 'PAID' && (
+          {payment.status === 'PAID' ? (
             <div className="mt-8">
               <Link href="/en/account" className="w-full bg-[var(--foreground)] text-[var(--background)] py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors shadow-sm flex items-center justify-center">
                 View My Account
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-10 flex justify-center">
+              <Link href="/en" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
+                ← Return to Home
               </Link>
             </div>
           )}
