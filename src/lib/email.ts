@@ -2,7 +2,7 @@ import { Resend } from 'resend'
 
 // We will need to set this in .env. Fallback to dummy key during build time to prevent crashes.
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build_time')
-const SENDER_EMAIL = process.env.SENDER_EMAIL || 'Anya Pilates <hello@anyapilates.com>'
+const SENDER_EMAIL = process.env.SENDER_EMAIL || 'Anya Pilates <hello@anyapilatesstudio.com>'
 
 export async function sendVerificationEmail(email: string, token: string) {
   const verifyLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`
