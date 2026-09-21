@@ -4,44 +4,76 @@ import Link from 'next/link'
 export default async function AdminDashboard() {
   const now = new Date()
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const endOfDay = new Date(startOfDay.getTime() + 86400000)
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const nextWeek = new Date(startOfDay.getTime() + 7 * 86400000)
 
   const [
-    totalBookings, 
-    todayBookings, 
-    upcomingClasses, 
-    todayClasses,
-    totalMembers, 
+    revenueAgg,
+    trafficToday,
+    totalMembers,
     newMembersThisMonth,
+    classesThisWeek,
     pendingPaymentsQR,
     pendingPaymentsCounter
   ] = await Promise.all([
-    // Active bookings for upcoming classes
-    prisma.booking.count({ where: { status: 'BOOKED', class: { date: { gte: startOfDay } } } }),
-    // Bookings made today (regardless of when the class is)
-    prisma.booking.count({ where: { status: 'BOOKED', bookedAt: { gte: startOfDay } } }),
-    // Scheduled classes from today onwards
-    prisma.class.count({ where: { status: 'SCHEDULED', date: { gte: startOfDay } } }),
-    // Classes scheduled specifically for today
-    prisma.class.count({ where: { status: 'SCHEDULED', date: { gte: startOfDay, lt: new Date(startOfDay.getTime() + 86400000) } } }),
+    // Revenue this month
+    prisma.payment.aggregate({
+      _sum: { amount: true },
+      where: { status: 'PAID', createdAt: { gte: startOfMonth } }
+    }),
+    // Traffic today
+    prisma.booking.count({
+      where: { status: 'BOOKED', class: { date: { gte: startOfDay, lt: endOfDay } } }
+    }),
     // Total clients
     prisma.user.count({ where: { role: 'CLIENT' } }),
     // Clients who joined this month
     prisma.user.count({ where: { role: 'CLIENT', createdAt: { gte: startOfMonth } } }),
-    // Pending QR payments
+    // Classes this week
+    prisma.class.count({
+      where: { status: 'SCHEDULED', date: { gte: startOfDay, lt: nextWeek } }
+    }),
+    // Pending QR
     prisma.payment.count({ where: { status: 'PENDING', method: 'QR' } }),
-    // Pending Counter payments
+    // Pending Counter
     prisma.payment.count({ where: { status: 'PENDING', method: 'COUNTER' } })
   ])
 
   const pendingTotal = pendingPaymentsQR + pendingPaymentsCounter
+  const revenueThisMonth = (revenueAgg._sum.amount || 0) / 100
 
-  const upcoming = await prisma.class.findMany({
-    where: { date: { gte: startOfDay } },
-    orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
-    take: 5,
+  // Today's Schedule
+  const todaySchedule = await prisma.class.findMany({
+    where: { date: { gte: startOfDay, lt: endOfDay } },
+    orderBy: { startTime: 'asc' },
     include: { instructor: { select: { name: true } } }
   })
+
+  // Low Credit Members
+  const lowCreditPasses = await prisma.userPass.findMany({
+    where: {
+      remainingCount: { lte: 1 },
+      expiresAt: { gte: now }
+    },
+    include: { user: { select: { id: true, name: true, email: true } }, classType: { select: { name: true } } },
+    orderBy: { remainingCount: 'asc' },
+    take: 20
+  })
+  
+  // Filter out duplicates so we only show each user once
+  const seenUsers = new Set()
+  const lowCreditMembers = lowCreditPasses.filter(pass => {
+    if (seenUsers.has(pass.userId)) return false
+    seenUsers.add(pass.userId)
+    return true
+  }).map(pass => ({
+    id: pass.user.id,
+    name: pass.user.name,
+    email: pass.user.email,
+    credits: pass.remainingCount,
+    passName: pass.classType.name
+  })).slice(0, 6)
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
@@ -73,39 +105,42 @@ export default async function AdminDashboard() {
         </div>
       )}
 
-      {/* Stats Grid - Minimalist & Premium */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         
-        {/* Card 1: Active Bookings */}
+        {/* Card 1: Monthly Revenue */}
         <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[140px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
           <div className="flex justify-between items-start">
-            <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Bookings</h3>
+            <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Revenue</h3>
             <span className="text-[var(--foreground-muted)]/50">
               <svg width="16" height="16" className="md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
               </svg>
             </span>
           </div>
           <div>
-            <p className="text-4xl md:text-5xl font-serif text-[var(--foreground)] mb-1 md:mb-2">{totalBookings}</p>
-            <p className="text-[8px] md:text-[10px] font-medium text-[var(--foreground-muted)] uppercase tracking-widest">Active</p>
+            <p className="text-3xl md:text-4xl font-serif text-[var(--foreground)] mb-1 md:mb-2">฿{revenueThisMonth.toLocaleString()}</p>
+            <p className="text-[8px] md:text-[10px] font-medium text-[var(--foreground-muted)] uppercase tracking-widest">This Month</p>
           </div>
         </div>
 
-        {/* Card 2: Booked Today */}
+        {/* Card 2: Traffic Today */}
         <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[140px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
           <div className="flex justify-between items-start">
-            <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Today</h3>
+            <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Traffic</h3>
             <span className="text-[var(--foreground-muted)]/50">
               <svg width="16" height="16" className="md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
             </span>
           </div>
           <div>
-            <p className="text-4xl md:text-5xl font-serif text-[var(--foreground)] mb-1 md:mb-2">+{todayBookings}</p>
-            <p className="text-[8px] md:text-[10px] font-medium text-[var(--foreground-muted)] uppercase tracking-widest">Last 24h</p>
+            <p className="text-4xl md:text-5xl font-serif text-[var(--foreground)] mb-1 md:mb-2">{trafficToday}</p>
+            <p className="text-[8px] md:text-[10px] font-medium text-[var(--foreground-muted)] uppercase tracking-widest">Attendees Today</p>
           </div>
         </div>
 
@@ -115,10 +150,9 @@ export default async function AdminDashboard() {
             <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Members</h3>
             <span className="text-[var(--foreground-muted)]/50">
               <svg width="16" height="16" className="md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
               </svg>
             </span>
           </div>
@@ -132,10 +166,10 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        {/* Card 4: Upcoming Sessions */}
+        {/* Card 4: Classes Next 7 Days */}
         <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[140px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
           <div className="flex justify-between items-start">
-            <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Sessions</h3>
+            <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Classes</h3>
             <span className="text-[var(--foreground-muted)]/50">
               <svg width="16" height="16" className="md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -145,51 +179,90 @@ export default async function AdminDashboard() {
           </div>
           <div>
             <div className="flex items-baseline gap-2 mb-1 md:mb-2">
-              <p className="text-4xl md:text-5xl font-serif text-[var(--foreground)]">{upcomingClasses}</p>
+              <p className="text-4xl md:text-5xl font-serif text-[var(--foreground)]">{classesThisWeek}</p>
             </div>
             <p className="text-[8px] md:text-[10px] font-medium text-[var(--foreground-muted)] uppercase tracking-widest whitespace-nowrap overflow-hidden text-ellipsis">
-              {todayClasses > 0 ? `${todayClasses} today` : 'Scheduled'}
+              Next 7 Days
             </p>
           </div>
         </div>
 
       </div>
 
-      {/* Upcoming sessions List */}
-      <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-3xl p-8 md:p-12 shadow-[0_4px_20px_rgba(0,0,0,0.02)] mt-8">
-        <div className="flex justify-between items-end mb-8">
-          <h2 className="text-2xl font-serif text-[var(--foreground)]">Next Sessions</h2>
-          <Link href="/en/admin/schedule" className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
-            View All →
-          </Link>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
         
-        <div className="divide-y divide-[var(--border)]">
-          {upcoming.map(cls => (
-            <div key={cls.id} className="group py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:bg-white/40 transition-colors -mx-6 px-6 md:-mx-12 md:px-12 rounded-2xl">
-              <div>
-                <p className="text-xl font-medium text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors">{cls.name}</p>
-                <p className="text-xs tracking-wider uppercase text-[var(--foreground-muted)] mt-2">
-                  {new Date(cls.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                  {' · '}<span className="text-[var(--foreground)] font-medium">{cls.startTime}</span>
-                  {cls.instructor && ` · with ${cls.instructor.name}`}
-                </p>
+        {/* Today's Schedule */}
+        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+          <div className="flex justify-between items-end mb-6 border-b border-black/5 pb-4">
+            <h2 className="text-xl font-serif text-[var(--foreground)]">Today's Schedule</h2>
+            <Link href="/en/admin/schedule" className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
+              Full Calendar →
+            </Link>
+          </div>
+          
+          <div className="space-y-4">
+            {todaySchedule.map(cls => {
+              const occupancyRate = (cls.bookedCount / cls.capacity) * 100
+              const isFull = cls.bookedCount >= cls.capacity
+              
+              return (
+                <div key={cls.id} className="p-4 bg-white/40 border border-white/60 rounded-2xl flex items-center justify-between group hover:bg-white/60 transition-colors">
+                  <div className="flex-1">
+                    <p className="text-[13px] tracking-wider uppercase text-[var(--foreground-muted)] mb-1">
+                      {cls.startTime} {cls.instructor && <span className="lowercase normal-case font-serif italic ml-1">with {cls.instructor.name}</span>}
+                    </p>
+                    <p className="text-base font-medium text-[var(--foreground)]">{cls.name}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`text-lg font-light ${isFull ? 'text-green-700' : 'text-[var(--foreground)]'}`}>
+                      {cls.bookedCount}<span className="text-[10px] text-[var(--foreground-muted)]">/{cls.capacity}</span>
+                    </span>
+                    <p className="text-[8px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mt-1">Booked</p>
+                  </div>
+                </div>
+              )
+            })}
+            {todaySchedule.length === 0 && (
+              <div className="py-8 text-center">
+                <p className="text-[var(--foreground-muted)] font-serif italic text-base mb-1">No classes today.</p>
               </div>
-              <div className="text-left sm:text-right border-t border-[var(--border)] sm:border-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
-                <span className="text-xl font-light text-[var(--foreground)]">
-                  {cls.bookedCount}<span className="text-sm text-[var(--foreground-muted)]">/{cls.capacity}</span>
-                </span>
-                <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mt-1">Booked</p>
-              </div>
-            </div>
-          ))}
-          {upcoming.length === 0 && (
-            <div className="py-12 text-center">
-              <p className="text-[var(--foreground-muted)] font-serif italic text-lg mb-2">No upcoming sessions.</p>
-              <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/70">The studio is resting</p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
+
+        {/* Low Credit Alerts */}
+        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+          <div className="flex justify-between items-end mb-6 border-b border-black/5 pb-4">
+            <h2 className="text-xl font-serif text-[var(--foreground)]">Low Credit Alerts</h2>
+            <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
+              Needs Upsell
+            </span>
+          </div>
+          
+          <div className="space-y-4">
+            {lowCreditMembers.map(member => (
+              <div key={member.id} className="p-4 bg-white/40 border border-white/60 rounded-2xl flex items-center justify-between group hover:bg-white/60 transition-colors">
+                <div>
+                  <p className="text-sm font-medium text-[var(--foreground)]">{member.name}</p>
+                  <p className="text-xs text-[var(--foreground-muted)] mt-1">{member.passName}</p>
+                </div>
+                <div>
+                  {member.credits === 0 ? (
+                    <span className="inline-block px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] tracking-widest uppercase font-medium">0 Credits</span>
+                  ) : (
+                    <span className="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-[10px] tracking-widest uppercase font-medium">1 Credit</span>
+                  )}
+                </div>
+              </div>
+            ))}
+            {lowCreditMembers.length === 0 && (
+              <div className="py-8 text-center">
+                <p className="text-[var(--foreground-muted)] font-serif italic text-base mb-1">All members are topped up!</p>
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   )

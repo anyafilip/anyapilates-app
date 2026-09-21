@@ -1,0 +1,58 @@
+--- src/app/[locale]/(admin)/admin/page.tsx
++++ src/app/[locale]/(admin)/admin/page.tsx
+@@ -54,16 +54,15 @@
+   })
+ 
+   // Low Credit Members
+-  const lowCreditMembers = await prisma.user.findMany({
++  const lowCreditPasses = await prisma.userPass.findMany({
+     where: {
+-      role: 'CLIENT',
+-      credits: { lte: 1 },
+-      payments: { some: { status: 'PAID' } }
++      remainingCount: { lte: 1 },
++      expiresAt: { gte: now }
+     },
+-    select: { id: true, name: true, email: true, credits: true },
+-    take: 6,
+-    orderBy: { credits: 'asc' }
++    include: { user: { select: { id: true, name: true, email: true } }, classType: { select: { name: true } } },
++    orderBy: { remainingCount: 'asc' },
++    take: 6
+   })
++  // Filter out duplicates so we only show each user once
++  const seenUsers = new Set()
++  const lowCreditMembers = lowCreditPasses.filter(pass => {
++    if (seenUsers.has(pass.userId)) return false
++    seenUsers.add(pass.userId)
++    return true
++  }).map(pass => ({
++    id: pass.user.id,
++    name: pass.user.name,
++    email: pass.user.email,
++    credits: pass.remainingCount,
++    passName: pass.classType.name
++  }))
+ 
+   return (
+     <div className="max-w-6xl mx-auto space-y-8 pb-12">
+@@ -232,16 +242,16 @@
+           
+           <div className="space-y-4">
+             {lowCreditMembers.map(member => (
+-              <div key={member.id} className="p-4 bg-white/40 border border-white/60 rounded-2xl flex items-center justify-between">
++              <div key={member.id} className="p-4 bg-white/40 border border-white/60 rounded-2xl flex items-center justify-between group hover:bg-white/60 transition-colors">
+                 <div>
+                   <p className="text-sm font-medium text-[var(--foreground)]">{member.name}</p>
+-                  <p className="text-xs text-[var(--foreground-muted)] mt-1">{member.email}</p>
++                  <p className="text-xs text-[var(--foreground-muted)] mt-1">{member.passName}</p>
+                 </div>
+                 <div>
+                   {member.credits === 0 ? (
+                     <span className="inline-block px-3 py-1 bg-red-100 text-red-700 rounded-full text-[10px] tracking-widest uppercase font-medium">0 Credits</span>
+                   ) : (
+-                    <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] tracking-widest uppercase font-medium">1 Credit</span>
++                    <span className="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-[10px] tracking-widest uppercase font-medium">1 Credit</span>
+                   )}
+                 </div>
+               </div>
