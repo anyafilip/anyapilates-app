@@ -261,3 +261,13 @@ export async function deletePackage(id: string) {
   await prisma.package.delete({ where: { id } })
   revalidatePath('/en/admin/packages')
 }
+
+// ── Studio Settings ──────────────────────────────────────────────────────────
+export async function saveStudioSettings(qrCodeUrl: string) {
+  const adminId = await requireAdmin()
+  await prisma.studioSettings.upsert({
+    where: { id: 'default' },
+    update: { qrCodeUrl },
+    create: { id: 'default', qrCodeUrl },
+  })
+}

@@ -16,6 +16,7 @@ export default function AdminSidebar() {
     { href: '/en/admin/instructors', label: 'Instructors' },
     { href: '/en/admin/packages', label: 'Packages' },
     { href: '/en/admin/payments', label: 'Payments' },
+    { href: '/en/admin/settings', label: 'Settings' },
   ]
 
   return (

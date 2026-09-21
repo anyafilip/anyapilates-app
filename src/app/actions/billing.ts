@@ -13,7 +13,7 @@ async function generateRefCode(): Promise<string> {
   return `AYP-${n}`
 }
 
-export async function requestPackagePurchase(packageId: string) {
+export async function requestPackagePurchase(packageId: string, method: 'QR' | 'COUNTER') {
   const session = await auth()
   const user = session?.user as any
 
@@ -35,7 +35,7 @@ export async function requestPackagePurchase(packageId: string) {
     data: {
       clientId: user.id,
       packageId: pkg.id,
-      method: 'QR',
+      method: method,
       status: 'PENDING',
       amount: pkg.price,
       refCode,

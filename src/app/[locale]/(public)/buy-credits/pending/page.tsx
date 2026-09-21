@@ -29,6 +29,8 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
     redirect('/en')
   }
 
+  const settings = await prisma.studioSettings.findUnique({ where: { id: 'default' } })
+
   return (
     <div className="flex-1 w-full flex flex-col relative min-h-screen">
       <PublicNavbar isLoggedIn={true} user={user} />
@@ -41,7 +43,9 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
           
           <div className="text-center mb-10">
             {payment.status === 'PENDING' && !payment.slipUrl && (
-              <p className="text-[13px] italic font-serif text-[var(--foreground-muted)]">Awaiting your transfer</p>
+              <p className="text-[13px] italic font-serif text-[var(--foreground-muted)]">
+                {payment.method === 'COUNTER' ? 'Awaiting payment at counter' : 'Awaiting your transfer'}
+              </p>
             )}
             {payment.status === 'PENDING' && payment.slipUrl && (
               <p className="text-[13px] italic font-serif text-[var(--foreground-muted)]">Slip submitted — awaiting admin confirmation</p>
@@ -78,25 +82,41 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
 
           {payment.status === 'PENDING' && !payment.slipUrl && (
             <>
-              <div className="bg-white/40 rounded-2xl p-6 border border-white/80 text-center space-y-4">
-                <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">Payment Instructions</p>
-                <div className="text-sm font-light text-[var(--foreground)]">
-                  <p>PromptPay / Bank Transfer</p>
-                  <p className="mt-2 text-[var(--foreground-muted)]">Account: <span className="text-[var(--foreground)]">Anya Pilates Studio</span></p>
-                  <p className="text-[var(--foreground-muted)]">Account No: <span className="text-[var(--foreground)]">000-0-00000-0</span></p>
-                  <p className="text-[var(--foreground-muted)]">Bank: <span className="text-[var(--foreground)]">Bangkok Bank</span></p>
+              {payment.method === 'COUNTER' ? (
+                <div className="bg-white/40 rounded-2xl p-6 border border-white/80 text-center space-y-4">
+                  <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">Instructions</p>
+                  <p className="text-sm font-light text-[var(--foreground)]">
+                    Please proceed to the studio counter to complete your payment. Show your <strong className="font-serif">Order Reference ({payment.refCode})</strong> to the receptionist.
+                  </p>
                 </div>
-                <div className="pt-4 border-t border-white flex flex-col gap-1">
-                  <span className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">Amount</span>
-                  <span className="text-xl font-serif text-[var(--foreground)]">฿{(payment.amount / 100).toLocaleString('en-US')}</span>
-                  <span className="text-[11px] italic text-[var(--foreground-muted)] mt-2">Include {payment.refCode} in transfer note</span>
-                </div>
-              </div>
-              <SlipUpload paymentId={payment.id} />
+              ) : (
+                <>
+                  <div className="bg-white/40 rounded-2xl p-6 border border-white/80 text-center space-y-4">
+                    <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">Payment Instructions</p>
+                    
+                    {settings?.qrCodeUrl && (
+                      <div className="flex justify-center my-4">
+                        <img src={settings.qrCodeUrl} alt="PromptPay QR Code" className="w-48 h-48 object-contain rounded-xl border border-black/5 bg-white shadow-sm" />
+                      </div>
+                    )}
+                    
+                    <div className="text-sm font-light text-[var(--foreground)]">
+                      <p>PromptPay / Bank Transfer</p>
+                      <p className="mt-2 text-[var(--foreground-muted)]">Account: <span className="text-[var(--foreground)]">Anya Pilates Studio</span></p>
+                    </div>
+                    <div className="pt-4 border-t border-white flex flex-col gap-1">
+                      <span className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">Amount</span>
+                      <span className="text-xl font-serif text-[var(--foreground)]">฿{(payment.amount / 100).toLocaleString('en-US')}</span>
+                      <span className="text-[11px] italic text-[var(--foreground-muted)] mt-2">Include {payment.refCode} in transfer note</span>
+                    </div>
+                  </div>
+                  <SlipUpload paymentId={payment.id} />
+                </>
+              )}
             </>
           )}
 
-          {payment.slipUrl && payment.status === 'PENDING' && (
+          {payment.slipUrl && payment.status === 'PENDING' && payment.method === 'QR' && (
             <div className="mt-8 flex flex-col items-center">
               <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] mb-4">Uploaded Slip</p>
               <img src={payment.slipUrl} alt="Payment Slip" className="w-32 h-32 object-cover rounded-xl border border-black/5 shadow-sm" />
