@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { cancelBooking } from '@/app/actions/booking'
 
-import PublicNavbar from '@/components/PublicNavbar'
+import MemberNavbar from '@/components/MemberNavbar'
 import CancelBookingButton from './CancelBookingButton'
 
 const TZ_OFFSET = 7
@@ -47,12 +47,13 @@ export default async function AccountPage() {
   const past     = user.bookings.filter(b => b.status !== 'BOOKED' || b.class.date.getTime() <= now)
 
   return (
-    <div className="flex-1 w-full flex flex-col relative">
-      <PublicNavbar isLoggedIn={true} user={user} />
+    <div className="flex-1 w-full flex flex-col h-screen overflow-hidden bg-[var(--surface)]">
+      <MemberNavbar />
 
-      <main className="flex-1 container mx-auto px-6 pt-32 pb-16 max-w-4xl">
-        {/* Header */}
-        <div className="mb-12">
+      <main className="flex-1 overflow-y-auto w-full">
+        <div className="container mx-auto px-6 py-10 max-w-4xl">
+          {/* Header */}
+          <div className="mb-12">
           <p className="text-[11px] tracking-widest uppercase text-[var(--foreground-muted)] mb-2">Member Portal</p>
           <h1 className="text-4xl font-serif font-normal text-[var(--foreground)]">
             Hello, {user.name.split(' ')[0]}
@@ -180,6 +181,7 @@ export default async function AccountPage() {
             </div>
           </section>
         )}
+        </div>
       </main>
     </div>
   )

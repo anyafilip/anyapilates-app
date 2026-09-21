@@ -62,10 +62,10 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
           <div className="mt-8 pt-8 border-t border-[var(--border)] flex flex-col gap-10 pb-8 animate-in slide-in-from-top-4 duration-500 fade-in">
             {/* Primary Navigation Links */}
             <div className="flex flex-col gap-8 px-2">
-              <a href="#schedule" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Schedule</a>
-              <a href="#classes" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Classes</a>
-              <a href="#packages" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Packages</a>
-              <a href="#contact" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Contact</a>
+              <Link href="/en/#schedule" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Schedule</Link>
+              <Link href="/en/#classes" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Classes</Link>
+              <Link href="/en/#packages" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Packages</Link>
+              <Link href="/en/#contact" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Contact</Link>
             </div>
             
             {/* User Section Card */}
