@@ -21,3 +21,12 @@ export async function updateProfile(data: { name: string; phone?: string; imageU
   revalidatePath('/en/account/settings')
   return { success: true }
 }
+
+export async function getProfile() {
+  const session = await auth()
+  if (!session?.user?.id) return null
+
+  return prisma.user.findUnique({
+    where: { id: session.user.id }
+  })
+}
