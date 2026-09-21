@@ -11,7 +11,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (state.message) {
-      if (state.message.includes('successfully')) {
+      if (state.success) {
         toast.success(state.message)
       } else {
         toast.error(state.message)
@@ -111,7 +111,7 @@ export default function RegisterPage() {
             </div>
 
             {state.message && !state.errors && (
-              <p className="text-xs text-red-700 mt-2 text-center">
+              <p className={`text-xs mt-2 text-center ${state.success ? 'text-green-700' : 'text-red-700'}`}>
                 {state.message}
               </p>
             )}

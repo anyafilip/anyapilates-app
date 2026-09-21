@@ -17,7 +17,12 @@ const RegisterSchema = z.object({
 })
 
 export type RegisterState = {
-  errors?: { name?: string[]; email?: string[]; password?: string[] }
+  success?: boolean
+  errors?: {
+    name?: string[]
+    email?: string[]
+    password?: string[]
+  }
   message?: string
   inputs?: { name?: string; email?: string; phone?: string }
 }
@@ -75,9 +80,14 @@ export async function register(
 
   // Send email
   const { sendVerificationEmail } = await import('@/lib/email')
-  await sendVerificationEmail(email, token)
+  const { error } = await sendVerificationEmail(email, token)
+  
+  if (error) {
+    console.error('Failed to send verification email:', error)
+    return { success: false, message: 'Account created, but we failed to send the verification email. Please contact support.' }
+  }
 
-  return { message: 'Account created! Please check your email to verify your account.' }
+  return { success: true, message: 'Account created! Please check your email to verify your account.' }
 }
 
 // ── Login ─────────────────────────────────────────────────────────────────────
