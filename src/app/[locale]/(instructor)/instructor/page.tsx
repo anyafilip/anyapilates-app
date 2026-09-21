@@ -14,28 +14,46 @@ export default async function InstructorDashboard() {
   todayLocal.setUTCHours(0, 0, 0, 0)
   const cutoff = new Date(todayLocal.getTime() - TZ_OFFSET * 60 * 60 * 1000)
 
-  const [totalClasses, totalStudents, upcomingClasses] = await Promise.all([
-    // Total classes taught
-    prisma.class.count({
-      where: { instructorId: userId, date: { lt: cutoff } }
-    }),
-    // Total students taught (Attended status)
-    prisma.booking.count({
-      where: { class: { instructorId: userId }, status: 'ATTENDED' }
-    }),
-    // Upcoming classes next 7 days
-    prisma.class.findMany({
-      where: {
-        instructorId: userId,
-        date: { gte: cutoff }
-      },
-      include: {
-        classType: { select: { name: true } },
-      },
-      orderBy: { date: 'asc' },
-      take: 5 // preview next 5
-    })
-  ])
+  let totalClasses = 0
+  let totalStudents = 0
+  let upcomingClasses: any[] = []
+  let errorMsg = null
+
+  try {
+    const results = await Promise.all([
+      // Total classes taught
+      prisma.class.count({
+        where: { instructorId: userId, date: { lt: cutoff } }
+      }),
+      // Total students taught (Attended status)
+      prisma.booking.count({
+        where: { class: { instructorId: userId }, status: 'ATTENDED' }
+      }),
+      // Upcoming classes next 7 days
+      prisma.class.findMany({
+        where: {
+          instructorId: userId,
+          date: { gte: cutoff }
+        },
+        include: {
+          classType: { select: { name: true } },
+        },
+        orderBy: { date: 'asc' },
+        take: 5 // preview next 5
+      })
+    ])
+
+    totalClasses = results[0]
+    totalStudents = results[1]
+    upcomingClasses = results[2]
+  } catch (err: any) {
+    console.error('InstructorDashboard error:', err)
+    errorMsg = err?.message || 'Unknown error occurred'
+  }
+
+  if (errorMsg) {
+    return <div className="p-10 text-red-500 font-mono">Error loading dashboard: {errorMsg}</div>
+  }
 
   return (
     <div className="max-w-4xl mx-auto py-8">

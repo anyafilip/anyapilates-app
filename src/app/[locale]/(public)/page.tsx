@@ -71,6 +71,15 @@ export default async function HomePage() {
     orderBy: { price: 'asc' }
   })
 
+  // Ensure intro packages are always first
+  packages.sort((a, b) => {
+    const aIsIntro = a.name.toLowerCase().includes('intro')
+    const bIsIntro = b.name.toLowerCase().includes('intro')
+    if (aIsIntro && !bIsIntro) return -1
+    if (!aIsIntro && bIsIntro) return 1
+    return 0
+  })
+
   return (
     <div className="flex-1 w-full flex flex-col">
       <PublicNavbar isLoggedIn={isLoggedIn} user={user} />
