@@ -33,6 +33,21 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
     redirect('/en/#packages')
   }
 
+  // Restrict intro package purchase to once per account
+  if (pkg.name.toLowerCase().includes('intro')) {
+    const existingIntro = await prisma.payment.findFirst({
+      where: {
+        clientId: user.id,
+        package: { name: { contains: 'intro', mode: 'insensitive' } },
+        status: { not: 'FAILED' }
+      }
+    })
+    
+    if (existingIntro) {
+      redirect('/en/#packages')
+    }
+  }
+
   return (
     <div className="flex-1 w-full flex flex-col relative min-h-screen">
       <PublicNavbar isLoggedIn={true} user={user} />

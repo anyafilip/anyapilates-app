@@ -65,13 +65,31 @@ export default async function HomePage() {
   })
 
   // Fetch active packages
-  const packages = await prisma.package.findMany({
+  let packages = await prisma.package.findMany({
     where: { isActive: true },
     include: { classType: true },
     orderBy: { price: 'asc' }
   })
 
-  // Ensure intro packages are always first
+  // If user is logged in, check if they already bought an intro package
+  let hasIntro = false
+  if (isLoggedIn) {
+    const introCount = await prisma.payment.count({
+      where: {
+        clientId: user.id,
+        package: { name: { contains: 'intro', mode: 'insensitive' } },
+        status: { not: 'FAILED' }
+      }
+    })
+    hasIntro = introCount > 0
+  }
+
+  // Hide intro packages if they already bought one
+  if (hasIntro) {
+    packages = packages.filter(p => !p.name.toLowerCase().includes('intro'))
+  }
+
+  // Ensure intro packages are always first (for new users)
   packages.sort((a, b) => {
     const aIsIntro = a.name.toLowerCase().includes('intro')
     const bIsIntro = b.name.toLowerCase().includes('intro')
