@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
@@ -58,6 +58,24 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
     })
   }, [packages, selectedTab])
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  // Attach wheel-to-horizontal-scroll listener
+  useEffect(() => {
+    const el = scrollContainerRef.current
+    if (!el) return
+
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault()
+        el.scrollLeft += e.deltaY * 1.5
+      }
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  })
+
   return (
     <div>
       {/* ── Category Filter Tabs ────────────────────────────────────────── */}
@@ -85,7 +103,11 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
       </div>
 
       {/* ── Package Cards Grid ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-16">
+      <div 
+        ref={scrollContainerRef}
+        className="flex overflow-x-auto gap-6 md:gap-8 mb-16 pb-8 snap-x snap-mandatory scrollbar-hide w-full"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
         {filteredPackages.map(pkg => {
           const isIntro = pkg.name.toLowerCase().includes('intro')
           const isSingle = pkg.classCount === 1
@@ -96,7 +118,8 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
             <div
               key={pkg.id}
               className={`
-                relative group bg-white/40 hover:bg-white/70 backdrop-blur-md border rounded-[2.5rem] p-8 md:p-10 text-center flex flex-col justify-between
+                shrink-0 snap-start w-[calc(33.333vw-1.5rem)] md:w-[calc(25vw-2rem)] min-w-[200px] max-w-[320px]
+                relative group bg-white/40 hover:bg-white/70 backdrop-blur-md border rounded-[2rem] p-6 text-center flex flex-col justify-between
                 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] transition-all duration-500 overflow-hidden
                 ${isIntro 
                   ? 'border-[var(--accent)]/40 hover:border-[var(--accent)]' 
@@ -105,74 +128,74 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
               `}
             >
               {/* Decorative radial gradient blob */}
-              <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--accent)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700 pointer-events-none" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700 pointer-events-none" />
 
               <div>
                 {/* Badge */}
-                <div className="h-6 mb-4 flex items-center justify-center">
+                <div className="h-5 mb-3 flex items-center justify-center">
                   {isIntro && (
-                    <span className="inline-flex items-center gap-1 text-[9px] tracking-[0.25em] uppercase font-medium text-[var(--accent-dark)] bg-[var(--accent)]/10 px-3 py-1 rounded-full border border-[var(--accent)]/20">
-                      ★ Introductory Offer
+                    <span className="inline-flex items-center gap-1 text-[8px] tracking-[0.2em] uppercase font-medium text-[var(--accent-dark)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20">
+                      ★ Introductory
                     </span>
                   )}
                   {isSingle && !isIntro && (
-                    <span className="text-[9px] tracking-[0.25em] uppercase text-[var(--foreground-muted)] font-medium">
+                    <span className="text-[8px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] font-medium">
                       Single Session
                     </span>
                   )}
                   {!isSingle && !isIntro && (
-                    <span className="text-[9px] tracking-[0.25em] uppercase text-[var(--foreground-muted)]/70">
+                    <span className="text-[8px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/70">
                       Class Package
                     </span>
                   )}
                 </div>
 
                 {/* Package Name */}
-                <h3 className="text-2xl font-serif font-normal text-[var(--foreground)] mb-1 z-10">
+                <h3 className="text-lg font-serif font-normal text-[var(--foreground)] mb-1 z-10 leading-snug">
                   {pkg.name}
                 </h3>
 
                 {/* Class Type & Count Subtitle */}
-                <p className="text-[10px] tracking-[0.25em] uppercase text-[var(--foreground-muted)] mb-8 z-10">
+                <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-5 z-10">
                   {pkg.classCount} {pkg.classType.name}
                 </p>
 
                 {/* Price Display */}
-                <div className="flex flex-col justify-center items-center mb-6 z-10">
-                  <div className="text-4xl md:text-5xl font-light text-[var(--foreground)] tracking-tight mb-2">
-                    <span className="text-xl font-normal align-top mr-1">฿</span>
+                <div className="flex flex-col justify-center items-center mb-4 z-10">
+                  <div className="text-3xl font-light text-[var(--foreground)] tracking-tight mb-1.5">
+                    <span className="text-base font-normal align-top mr-0.5">฿</span>
                     {priceInBaht.toLocaleString('en-US')}
                   </div>
 
                   {/* Price per class breakdown */}
                   {pkg.classCount > 1 && (
-                    <div className="text-[11px] font-medium tracking-wider text-[var(--foreground-muted)] uppercase bg-black/[0.03] px-3 py-1 rounded-full">
+                    <div className="text-[9px] font-medium tracking-wider text-[var(--foreground-muted)] uppercase bg-black/[0.03] px-2.5 py-0.5 rounded-full">
                       ฿{unitPrice.toLocaleString('en-US')} / class
                     </div>
                   )}
                 </div>
 
                 {/* Validity */}
-                <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-8">
-                  Valid for {pkg.expiresInDays} days
+                <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-5">
+                  Valid {pkg.expiresInDays} days
                 </p>
               </div>
 
               <div>
-                <div className="w-full h-px bg-gradient-to-r from-transparent via-black/10 to-transparent mb-6 z-10" />
+                <div className="w-full h-px bg-gradient-to-r from-transparent via-black/10 to-transparent mb-4 z-10" />
 
                 <button
                   type="button"
                   onClick={() => handleSelectPackage(pkg.id)}
                   className={`
-                    relative z-10 w-full block py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium transition-all duration-300 shadow-sm text-center cursor-pointer
+                    relative z-10 w-full block py-3 rounded-full text-[9px] tracking-[0.2em] uppercase font-medium transition-all duration-300 shadow-sm text-center cursor-pointer
                     ${isIntro
                       ? 'bg-[var(--foreground)] text-[var(--background)] hover:bg-black'
                       : 'bg-transparent border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)]'
                     }
                   `}
                 >
-                  Select Package
+                  Select
                 </button>
               </div>
             </div>

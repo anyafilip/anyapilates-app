@@ -146,24 +146,24 @@ export async function cancelSession(id: string) {
   if (!cls) throw new Error('Class not found')
   if (cls.status === 'CANCELLED') return
   
-  // Mark class and bookings as cancelled first
+  // We should also refund passes for all bookings
+  const bookings = await prisma.booking.findMany({
+    where: { classId: id, status: 'BOOKED' },
+    include: { userPass: true, client: true }
+  })
+
+  // Mark class and bookings as cancelled
   await prisma.class.update({
     where: { id: id },
     data: { status: 'CANCELLED' }
   })
 
   await prisma.booking.updateMany({
-    where: { id },
+    where: { classId: id, status: 'BOOKED' },
     data: { status: 'CANCELLED', cancelledAt: new Date() },
   })
 
-  // We should also refund passes for all bookings
-  // Since updateMany doesn't let us trigger the refund logic easily,
-  // we can iterate over the bookings and increment the pass remaining count.
-  const bookings = await prisma.booking.findMany({
-    where: { id },
-    include: { userPass: true }
-  })
+  const { sendClassCancellationEmail } = await import('@/lib/email')
 
   for (const b of bookings) {
     if (b.userPassId) {
@@ -171,6 +171,23 @@ export async function cancelSession(id: string) {
         where: { id: b.userPassId },
         data: { remainingCount: { increment: 1 } }
       })
+    }
+    // Send email
+    if (b.client.email) {
+      const localDate = new Date(cls.date.getTime() + 7 * 60 * 60 * 1000)
+      const dateStr = localDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC'
+      })
+      sendClassCancellationEmail(
+        b.client.email,
+        b.client.name,
+        cls.name,
+        dateStr,
+        cls.startTime
+      ).catch(console.error)
     }
   }
 

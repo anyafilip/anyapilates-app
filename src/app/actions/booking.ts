@@ -36,7 +36,7 @@ export async function bookClass(classId: string): Promise<BookingResult> {
     return { success: false, message: 'This class is fully booked.' }
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { role: true, email: true, name: true } })
   if (!user) return { success: false, message: 'User not found.' }
   if (user.role === 'ADMIN') return { success: false, message: 'You cannot book as an admin.' }
 
@@ -64,6 +64,20 @@ export async function bookClass(classId: string): Promise<BookingResult> {
     ])
 
     revalidatePath('/')
+    
+    // Send email
+    if (user.email) {
+      const localDate = new Date(cls.date.getTime() + 7 * 60 * 60 * 1000)
+      const dateStr = localDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC'
+      })
+      const { sendBookingConfirmationEmail } = await import('@/lib/email')
+      sendBookingConfirmationEmail(user.email, user.name || 'there', cls.name, dateStr, cls.startTime).catch(console.error)
+    }
+
     return { success: true, message: 'Class booked successfully!' }
   } catch (e: any) {
     return { success: false, message: e.message || 'Failed to book class. Make sure you have an active pass.' }

@@ -92,6 +92,13 @@ export async function confirmPayment(paymentId: string) {
     adminId,
   })
 
+  // Send receipt email
+  const client = await prisma.user.findUnique({ where: { id: payment.clientId } })
+  if (client?.email) {
+    const { sendReceiptEmail } = await import('@/lib/email')
+    sendReceiptEmail(client.email, client.name, payment.package.name, payment.amount).catch(console.error)
+  }
+
   revalidatePath('/en/admin/payments')
   revalidatePath('/', 'layout')
 }

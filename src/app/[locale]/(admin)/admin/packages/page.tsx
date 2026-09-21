@@ -6,12 +6,13 @@ import Modal from '@/components/Modal'
 import DataTableTools from '@/components/admin/DataTableTools'
 import Pagination from '@/components/admin/Pagination'
 
-export default async function AdminPackagesPage({ searchParams }: { searchParams: Promise<{ editId?: string, deleteId?: string, q?: string, page?: string, filter?: string }> }) {
+export default async function AdminPackagesPage({ searchParams }: { searchParams: Promise<{ editId?: string, deleteId?: string, q?: string, page?: string, filter?: string, sort?: string }> }) {
   const resolvedSearchParams = await searchParams
   const editId = resolvedSearchParams.editId
   const deleteId = resolvedSearchParams.deleteId
   const q = resolvedSearchParams.q || ''
   const filter = resolvedSearchParams.filter || ''
+  const sort = resolvedSearchParams.sort || 'price_asc'
   const page = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page, 10) : 1
   
   const skip = (page - 1) * 20
@@ -21,8 +22,14 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
     ...(q ? { name: { contains: q, mode: 'insensitive' as const } } : {})
   }
   
-  if (filter === 'active') where.isActive = true
-  if (filter === 'inactive') where.isActive = false
+  if (filter) {
+    where.classTypeId = filter
+  }
+
+  let orderBy: any = { price: 'asc' }
+  if (sort === 'price_desc') orderBy = { price: 'desc' }
+  else if (sort === 'name_asc') orderBy = { name: 'asc' }
+  else if (sort === 'name_desc') orderBy = { name: 'desc' }
 
   const classTypes = await prisma.classType.findMany({
     orderBy: { name: 'asc' }
@@ -32,7 +39,7 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
     prisma.package.findMany({ 
       where,
       include: { classType: true },
-      orderBy: { price: 'asc' },
+      orderBy,
       skip,
       take
     }),
@@ -83,10 +90,15 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
 
       <DataTableTools 
         searchPlaceholder="Search packages..." 
-        filterOptions={[
-          { label: 'Active', value: 'active' },
-          { label: 'Inactive', value: 'inactive' }
-        ]} 
+        filterPlaceholder="All Class Types"
+        filterOptions={classTypes.map(ct => ({ label: ct.name, value: ct.id }))} 
+        sortPlaceholder="Sort by Price"
+        sortOptions={[
+          { label: 'Price: Low to High', value: 'price_asc' },
+          { label: 'Price: High to Low', value: 'price_desc' },
+          { label: 'Name: A-Z', value: 'name_asc' },
+          { label: 'Name: Z-A', value: 'name_desc' },
+        ]}
       />
       <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
         <div className="overflow-x-auto">

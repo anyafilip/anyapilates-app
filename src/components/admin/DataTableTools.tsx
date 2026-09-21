@@ -9,13 +9,19 @@ interface DataTableToolsProps {
   filterOptions?: { label: string, value: string }[]
   filterPlaceholder?: string
   filterParamName?: string
+  sortOptions?: { label: string, value: string }[]
+  sortPlaceholder?: string
+  sortParamName?: string
 }
 
 export default function DataTableTools({ 
   searchPlaceholder = 'Search...', 
   filterOptions, 
   filterPlaceholder = 'All',
-  filterParamName = 'filter'
+  filterParamName = 'filter',
+  sortOptions,
+  sortPlaceholder = 'Sort',
+  sortParamName = 'sort'
 }: DataTableToolsProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -32,7 +38,9 @@ export default function DataTableTools({
       } else {
         params.delete(name)
       }
-      params.delete('page') // Reset page on filter/search
+      if (name !== 'page') {
+        params.delete('page') // Reset page on filter/search/sort change
+      }
       return params.toString()
     },
     [searchParams]
@@ -65,17 +73,31 @@ export default function DataTableTools({
         />
       </div>
 
-      {filterOptions && filterOptions.length > 0 && (
-        <div className="min-w-[160px]">
-          <CustomDropdown
-            value={searchParams.get(filterParamName) || ''}
-            onChange={(val) => router.push(pathname + '?' + createQueryString(filterParamName, val))}
-            options={filterOptions}
-            placeholder={filterPlaceholder}
-            variant="filter"
-          />
-        </div>
-      )}
+      <div className="flex flex-wrap gap-4">
+        {filterOptions && filterOptions.length > 0 && (
+          <div className="min-w-[160px]">
+            <CustomDropdown
+              value={searchParams.get(filterParamName) || ''}
+              onChange={(val) => router.push(pathname + '?' + createQueryString(filterParamName, val))}
+              options={filterOptions}
+              placeholder={filterPlaceholder}
+              variant="filter"
+            />
+          </div>
+        )}
+
+        {sortOptions && sortOptions.length > 0 && (
+          <div className="min-w-[160px]">
+            <CustomDropdown
+              value={searchParams.get(sortParamName) || ''}
+              onChange={(val) => router.push(pathname + '?' + createQueryString(sortParamName, val))}
+              options={sortOptions}
+              placeholder={sortPlaceholder}
+              variant="filter"
+            />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

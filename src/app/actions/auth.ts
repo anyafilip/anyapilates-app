@@ -22,10 +22,18 @@ export type RegisterState = {
   inputs?: { name?: string; email?: string; phone?: string }
 }
 
+import { checkRateLimit } from '@/lib/rate-limit'
+
 export async function register(
   prevState: RegisterState,
   formData: FormData
 ): Promise<RegisterState> {
+  // Rate limit: 3 registrations per 30 minutes per IP
+  const allowed = await checkRateLimit('register', 3, 30 * 60 * 1000)
+  if (!allowed) {
+    return { message: 'Too many registration attempts. Please try again later.' }
+  }
+
   const inputs = {
     name: formData.get('name') as string,
     email: formData.get('email') as string,
@@ -57,17 +65,19 @@ export async function register(
     data: { name, email, phone, password: hashedPassword },
   })
 
-  // Auto-login after registration
-  try {
-    await signIn('credentials', { email, password, redirectTo: '/en' })
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return { message: 'Account created successfully, but auto-login failed. Please log in manually.', inputs }
-    }
-    throw error
-  }
+  // Generate verification token
+  const token = crypto.randomUUID()
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
-  return { message: 'Account created successfully!' }
+  await prisma.verificationToken.create({
+    data: { email, token, expires }
+  })
+
+  // Send email
+  const { sendVerificationEmail } = await import('@/lib/email')
+  await sendVerificationEmail(email, token)
+
+  return { message: 'Account created! Please check your email to verify your account.' }
 }
 
 // ── Login ─────────────────────────────────────────────────────────────────────
@@ -80,6 +90,12 @@ export async function login(
   prevState: LoginState,
   formData: FormData
 ): Promise<LoginState> {
+  // Rate limit: 10 login attempts per 5 minutes per IP
+  const allowed = await checkRateLimit('login', 10, 5 * 60 * 1000)
+  if (!allowed) {
+    return { message: 'Too many login attempts. Please try again later.' }
+  }
+
   const email = formData.get('email') as string
   
   // Find user to determine role-based redirect
@@ -96,14 +112,12 @@ export async function login(
       password: formData.get('password'),
       redirectTo: redirectUrl,
     })
-  } catch (error) {
+    } catch (error: any) {
     if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return { message: 'Invalid email or password.' }
-        default:
-          return { message: 'Something went wrong. Please try again.' }
+      if (error.type === 'CredentialsSignin') {
+        return { message: 'Invalid email or password.' }
       }
+      return { message: error.cause?.err?.message || 'Something went wrong. Please try again.' }
     }
     // NEXT_REDIRECT is not an error, re-throw it so Next.js can handle the redirect
     throw error

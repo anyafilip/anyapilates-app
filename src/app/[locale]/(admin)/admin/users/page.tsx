@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
-import UserRowForm from './UserRowForm'
+import UserRow from './UserRow'
 import Modal from '@/components/Modal'
 import Link from 'next/link'
 import DataTableTools from '@/components/admin/DataTableTools'
@@ -65,41 +65,20 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
         ]}
       />
 
-      <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
+      <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] shadow-sm">
+        <div className="overflow-x-auto rounded-[2rem]">
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr className="border-b border-black/5 text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
-                <th className="font-medium py-6 pl-8">Member</th>
-                <th className="font-medium py-6">Phone</th>
-                <th className="font-medium py-6">Credits</th>
-                <th className="font-medium py-6">Role</th>
-                <th className="font-medium py-6 pr-8 text-right">Actions</th>
+                <th className="font-medium py-6 pl-8 w-[35%]">Member</th>
+                <th className="font-medium py-6 w-[20%]">Phone</th>
+                <th className="font-medium py-6 w-[25%]">Role</th>
+                <th className="font-medium py-6 pr-8 text-right w-[20%]">Actions</th>
               </tr>
             </thead>
             <tbody className="text-sm font-light text-[var(--foreground)]">
               {users.map(u => (
-                <tr key={u.id} className="border-b border-black/5 last:border-0 hover:bg-black/[0.02] transition-colors">
-                  <td className="py-4 pl-8">
-                    <p className="font-medium text-[var(--foreground)]">{u.name}</p>
-                    <p className="text-[11px] text-[var(--foreground-muted)] mt-1">{u.email}</p>
-                  </td>
-                  <td className="py-4 text-[13px] text-[var(--foreground-muted)]">
-                    {u.phone || '—'}
-                  </td>
-                  
-                  {u.id !== currentUser?.id ? (
-                    <td colSpan={3} className="py-4 pr-8 text-right">
-                      <UserRowForm user={u} />
-                    </td>
-                  ) : (
-                    <>
-                      <td>—</td>
-                      <td className="py-4">{u.role}</td>
-                      <td className="py-4 pr-8 text-right text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/50">Current User</td>
-                    </>
-                  )}
-                </tr>
+                <UserRow key={u.id} user={u} isCurrentUser={u.id === currentUser?.id} />
               ))}
               {users.length === 0 && (
                 <tr>

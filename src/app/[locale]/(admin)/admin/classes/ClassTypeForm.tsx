@@ -32,63 +32,107 @@ export default function ClassTypeForm({ initialData }: { initialData?: any }) {
       toast.error(initialData ? 'Failed to update class type.' : 'Failed to add class type.')
     }
   }
-  
+
   return (
-    <form ref={formRef} action={handleAction} className="grid grid-cols-1 md:grid-cols-5 gap-6 items-end relative">
+    <form
+      ref={formRef}
+      action={handleAction}
+      className="flex flex-col md:flex-row relative overflow-hidden rounded-[2rem] border border-black/5 shadow-sm"
+    >
       {initialData && <input type="hidden" name="id" value={initialData.id} />}
 
-      {/* Image Upload */}
-      <div className="md:col-span-1 flex justify-center">
-        <label className="relative cursor-pointer group flex-shrink-0">
-          <div className="w-24 h-32 bg-white/40 border border-white flex items-center justify-center overflow-hidden shadow-sm transition-transform group-hover:scale-[1.02]">
-            {preview ? (
-              <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-[9px] tracking-widest text-[var(--foreground-muted)] uppercase">Upload</span>
-            )}
-          </div>
-          <div className="absolute -bottom-2 -right-2 bg-[var(--foreground)] text-[var(--background)] p-1.5 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+      {/* Left — full-height image panel */}
+      <label className="relative cursor-pointer group md:w-64 flex-shrink-0 min-h-[180px] md:min-h-0 bg-white/50 flex items-center justify-center overflow-hidden hover:bg-white/70 transition-colors border-b md:border-b-0 md:border-r border-black/5">
+        {preview ? (
+          <>
+            <img src={preview} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+            {/* hover overlay */}
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span className="text-white text-[9px] tracking-[0.25em] uppercase font-medium">Change</span>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-3 text-center select-none">
+            <svg className="w-7 h-7 text-[var(--foreground-muted)]/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
+            <span className="text-[9px] tracking-[0.2em] text-[var(--foreground-muted)]/50 uppercase leading-relaxed">
+              Upload<br />Image
+            </span>
           </div>
-          <input 
-            type="file" 
-            name="imageFile"
-            accept="image/*"
-            className="hidden" 
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) setPreview(URL.createObjectURL(file))
-            }}
-          />
-        </label>
-      </div>
-
-      <div className="md:col-span-1">
-        <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3 pl-2">Name *</label>
-        <input name="name" defaultValue={initialData?.name} required placeholder="Group Reformer" className="w-full border-b border-[var(--border)] px-4 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-[var(--foreground-muted)]/50" />
-      </div>
-      
-      <div className="md:col-span-1">
-        <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3 pl-2">Description</label>
-        <input name="description" defaultValue={initialData?.description} placeholder="Description..." className="w-full border-b border-[var(--border)] px-4 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-[var(--foreground-muted)]/50" />
-      </div>
-
-      <div className="md:col-span-1">
-        <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3 pl-2">Credits</label>
-        <input name="creditCost" defaultValue={initialData?.creditCost ?? 1} type="number" min="0" required className="w-full border-b border-[var(--border)] px-4 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors" />
-      </div>
-
-      <div className="md:col-span-1 pb-1 flex flex-col gap-3">
-        <button type="submit" className="w-full bg-[var(--foreground)] text-[var(--background)] py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors shadow-sm">
-          {initialData ? 'Save Changes' : 'Add Type'}
-        </button>
-        {initialData && (
-          <button type="button" onClick={() => router.push('/en/admin/classes')} className="w-full text-[10px] tracking-widest text-[var(--foreground-muted)] hover:text-[var(--foreground)] uppercase py-2 cursor-pointer transition-colors">
-            Cancel
-          </button>
         )}
+        <input
+          type="file"
+          name="imageFile"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) setPreview(URL.createObjectURL(file))
+          }}
+        />
+      </label>
+
+      {/* Right — form fields */}
+      <div className="flex-1 flex flex-col gap-6 p-8">
+        <div>
+          <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
+            Class Name *
+          </label>
+          <input
+            name="name"
+            defaultValue={initialData?.name}
+            required
+            placeholder="e.g. Group Reformer"
+            className="w-full border-b border-[var(--border)] pb-3 text-xl font-serif text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-[var(--foreground-muted)]/40"
+          />
+        </div>
+
+        <div className="flex-1">
+          <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
+            Description
+          </label>
+          <textarea
+            name="description"
+            defaultValue={initialData?.description ?? undefined}
+            placeholder="Write a short description for this class type..."
+            rows={4}
+            className="w-full bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white rounded-2xl px-5 py-4 text-sm font-light text-[var(--foreground)] focus:outline-none transition-all placeholder:text-[var(--foreground-muted)]/40 resize-none"
+          />
+        </div>
+
+        {initialData && (
+          <div className="flex items-center gap-3">
+            <label htmlFor="isActive" className="text-[10px] tracking-widest uppercase text-[var(--foreground)] cursor-pointer">
+              Active
+            </label>
+            <input
+              type="checkbox"
+              name="isActive"
+              id="isActive"
+              defaultChecked={initialData.isActive}
+              className="accent-[var(--foreground)]"
+            />
+          </div>
+        )}
+
+        <div className="flex items-center justify-end gap-6 pt-4 border-t border-black/5">
+          {initialData && (
+            <button
+              type="button"
+              onClick={() => router.push('/en/admin/classes')}
+              className="text-[10px] tracking-widest text-[var(--foreground-muted)] hover:text-[var(--foreground)] uppercase cursor-pointer transition-colors"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            type="submit"
+            className="bg-[var(--foreground)] text-[var(--background)] px-10 py-3.5 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors shadow-sm cursor-pointer"
+          >
+            {initialData ? 'Save Changes' : 'Add Class Type'}
+          </button>
+        </div>
       </div>
     </form>
   )

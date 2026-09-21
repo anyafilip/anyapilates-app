@@ -68,7 +68,7 @@ export default function PackageForm({ initialData, classTypes = [] }: { initialD
             <input type="checkbox" name="isActive" id="isActive" defaultChecked={initialData.isActive} className="accent-[var(--foreground)]" />
           </div>
         )}
-        <button type="submit" className="w-full bg-[var(--foreground)] text-[var(--background)] py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors shadow-sm cursor-pointer">
+        <button type="submit" className="w-full bg-[var(--foreground)] text-[var(--background)] px-8 py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors shadow-sm cursor-pointer">
           {initialData ? 'Save Changes' : 'Add Package'}
         </button>
         {initialData && (
