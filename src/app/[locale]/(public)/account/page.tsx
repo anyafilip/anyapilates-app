@@ -33,6 +33,10 @@ export default async function AccountPage() {
         include: { class: { include: { classType: true } } },
         orderBy: { bookedAt: 'desc' },
       },
+      payments: {
+        include: { package: true },
+        orderBy: { createdAt: 'desc' },
+      },
     },
   })
 
@@ -119,8 +123,8 @@ export default async function AccountPage() {
 
         {/* Past Bookings */}
         {past.length > 0 && (
-          <section>
-            <h2 className="text-2xl font-serif font-normal text-[var(--foreground)] mb-6">History</h2>
+          <section className="mb-14">
+            <h2 className="text-2xl font-serif font-normal text-[var(--foreground)] mb-6">Class History</h2>
             <div className="divide-y divide-[var(--border)]">
               {past.slice(0, 10).map(booking => (
                 <div key={booking.id} className="py-4 flex items-center justify-between gap-4 opacity-60">
@@ -134,6 +138,44 @@ export default async function AccountPage() {
                     {booking.status}
                   </span>
                 </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Purchase History */}
+        {user.payments && user.payments.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-serif font-normal text-[var(--foreground)] mb-6">Purchase History</h2>
+            <div className="divide-y divide-[var(--border)]">
+              {user.payments.map(payment => (
+                <Link
+                  key={payment.id} 
+                  href={payment.status === 'PENDING' ? `/en/buy-credits/pending?paymentId=${payment.id}` : '#'}
+                  className={`py-4 flex items-center justify-between gap-4 transition-colors ${payment.status === 'PENDING' ? 'hover:bg-black/5 rounded-lg px-2 -mx-2' : ''}`}
+                >
+                  <div>
+                    <p className="font-medium text-[var(--foreground)]">
+                      {payment.package.name}
+                      {payment.status === 'PENDING' && (
+                        <span className="inline-block ml-2 w-2 h-2 rounded-full bg-[var(--foreground-muted)] animate-pulse"></span>
+                      )}
+                    </p>
+                    <p className="text-sm text-[var(--foreground-muted)] mt-0.5">
+                      {bangkokDate(payment.createdAt)} · {payment.refCode}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-serif text-[var(--foreground)]">฿{(payment.amount / 100).toLocaleString('en-US')}</p>
+                    <span className={`text-[10px] tracking-widest uppercase ${
+                      payment.status === 'PAID' ? 'text-green-600' :
+                      payment.status === 'FAILED' ? 'text-red-600' :
+                      'text-[var(--foreground-muted)]'
+                    }`}>
+                      {payment.status} {payment.status === 'PENDING' ? '→' : ''}
+                    </span>
+                  </div>
+                </Link>
               ))}
             </div>
           </section>
