@@ -125,14 +125,18 @@ export default async function AccountPage() {
           </section>
 
           {/* Quick Links */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link href="/en/account/settings" className="bg-white/30 hover:bg-white/60 transition-colors border border-white/60 rounded-2xl p-6 text-center">
+              <p className="font-serif text-lg text-[var(--foreground)] mb-1">Profile</p>
+              <p className="text-xs text-[var(--foreground-muted)]">Update info and picture</p>
+            </Link>
             <Link href="/en/account/history" className="bg-white/30 hover:bg-white/60 transition-colors border border-white/60 rounded-2xl p-6 text-center">
               <p className="font-serif text-lg text-[var(--foreground)] mb-1">Class History</p>
-              <p className="text-xs text-[var(--foreground-muted)]">View past attendances & cancellations</p>
+              <p className="text-xs text-[var(--foreground-muted)]">View past attendances</p>
             </Link>
             <Link href="/en/account/purchases" className="bg-white/30 hover:bg-white/60 transition-colors border border-white/60 rounded-2xl p-6 text-center">
-              <p className="font-serif text-lg text-[var(--foreground)] mb-1">Purchase History</p>
-              <p className="text-xs text-[var(--foreground-muted)]">View receipts and payment status</p>
+              <p className="font-serif text-lg text-[var(--foreground)] mb-1">Purchases</p>
+              <p className="text-xs text-[var(--foreground-muted)]">View receipts and status</p>
             </Link>
           </section>
 
