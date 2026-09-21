@@ -323,8 +323,8 @@ export default async function HomePage() {
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/50">
             <p>© 2026 Anya Pilates. All rights reserved.</p>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-white transition-colors">Terms & Conditions</a>
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+              <Link href="/en/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>
+              <Link href="/en/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
             </div>
           </div>
         </div>
