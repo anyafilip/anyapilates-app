@@ -11,7 +11,7 @@ export default function InstructorNavbar() {
     <header className="relative z-50 w-full shrink-0">
       {/* Topbar (Always visible on all screens) */}
       <div className="flex items-center justify-between px-6 py-4 bg-[var(--foreground)] text-[var(--background)] w-full">
-        <Link href="/en">
+        <Link href="/en/instructor" onClick={() => setIsOpen(false)}>
           <span className="text-base tracking-[0.3em] uppercase font-light">ANYA</span>
           <span className="text-[9px] tracking-[0.35em] uppercase text-white/50 ml-2">Instructor</span>
         </Link>
