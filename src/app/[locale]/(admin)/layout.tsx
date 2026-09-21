@@ -7,7 +7,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if ((session?.user as any)?.role !== 'ADMIN') redirect('/en')
 
   return (
-    <div className="flex-1 w-full flex flex-col h-screen overflow-hidden">
+    <div className="flex-1 w-full flex flex-col h-[100dvh] overflow-hidden">
       <style dangerouslySetInnerHTML={{ __html: `
         html, body {
           background-color: var(--foreground) !important;

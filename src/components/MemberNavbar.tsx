@@ -37,7 +37,7 @@ export default function MemberNavbar() {
       <aside className={`
         ${isOpen ? 'flex' : 'hidden'} 
         flex-col w-full md:w-64 shrink-0 bg-[var(--foreground)] text-[var(--background)] 
-        absolute top-full left-0 h-[calc(100vh-56px)] border-t border-white/10
+        absolute top-full left-0 h-[calc(100dvh-56px)] border-t border-white/10
       `}>
         <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto">
           <Link

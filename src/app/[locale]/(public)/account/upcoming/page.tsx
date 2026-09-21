@@ -38,7 +38,7 @@ export default async function UpcomingPage() {
   const now = Date.now()
 
   return (
-    <div className="flex-1 w-full flex flex-col h-screen overflow-hidden bg-[var(--surface)]">
+    <div className="flex-1 w-full flex flex-col h-[100dvh] overflow-hidden bg-[var(--surface)]">
       <MemberNavbar />
 
       <main className="flex-1 overflow-y-auto w-full">

@@ -15,7 +15,7 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 border-b border-[var(--border)] ${isOpen ? 'bg-[var(--background)]/95 backdrop-blur-xl h-screen md:h-auto overflow-y-auto' : 'bg-[var(--background)]/80 backdrop-blur-sm'}`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 border-b border-[var(--border)] ${isOpen ? 'bg-[var(--background)]/95 backdrop-blur-xl h-[100dvh] md:h-auto overflow-y-auto' : 'bg-[var(--background)]/80 backdrop-blur-sm'}`}>
       <nav className="container mx-auto px-6 py-4 max-w-7xl">
         <div className="flex items-center justify-between">
           
