@@ -13,8 +13,8 @@ export default async function AdminDashboard() {
     todayClasses,
     totalMembers, 
     newMembersThisMonth,
-    pendingPayments,
-    pendingPaymentsWithSlip
+    pendingPaymentsQR,
+    pendingPaymentsCounter
   ] = await Promise.all([
     // Active bookings for upcoming classes
     prisma.booking.count({ where: { status: 'BOOKED', class: { date: { gte: startOfDay } } } }),
@@ -28,11 +28,13 @@ export default async function AdminDashboard() {
     prisma.user.count({ where: { role: 'CLIENT' } }),
     // Clients who joined this month
     prisma.user.count({ where: { role: 'CLIENT', createdAt: { gte: startOfMonth } } }),
-    // All pending payments
-    prisma.payment.count({ where: { status: 'PENDING' } }),
-    // Pending payments with a slip uploaded (action required)
-    prisma.payment.count({ where: { status: 'PENDING', slipUrl: { not: null } } })
+    // Pending QR payments
+    prisma.payment.count({ where: { status: 'PENDING', method: 'QR' } }),
+    // Pending Counter payments
+    prisma.payment.count({ where: { status: 'PENDING', method: 'COUNTER' } })
   ])
+
+  const pendingTotal = pendingPaymentsQR + pendingPaymentsCounter
 
   const upcoming = await prisma.class.findMany({
     where: { date: { gte: startOfDay } },
@@ -48,7 +50,7 @@ export default async function AdminDashboard() {
         <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Studio Dashboard</p>
       </div>
 
-      {pendingPayments > 0 && (
+      {pendingTotal > 0 && (
         <div className="bg-[#FAF5F0] border border-[#E8DFD5] rounded-2xl md:rounded-3xl p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
@@ -60,7 +62,9 @@ export default async function AdminDashboard() {
             </div>
             <div>
               <h3 className="text-[var(--foreground)] font-medium text-sm md:text-base">Action Required: Pending Payments</h3>
-              <p className="text-[var(--foreground-muted)] text-xs md:text-sm mt-0.5">There are {pendingPayments} payments waiting for your confirmation.</p>
+              <p className="text-[var(--foreground-muted)] text-xs md:text-sm mt-0.5">
+                There are {pendingTotal} payments waiting for confirmation ({pendingPaymentsQR} by QR, {pendingPaymentsCounter} at counter).
+              </p>
             </div>
           </div>
           <Link href="/en/admin/payments" className="w-full md:w-auto text-center bg-orange-600 text-white px-6 py-2.5 rounded-full text-[10px] tracking-widest uppercase hover:bg-orange-700 transition-colors">

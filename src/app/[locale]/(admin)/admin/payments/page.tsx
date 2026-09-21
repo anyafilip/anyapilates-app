@@ -60,6 +60,7 @@ export default async function AdminPaymentsPage(props: { searchParams: Promise<{
                 <th className="font-medium py-6 pl-8">Member</th>
                 <th className="font-medium py-6">Package</th>
                 <th className="font-medium py-6">Amount</th>
+                <th className="font-medium py-6">Method</th>
                 <th className="font-medium py-6">Ref Code</th>
                 <th className="font-medium py-6 text-center">Slip</th>
                 <th className="font-medium py-6">Status</th>
@@ -75,6 +76,10 @@ export default async function AdminPaymentsPage(props: { searchParams: Promise<{
                   </td>
                   <td className="py-4 text-[13px]">{p.package.name}</td>
                   <td className="py-4">฿{(p.amount / 100).toLocaleString()}</td>
+                  <td className="py-4">
+                    {p.method === 'QR' && <span className="inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] tracking-widest uppercase">QR</span>}
+                    {p.method === 'COUNTER' && <span className="inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] tracking-widest uppercase">Counter</span>}
+                  </td>
                   <td className="py-4 font-mono text-[11px]">{p.refCode}</td>
                   <td className="py-4 text-center">
                     <SlipPreview url={p.slipUrl || ''} />
