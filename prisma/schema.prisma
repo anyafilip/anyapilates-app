@@ -193,6 +193,22 @@ model WeeklyScheduleTemplate {
 
 // ── Settings ─────────────────────────────────────────────
 model StudioSettings {
-  id        String  @id @default("default")
-  qrCodeUrl String? // base64 image of the QR code
+  id             String  @id @default("default")
+  qrCodeUrl      String? // base64 image of the QR code
+  
+  // Footer contact info
+  contactEmail   String?
+  contactPhone   String?
+  contactAddress String?
+  
+  // Footer hours
+  hoursWeekday   String?
+  hoursSaturday  String?
+  hoursSunday    String?
+  
+  // Social Links
+  instagramUrl   String?
+  facebookUrl    String?
+  lineUrl        String?
+  whatsappUrl    String?
 }

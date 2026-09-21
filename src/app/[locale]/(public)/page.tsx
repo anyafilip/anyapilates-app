@@ -64,6 +64,9 @@ export default async function HomePage() {
     orderBy: { createdAt: 'asc' }
   })
 
+  // Fetch Studio Settings for the footer
+  const settings = await prisma.studioSettings.findUnique({ where: { id: 'default' } })
+
   // Fetch active packages
   let packages = await prisma.package.findMany({
     where: { isActive: true },
@@ -273,34 +276,47 @@ export default async function HomePage() {
             <div>
               <h3 className="text-lg font-light uppercase tracking-widest mb-6">Contact</h3>
               <ul className="space-y-4 text-white/70 font-light">
-                <li>Bangkok, Thailand</li>
-                <li>hello@anyapilates.com</li>
-                <li>+66 80 123 4567</li>
+                <li>{settings?.contactAddress || 'Bangkok, Thailand'}</li>
+                <li>{settings?.contactEmail || 'hello@anyapilatesstudio.com'}</li>
+                <li>{settings?.contactPhone || '+66 80 123 4567'}</li>
               </ul>
             </div>
             <div>
               <h3 className="text-lg font-light uppercase tracking-widest mb-6">Hours</h3>
               <ul className="space-y-4 text-white/70 font-light">
-                <li>Monday – Friday: 07:00 – 21:00</li>
-                <li>Saturday: 09:00 – 15:00</li>
-                <li>Sunday: Closed</li>
+                <li>Monday – Friday: {settings?.hoursWeekday || '07:00 – 21:00'}</li>
+                <li>Saturday: {settings?.hoursSaturday || '09:00 – 15:00'}</li>
+                <li>Sunday: {settings?.hoursSunday || 'Closed'}</li>
               </ul>
             </div>
             <div>
               <h3 className="text-lg font-light uppercase tracking-widest mb-6">Social</h3>
               <div className="flex justify-center md:justify-start gap-6">
-                <a href="#" aria-label="Instagram" className="text-white/60 hover:text-white transition-colors">
-                  <IconInstagramColored size={22} />
-                </a>
-                <a href="#" aria-label="Facebook" className="text-white/60 hover:text-white transition-colors">
-                  <IconFacebookColored size={22} />
-                </a>
-                <a href="#" aria-label="Line" className="text-white/60 hover:text-white transition-colors">
-                  <IconLineColored size={22} />
-                </a>
-                <a href="#" aria-label="WhatsApp" className="text-white/60 hover:text-white transition-colors">
-                  <IconWhatsAppColored size={22} />
-                </a>
+                {settings?.instagramUrl ? (
+                  <a href={settings.instagramUrl} target="_blank" aria-label="Instagram" className="text-white/60 hover:text-white transition-colors">
+                    <IconInstagramColored size={22} />
+                  </a>
+                ) : null}
+                {settings?.facebookUrl ? (
+                  <a href={settings.facebookUrl} target="_blank" aria-label="Facebook" className="text-white/60 hover:text-white transition-colors">
+                    <IconFacebookColored size={22} />
+                  </a>
+                ) : null}
+                {settings?.lineUrl ? (
+                  <a href={settings.lineUrl} target="_blank" aria-label="Line" className="text-white/60 hover:text-white transition-colors">
+                    <IconLineColored size={22} />
+                  </a>
+                ) : null}
+                {settings?.whatsappUrl ? (
+                  <a href={settings.whatsappUrl} target="_blank" aria-label="WhatsApp" className="text-white/60 hover:text-white transition-colors">
+                    <IconWhatsAppColored size={22} />
+                  </a>
+                ) : null}
+                
+                {/* Fallback if no social links set */}
+                {!settings?.instagramUrl && !settings?.facebookUrl && !settings?.lineUrl && !settings?.whatsappUrl && (
+                  <span className="text-white/40 text-sm italic">Links coming soon</span>
+                )}
               </div>
             </div>
           </div>

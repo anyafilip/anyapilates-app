@@ -263,11 +263,24 @@ export async function deletePackage(id: string) {
 }
 
 // ── Studio Settings ──────────────────────────────────────────────────────────
-export async function saveStudioSettings(qrCodeUrl: string) {
+export async function saveStudioSettings(data: {
+  qrCodeUrl?: string
+  contactEmail?: string
+  contactPhone?: string
+  contactAddress?: string
+  hoursWeekday?: string
+  hoursSaturday?: string
+  hoursSunday?: string
+  instagramUrl?: string
+  facebookUrl?: string
+  lineUrl?: string
+  whatsappUrl?: string
+}) {
   const adminId = await requireAdmin()
+  
   await prisma.studioSettings.upsert({
     where: { id: 'default' },
-    update: { qrCodeUrl },
-    create: { id: 'default', qrCodeUrl },
+    update: data,
+    create: { id: 'default', ...data },
   })
 }
