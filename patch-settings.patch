@@ -1,0 +1,32 @@
+--- src/app/[locale]/(admin)/admin/settings/SettingsForm.tsx
++++ src/app/[locale]/(admin)/admin/settings/SettingsForm.tsx
+@@ -10,6 +10,7 @@
+   const [aboutImage1, setAboutImage1] = useState(initialSettings?.aboutImage1 || '')
+   const [aboutImage2, setAboutImage2] = useState(initialSettings?.aboutImage2 || '')
+   const [aboutImage3, setAboutImage3] = useState(initialSettings?.aboutImage3 || '')
++  const [heroImage, setHeroImage] = useState(initialSettings?.heroImage || '')
+   
+   const [footer, setFooter] = useState({
+     contactEmail: initialSettings?.contactEmail || '',
+@@ -58,6 +59,7 @@
+         aboutImage1,
+         aboutImage2,
+         aboutImage3,
++        heroImage,
+         ...footer
+       })
+       toast.success('Settings saved successfully.')
+@@ -87,6 +89,13 @@
+ 
+   return (
+     <div className="space-y-12">
++      {/* Hero Section Image */}
++      <div>
++        <h2 className="text-xl font-serif text-[var(--foreground)] border-b border-black/5 pb-2 mb-6">Frontpage Hero Image</h2>
++        <p className="text-sm text-[var(--foreground-muted)] mb-6">Upload a stunning background image for the very top of your website.</p>
++        {renderImageUploader("Hero Background Image", heroImage, setHeroImage, "w-full h-48 md:h-64 object-cover")}
++      </div>
++
+       {/* Frontpage Studio Images */}
+       <div>
+         <h2 className="text-xl font-serif text-[var(--foreground)] border-b border-black/5 pb-2 mb-6">Frontpage 'About' Images</h2>

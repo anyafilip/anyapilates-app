@@ -278,6 +278,7 @@ export async function saveStudioSettings(data: {
   aboutImage1?: string
   aboutImage2?: string
   aboutImage3?: string
+  heroImage?: string
 }) {
   const adminId = await requireAdmin()
   

@@ -216,4 +216,7 @@ model StudioSettings {
   aboutImage1    String?
   aboutImage2    String?
   aboutImage3    String?
+  
+  // Hero Section Image
+  heroImage      String?
 }

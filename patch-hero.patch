@@ -1,0 +1,41 @@
+--- src/app/[locale]/(public)/page.tsx
++++ src/app/[locale]/(public)/page.tsx
+@@ -101,8 +101,11 @@
+ 
+       {/* ── Hero ─────────────────────────────────────── */}
+-      <section className="relative min-h-screen flex flex-col overflow-hidden pt-32 bg-[#DED6CC]">
+-        <div className="absolute inset-0 z-0 bg-[#DED6CC]">
++      <section className="relative min-h-screen flex flex-col overflow-hidden pt-32">
++        <div 
++          className="absolute inset-0 z-0 bg-[#DED6CC] bg-cover bg-center"
++          style={settings?.heroImage ? { backgroundImage: `url(${settings.heroImage})` } : {}}
++        >
+           <div className="absolute inset-0 bg-gradient-to-b from-[var(--foreground)]/25 to-[var(--foreground)]/5"></div>
+         </div>
+         <div className="relative z-10 flex-1 flex items-center justify-center px-4 md:px-8 py-12 text-center">
+@@ -115,10 +118,20 @@
+             <h1 className="font-serif font-normal text-5xl md:text-7xl lg:text-8xl text-white leading-tight mb-8">
+               Move with intention<br />Find your balance
+             </h1>
+             <p className="font-light text-lg md:text-xl text-white/90 mb-12">
+               Discover your rhythm at Anya Pilates, Bangkok
+             </p>
+-            <a href="#schedule" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
+-              View Schedule
+-            </a>
++            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
++              <a href="#schedule" className="font-light tracking-widest text-xs sm:text-sm text-[var(--foreground)] bg-white rounded-full px-8 py-4 hover:bg-white/90 shadow-sm transition-all uppercase">
++                View Schedule
++              </a>
++              {isLoggedIn ? (
++                <Link href="/en/account" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
++                  Go to Dashboard
++                </Link>
++              ) : (
++                <Link href="/en/login" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
++                  Sign In
++                </Link>
++              )}
++            </div>
+           </div>
+         </div>
