@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 
 type PackageItem = {
   id: string
@@ -23,6 +24,7 @@ interface PackagesDisplayProps {
 }
 
 export default function PackagesDisplay({ packages, isLoggedIn, userRole }: PackagesDisplayProps) {
+  const t = useTranslations('Packages')
   const router = useRouter()
   const [selectedTab, setSelectedTab] = useState<'ALL' | 'GROUP' | 'DUO' | 'PRIVATE' | 'INTRO'>('ALL')
 
@@ -39,11 +41,11 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
   }
 
   const tabs = [
-    { key: 'ALL', label: 'All Packages' },
-    { key: 'GROUP', label: 'Group' },
-    { key: 'DUO', label: 'Duo' },
-    { key: 'PRIVATE', label: 'Private' },
-    { key: 'INTRO', label: 'Introductory' },
+    { key: 'ALL', label: t('allPackages') },
+    { key: 'GROUP', label: t('group') },
+    { key: 'DUO', label: t('duo') },
+    { key: 'PRIVATE', label: t('private') },
+    { key: 'INTRO', label: t('introductory') },
   ] as const
 
   const filteredPackages = useMemo(() => {
@@ -135,17 +137,17 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
                 <div className="h-5 mb-3 flex items-center justify-center">
                   {isIntro && (
                     <span className="inline-flex items-center gap-1 text-[8px] tracking-[0.2em] uppercase font-medium text-[var(--accent-dark)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20">
-                      ★ Introductory
+                      ★ {t('introductory')}
                     </span>
                   )}
                   {isSingle && !isIntro && (
                     <span className="text-[8px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] font-medium">
-                      Single Session
+                      {t('singleSession')}
                     </span>
                   )}
                   {!isSingle && !isIntro && (
                     <span className="text-[8px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/70">
-                      Class Package
+                      {t('classPackage')}
                     </span>
                   )}
                 </div>
@@ -170,7 +172,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
                   {/* Price per class breakdown */}
                   {pkg.classCount > 1 && (
                     <div className="text-[9px] font-medium tracking-wider text-[var(--foreground-muted)] uppercase bg-black/[0.03] px-2.5 py-0.5 rounded-full">
-                      ฿{unitPrice.toLocaleString('en-US')} / class
+                      ฿{unitPrice.toLocaleString('en-US')} / {t('classUnit')}
                     </div>
                   )}
                 </div>
@@ -195,7 +197,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
                     }
                   `}
                 >
-                  Select
+                  {t('select')}
                 </button>
               </div>
             </div>
@@ -205,18 +207,18 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
 
       {filteredPackages.length === 0 && (
         <div className="text-center py-16 text-[var(--foreground-muted)] font-serif italic">
-          No packages currently available in this category.
+          {t('noPackages')}
         </div>
       )}
 
       {/* ── Official Flyer Footer / Disclaimers ────────────────────────── */}
       <div className="text-center max-w-2xl mx-auto space-y-3 pt-6 border-t border-black/5">
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[10px] tracking-[0.25em] uppercase text-[var(--foreground-muted)] font-medium">
-          <span>Class Duration: 50 Minutes</span>
+          <span>{t('classDuration')}</span>
           <span className="hidden sm:inline opacity-30">•</span>
-          <span>Intro Packages: Valid 15 Days</span>
+          <span>{t('introValid')}</span>
           <span className="hidden sm:inline opacity-30">•</span>
-          <span>Packages: Valid 30–60 Days</span>
+          <span>{t('pkgsValid')}</span>
         </div>
         <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] opacity-60">
           All packages are non-refundable. Validity starts from the date of purchase.

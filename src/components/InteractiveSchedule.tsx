@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import BookButton from './BookButton'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
 
@@ -23,6 +24,7 @@ export default function InteractiveSchedule({
   isLoggedIn: boolean
   userRole?: string
 }) {
+  const t = useTranslations('Schedule')
   const CUTOFF_MS = 12 * 60 * 60 * 1000
 
   // Show 14 days starting today
@@ -95,8 +97,8 @@ export default function InteractiveSchedule({
       <div className="bg-white/60 rounded-[2.5rem] p-5 md:p-12 backdrop-blur-xl border border-white shadow-sm">
         {filteredClasses.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-[var(--foreground-muted)] font-serif italic text-xl mb-2">A day of rest.</p>
-            <p className="text-xs tracking-widest uppercase text-[var(--foreground-muted)]/70">No classes scheduled.</p>
+            <p className="text-[var(--foreground-muted)] font-serif italic text-xl mb-2">{t('dayOfRest')}</p>
+            <p className="text-xs tracking-widest uppercase text-[var(--foreground-muted)]/70">{t('noClasses')}</p>
           </div>
         ) : (
           <div className="divide-y divide-[var(--border)]">
@@ -136,7 +138,7 @@ export default function InteractiveSchedule({
                   <div className="flex items-center gap-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
                     {isBooked ? (
                       <span className="text-[9px] md:text-[10px] tracking-[0.15em] uppercase text-[var(--accent)] border border-[var(--accent)]/40 bg-[var(--accent)]/5 rounded-full px-4 md:px-6 py-2 md:py-3 font-medium">
-                        Reserved ✓
+                        {t('reserved')}
                       </span>
                     ) : (
                       <>
@@ -174,7 +176,7 @@ export default function InteractiveSchedule({
             {/* Header */}
             <div className="flex items-start justify-between px-8 pt-6 pb-5 border-b border-[var(--border)]">
               <div>
-                <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">Class Details</p>
+                <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">{t('classDetails')}</p>
                 <h3 className="text-2xl font-serif font-normal text-[var(--foreground)]">{selectedClass.name}</h3>
               </div>
               <button
@@ -194,24 +196,24 @@ export default function InteractiveSchedule({
               {/* Date / Time / Duration row */}
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">Date</p>
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">{t('date')}</p>
                   <p className="text-sm font-light text-[var(--foreground)]">
                     {new Date(selectedClass.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">Time</p>
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">{t('time')}</p>
                   <p className="text-sm font-light text-[var(--foreground)]">{selectedClass.startTime}–{selectedClass.endTime}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">Duration</p>
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">{t('duration')}</p>
                   <p className="text-sm font-light text-[var(--foreground)]">{selectedClass.duration} min</p>
                 </div>
               </div>
 
               {/* Capacity */}
               <div>
-                <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">Availability</p>
+                <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">{t('availability')}</p>
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-1.5 bg-black/8 rounded-full overflow-hidden">
                     <div
@@ -220,7 +222,7 @@ export default function InteractiveSchedule({
                     />
                   </div>
                   <span className="text-xs text-[var(--foreground-muted)] whitespace-nowrap">
-                    {selectedClass.capacity - selectedClass.bookedCount} / {selectedClass.capacity} spots left
+                    {selectedClass.capacity - selectedClass.bookedCount} / {selectedClass.capacity} {t('spotsLeft')}
                   </span>
                 </div>
               </div>
@@ -228,7 +230,7 @@ export default function InteractiveSchedule({
               {/* Instructor */}
               {selectedClass.instructor && (
                 <div className="p-5 bg-white/60 rounded-2xl border border-white/80">
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">Instructor</p>
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">{t('instructor')}</p>
                   <div className="flex items-center gap-4">
                     {selectedClass.instructor.imageUrl ? (
                       <img src={selectedClass.instructor.imageUrl} alt={selectedClass.instructor.name} className="w-12 h-12 rounded-full object-cover" />
@@ -250,7 +252,7 @@ export default function InteractiveSchedule({
               {/* Class description */}
               {selectedClass.classType?.description && (
                 <div>
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">About this class</p>
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">{t('aboutClass')}</p>
                   <p className="text-sm text-[var(--foreground)]/80 font-light leading-relaxed">{selectedClass.classType.description}</p>
                 </div>
               )}
@@ -258,7 +260,7 @@ export default function InteractiveSchedule({
               {/* Notes */}
               {selectedClass.notes && (
                 <div>
-                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">Notes</p>
+                  <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">{t('notes')}</p>
                   <p className="text-sm text-[var(--foreground)]/80 font-light leading-relaxed italic">{selectedClass.notes}</p>
                 </div>
               )}
@@ -270,7 +272,7 @@ export default function InteractiveSchedule({
                   className="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
                   onClick={() => setSelectedClass(null)}
                 >
-                  View all upcoming sessions
+                  {t('viewUpcomingSessions')}
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                   </svg>
@@ -282,7 +284,7 @@ export default function InteractiveSchedule({
             <div className="px-8 py-6 border-t border-[var(--border)] bg-[var(--background)]">
               {bookedClassIds.includes(selectedClass.id) ? (
                 <div className="w-full text-center py-4 text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] border border-[var(--accent)]/40 bg-[var(--accent)]/5 rounded-full font-medium">
-                  You are reserved ✓
+                  {t('youAreReserved')}
                 </div>
               ) : (
                 <div onClick={() => setSelectedClass(null)}>
