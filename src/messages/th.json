@@ -71,6 +71,38 @@
     "viewUpcomingSessions": "ดูคลาสที่กำลังจะมาถึงทั้งหมด",
     "youAreReserved": "คุณได้จองคลาสนี้แล้ว ✓"
   },
+  "MemberNav": {
+    "dashboard": "แดชบอร์ด",
+    "upcomingClasses": "คลาสที่กำลังจะมาถึง",
+    "classHistory": "ประวัติคลาส",
+    "purchaseHistory": "ประวัติการซื้อ",
+    "bookClass": "จองคลาส",
+    "buyPackages": "ซื้อแพ็กเกจ",
+    "profileSettings": "ตั้งค่าโปรไฟล์",
+    "viewPublicSite": "ดูเว็บไซต์สาธารณะ",
+    "logout": "ออกจากระบบ"
+  },
+  "InstructorNav": {
+    "dashboard": "แดชบอร์ด",
+    "mySchedule": "ตารางสอนของฉัน",
+    "classHistory": "ประวัติคลาส",
+    "profile": "โปรไฟล์",
+    "viewPublicSite": "ดูเว็บไซต์สาธารณะ",
+    "logout": "ออกจากระบบ"
+  },
+  "AdminNav": {
+    "dashboard": "แดชบอร์ด",
+    "classTypes": "ประเภทคลาส",
+    "schedule": "ตารางเรียน",
+    "bookings": "การจอง",
+    "users": "ผู้ใช้งาน",
+    "instructors": "ผู้สอน",
+    "packages": "แพ็กเกจ",
+    "payments": "การชำระเงิน",
+    "settings": "การตั้งค่า",
+    "viewPublicSite": "ดูเว็บไซต์สาธารณะ",
+    "logout": "ออกจากระบบ"
+  },
   "Packages": {
     "allPackages": "แพ็กเกจทั้งหมด",
     "group": "กลุ่ม",

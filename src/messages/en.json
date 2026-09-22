@@ -71,6 +71,38 @@
     "viewUpcomingSessions": "View all upcoming sessions",
     "youAreReserved": "You are reserved ✓"
   },
+  "MemberNav": {
+    "dashboard": "Dashboard",
+    "upcomingClasses": "Upcoming Classes",
+    "classHistory": "Class History",
+    "purchaseHistory": "Purchase History",
+    "bookClass": "Book a Class",
+    "buyPackages": "Buy Packages",
+    "profileSettings": "Profile Settings",
+    "viewPublicSite": "View Public Site",
+    "logout": "Logout"
+  },
+  "InstructorNav": {
+    "dashboard": "Dashboard",
+    "mySchedule": "My Schedule",
+    "classHistory": "Class History",
+    "profile": "Profile",
+    "viewPublicSite": "View Public Site",
+    "logout": "Logout"
+  },
+  "AdminNav": {
+    "dashboard": "Dashboard",
+    "classTypes": "Class Types",
+    "schedule": "Schedule",
+    "bookings": "Bookings",
+    "users": "Users",
+    "instructors": "Instructors",
+    "packages": "Packages",
+    "payments": "Payments",
+    "settings": "Settings",
+    "viewPublicSite": "View Public Site",
+    "logout": "Logout"
+  },
   "Packages": {
     "allPackages": "ALL PACKAGES",
     "group": "GROUP",

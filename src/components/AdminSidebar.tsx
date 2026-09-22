@@ -3,20 +3,23 @@
 import { useState } from 'react'
 import { Link } from '@/i18n/routing'
 import { logout } from '@/app/actions/auth'
+import LanguageToggle from '@/components/LanguageToggle'
+import { useTranslations } from 'next-intl'
 
 export default function AdminSidebar() {
   const [isOpen, setIsOpen] = useState(false)
+  const t = useTranslations('AdminNav')
 
   const links = [
-    { href: '/en/admin', label: 'Dashboard' },
-    { href: '/en/admin/classes', label: 'Class Types' },
-    { href: '/en/admin/schedule', label: 'Schedule' },
-    { href: '/en/admin/bookings', label: 'Bookings' },
-    { href: '/en/admin/users', label: 'Users' },
-    { href: '/en/admin/instructors', label: 'Instructors' },
-    { href: '/en/admin/packages', label: 'Packages' },
-    { href: '/en/admin/payments', label: 'Payments' },
-    { href: '/en/admin/settings', label: 'Settings' },
+    { href: '/admin', label: t('dashboard') },
+    { href: '/admin/classes', label: t('classTypes') },
+    { href: '/admin/schedule', label: t('schedule') },
+    { href: '/admin/bookings', label: t('bookings') },
+    { href: '/admin/users', label: t('users') },
+    { href: '/admin/instructors', label: t('instructors') },
+    { href: '/admin/packages', label: t('packages') },
+    { href: '/admin/payments', label: t('payments') },
+    { href: '/admin/settings', label: t('settings') },
   ]
 
   return (
@@ -27,22 +30,27 @@ export default function AdminSidebar() {
           <span className="text-base tracking-[0.3em] uppercase font-light">ANYA</span>
           <span className="text-[9px] tracking-[0.35em] uppercase text-white/50 ml-2">Admin</span>
         </Link>
-        <button onClick={() => setIsOpen(!isOpen)} className="p-2 transition-transform hover:scale-105">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            {isOpen ? (
-              <>
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </>
-            ) : (
-              <>
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </>
-            )}
-          </svg>
-        </button>
+        <div className="flex items-center gap-4">
+          <div className="hidden md:block">
+            <LanguageToggle dark />
+          </div>
+          <button onClick={() => setIsOpen(!isOpen)} className="p-2 transition-transform hover:scale-105">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              {isOpen ? (
+                <>
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </>
+              ) : (
+                <>
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </>
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Sidebar Content (Hidden unless open) */}
@@ -65,12 +73,15 @@ export default function AdminSidebar() {
         </nav>
 
         <div className="px-4 pb-8 space-y-2">
+          <div className="md:hidden pb-4 px-3 flex justify-start">
+            <LanguageToggle dark />
+          </div>
           <Link href="/" className="block w-full px-3 py-3 text-sm font-light text-white/50 hover:text-white hover:bg-white/10 rounded-lg text-left transition-colors">
-            ⚲ View Public Site
+            ⚲ {t('viewPublicSite')}
           </Link>
           <form action={logout}>
             <button type="submit" className="w-full px-3 py-3 text-sm font-light text-white/50 hover:text-white hover:bg-white/10 rounded-lg text-left transition-colors cursor-pointer">
-              ← Logout
+              ← {t('logout')}
             </button>
           </form>
         </div>
