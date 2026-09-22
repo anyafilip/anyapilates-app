@@ -9,7 +9,9 @@ export default async function AdminPaymentsPage(props: { searchParams: Promise<{
   const searchParams = await props.searchParams
   const q = searchParams.q || ''
   const page = parseInt(searchParams.page || '1')
-  const status = searchParams.status
+  const VALID_STATUSES: PayStatus[] = ['PENDING', 'PAID', 'FAILED']
+  const rawStatus = searchParams.status
+  const status = VALID_STATUSES.includes(rawStatus as PayStatus) ? (rawStatus as PayStatus) : undefined
 
   const where: Prisma.PaymentWhereInput = {
     ...(q ? {
@@ -18,7 +20,7 @@ export default async function AdminPaymentsPage(props: { searchParams: Promise<{
         { client: { name: { contains: q, mode: 'insensitive' } } },
       ],
     } : {}),
-    ...(status ? { status: status as PayStatus } : {}),
+    ...(status ? { status } : {}),
   }
 
   const skip = (page - 1) * 20

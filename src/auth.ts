@@ -57,10 +57,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!existing) {
           await prisma.user.create({
             data: {
-              email:    profile.email,
-              name:     (profile.name ?? profile.email.split('@')[0]),
-              password: '', // No password for OAuth users
-              role:     'CLIENT',
+              email:         profile.email,
+              name:          (profile.name ?? profile.email.split('@')[0]),
+              password:      '', // No password for OAuth users
+              role:          'CLIENT',
+              emailVerified: (profile as any).email_verified ? new Date() : null,
             },
           })
         }

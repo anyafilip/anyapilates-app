@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { cancelBooking } from '@/app/actions/booking'
+import { redirect } from 'next/navigation'
 
 import MemberNavbar from '@/components/MemberNavbar'
 import CancelBookingButton from './CancelBookingButton'
@@ -17,7 +18,9 @@ const CUTOFF_MS = 12 * 60 * 60 * 1000
 
 export default async function AccountPage() {
   const session = await auth()
-  const userId = (session?.user as any)?.id
+  if (!session?.user?.id) redirect('/en/login')
+
+  const userId = (session.user as any).id
 
   const user = await prisma.user.findUnique({
     where: { id: userId },

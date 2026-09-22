@@ -60,10 +60,26 @@ export async function requestPackagePurchase(packageId: string, method: 'QR' | '
 }
 
 // ── Submit payment slip (user uploads image) ─────────────────────────────────
+
+// Max base64 string length for a ~3 MB image (base64 inflates by ~33%)
+const MAX_SLIP_LENGTH = 4_000_000
+
 export async function submitPaymentSlip(paymentId: string, slipBase64: string) {
   const session = await auth()
   const user = session?.user as any
   if (!user?.id) throw new Error('Unauthorized')
+
+  // Server-side upload validation
+  if (!slipBase64 || typeof slipBase64 !== 'string') throw new Error('Invalid upload')
+  if (slipBase64.length > MAX_SLIP_LENGTH) throw new Error('File too large. Maximum size is 3 MB.')
+  if (!slipBase64.startsWith('data:image/')) throw new Error('Only image files are allowed.')
+
+  // Validate MIME type is in allowlist
+  const mimeMatch = slipBase64.match(/^data:(image\/[a-zA-Z+]+);base64,/)
+  const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  if (!mimeMatch || !ALLOWED_MIMES.includes(mimeMatch[1])) {
+    throw new Error('Invalid file type. Please upload a JPEG, PNG, or WebP image.')
+  }
 
   const payment = await prisma.payment.findUnique({ where: { id: paymentId } })
   if (!payment) throw new Error('Payment not found')
@@ -129,7 +145,7 @@ export async function rejectPayment(paymentId: string, notes: string) {
 
   await prisma.payment.update({
     where: { id: paymentId },
-    data: { status: 'FAILED', notes: notes || 'Rejected by admin' },
+    data: { status: 'FAILED', notes: (notes || 'Rejected by admin').substring(0, 500) },
   })
 
   revalidatePath('/en/admin/payments')

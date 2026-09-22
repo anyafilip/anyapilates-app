@@ -13,6 +13,9 @@ async function requireAdmin() {
 // ── Internal: fill gaps for all active templates up to N weeks ahead ──────────
 
 export async function autoFillSchedule(weeksAhead: number = 8) {
+  await requireAdmin()
+  if (weeksAhead < 1 || weeksAhead > 26) throw new Error('weeksAhead must be between 1 and 26')
+
   const templates = await prisma.weeklyScheduleTemplate.findMany({
     where: { isActive: true },
     include: { classType: true },
