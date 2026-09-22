@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import LanguageToggle from '@/components/LanguageToggle'
 import { logout } from '@/app/actions/auth'
+import { useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
 
 type PublicNavbarProps = {
   isLoggedIn: boolean
@@ -13,6 +15,8 @@ type PublicNavbarProps = {
 
 export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const t = useTranslations('Navigation')
+  const locale = useLocale()
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 border-b border-[var(--border)] ${isOpen ? 'bg-[var(--background)]/95 backdrop-blur-xl h-[100dvh] md:h-auto overflow-y-auto' : 'bg-[var(--background)]/80 backdrop-blur-sm'}`}>
@@ -21,7 +25,7 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
           
           {/* ── 1. Logo (Left) ──────────────────────────────────────────────── */}
           <div className="flex justify-start">
-            <Link href="/en" className="flex flex-col items-start select-none" onClick={() => setIsOpen(false)}>
+            <Link href={`/${locale}`} className="flex flex-col items-start select-none" onClick={() => setIsOpen(false)}>
               <span className="text-xl md:text-2xl font-light tracking-[0.35em] uppercase text-[var(--foreground)]">
                 ANYA
               </span>
@@ -62,10 +66,10 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
           <div className="mt-8 pt-8 border-t border-[var(--border)] flex flex-col gap-10 pb-8 animate-in slide-in-from-top-4 duration-500 fade-in">
             {/* Primary Navigation Links */}
             <div className="flex flex-col gap-8 px-2">
-              <a href="#schedule" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Schedule</a>
-              <a href="#classes" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Classes</a>
-              <a href="#packages" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Packages</a>
-              <a href="#contact" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Contact</a>
+              <a href="#schedule" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('schedule')}</a>
+              <a href="#classes" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('classes')}</a>
+              <a href="#packages" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('packages')}</a>
+              <a href="#contact" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('contact')}</a>
             </div>
             
             {/* User Section Card */}
@@ -73,7 +77,7 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
               <div className="bg-white/40 backdrop-blur-md border border-white p-6 md:p-8 rounded-3xl flex flex-col gap-6 mt-4 shadow-sm">
                 <div className="flex justify-between items-center border-b border-[var(--border)] pb-6">
                   <div>
-                    <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">Welcome back</p>
+                    <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">{t('welcomeBack')}</p>
                     <span className="text-2xl font-serif text-[var(--foreground)]">{user?.name}</span>
                   </div>
                 </div>
@@ -81,32 +85,32 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
                 <div className="flex flex-col items-center gap-5 pt-4">
                   <Link 
                     href={
-                      user?.role === 'ADMIN' ? '/en/admin' : 
-                      user?.role === 'INSTRUCTOR' ? '/en/instructor' : 
-                      '/en/account'
+                      user?.role === 'ADMIN' ? `/${locale}/admin` : 
+                      user?.role === 'INSTRUCTOR' ? `/${locale}/instructor` : 
+                      `/${locale}/account`
                     } 
                     onClick={() => setIsOpen(false)} 
                     className="w-full py-4 bg-[var(--foreground)] text-[var(--background)] rounded-full text-[10px] sm:text-[11px] font-medium tracking-[0.2em] uppercase flex items-center justify-center gap-3 hover:bg-black transition-all duration-300 group shadow-md"
                   >
-                    {user?.role === 'ADMIN' ? 'Admin Dashboard' : 
-                     user?.role === 'INSTRUCTOR' ? 'Instructor Dashboard' : 
-                     'Member Dashboard'}
+                    {user?.role === 'ADMIN' ? t('adminDashboard') : 
+                     user?.role === 'INSTRUCTOR' ? t('instructorDashboard') : 
+                     t('memberDashboard')}
                     <span className="opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">→</span>
                   </Link>
                   <form action={logout}>
                     <button type="submit" className="text-[10px] font-medium tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors pb-1 border-b border-transparent hover:border-[var(--foreground)]">
-                      Sign Out
+                      {t('logout')}
                     </button>
                   </form>
                 </div>
               </div>
             ) : (
               <div className="bg-white/40 backdrop-blur-md border border-white p-6 rounded-3xl flex flex-col sm:flex-row gap-4 mt-4 shadow-sm">
-                <Link href="/en/login" onClick={() => setIsOpen(false)} className="flex-1 text-center text-[10px] font-medium tracking-[0.2em] uppercase py-4 border border-[var(--border)] rounded-full hover:border-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors">
-                  Sign In
+                <Link href={`/${locale}/login`} onClick={() => setIsOpen(false)} className="flex-1 text-center text-[10px] font-medium tracking-[0.2em] uppercase py-4 border border-[var(--border)] rounded-full hover:border-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors">
+                  {t('signIn')}
                 </Link>
-                <Link href="/en/register" onClick={() => setIsOpen(false)} className="flex-1 text-center text-[10px] font-medium tracking-[0.2em] uppercase py-4 bg-[var(--foreground)] text-[var(--background)] border border-[var(--foreground)] rounded-full hover:bg-black transition-colors shadow-sm">
-                  Join Anya Pilates
+                <Link href={`/${locale}/register`} onClick={() => setIsOpen(false)} className="flex-1 text-center text-[10px] font-medium tracking-[0.2em] uppercase py-4 bg-[var(--foreground)] text-[var(--background)] border border-[var(--foreground)] rounded-full hover:bg-black transition-colors shadow-sm">
+                  {t('join')}
                 </Link>
               </div>
             )}

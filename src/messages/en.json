@@ -13,8 +13,39 @@
   },
   "Navigation": {
     "schedule": "Schedule",
+    "classes": "Classes",
     "packages": "Packages",
+    "contact": "Contact",
     "dashboard": "Dashboard",
-    "logout": "Log Out"
+    "logout": "Log Out",
+    "welcomeBack": "Welcome back",
+    "memberDashboard": "Member Dashboard",
+    "instructorDashboard": "Instructor Dashboard",
+    "adminDashboard": "Admin Dashboard",
+    "signIn": "Sign In",
+    "join": "Join Anya Pilates"
+  },
+  "Frontpage": {
+    "heroTitle": "Movement with precision.",
+    "heroSubtitle": "A boutique Reformer Pilates studio in Bangkok.",
+    "heroCta": "Book a Class",
+    "scheduleTitle": "Class Schedule",
+    "classesTitle": "Our Classes",
+    "packagesTitle": "Memberships & Packages",
+    "instructorsTitle": "Our Instructors",
+    "aboutTitle": "About Anya",
+    "aboutP1": "Anya is a space dedicated to conscious and controlled movement. A place where the rhythm slows down, the breath settles, and the body works with care and precision.",
+    "aboutP2": "We work exclusively on Reformers, in small groups, to ensure we keep the focus on technique, alignment, and control.",
+    "aboutP3": "At Anya, movement is not about rushing, but about presence — an intimate, bright environment that invites relaxation and reconnection with your own body.",
+    "contactTitle": "Contact",
+    "hoursTitle": "Hours",
+    "socialTitle": "Social",
+    "allRightsReserved": "© 2026 Anya Pilates. All rights reserved.",
+    "termsAndConditions": "Terms & Conditions",
+    "privacyPolicy": "Privacy Policy",
+    "studioInterior": "Studio Interior",
+    "viewAll": "View All",
+    "book": "Book",
+    "moreInfo": "More Info"
   }
 }

@@ -8,6 +8,7 @@ import { IconInstagramColored, IconFacebookColored, IconLineColored, IconWhatsAp
 import PublicNavbar from '@/components/PublicNavbar'
 import InteractiveSchedule from '@/components/InteractiveSchedule'
 import PackagesDisplay from '@/components/PackagesDisplay'
+import { getTranslations } from 'next-intl/server'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
 
@@ -21,6 +22,7 @@ function bangkokDate(utcDate: Date) {
 }
 
 export default async function HomePage() {
+  const t = await getTranslations('Frontpage')
   const session = await auth()
   const user = session?.user as any
   const isLoggedIn = !!user
@@ -166,7 +168,7 @@ export default async function HomePage() {
       <section id="classes" className="py-24 md:py-32 bg-[var(--surface)]">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="mb-16 text-center">
-            <h2 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-4">Our Classes</h2>
+            <h2 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-4">{t('classesTitle')}</h2>
             <div className="w-16 h-px bg-[var(--accent-light)] mx-auto"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-10">
@@ -224,7 +226,7 @@ export default async function HomePage() {
         <section id="instructors" className="py-24 md:py-32 bg-[var(--surface)]">
           <div className="container mx-auto px-6 max-w-6xl">
             <div className="mb-16 text-center">
-              <h2 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-4">Our Instructors</h2>
+              <h2 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-4">{t('instructorsTitle')}</h2>
               <div className="w-16 h-px bg-[var(--accent-light)] mx-auto"></div>
             </div>
             <div className="flex flex-wrap justify-center gap-12 lg:gap-16">
@@ -259,19 +261,19 @@ export default async function HomePage() {
         <div className="relative container mx-auto px-6 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div>
-              <h2 className="text-4xl md:text-5xl font-serif font-normal mb-8 leading-tight">About Anya</h2>
+              <h2 className="text-4xl md:text-5xl font-serif font-normal mb-8 leading-tight">{t('aboutTitle')}</h2>
               <div className="space-y-6 text-white/80 leading-relaxed text-lg font-light">
-                <p>Anya is a space dedicated to conscious and controlled movement. A place where the rhythm slows down, the breath settles, and the body works with care and precision.</p>
-                <p>We work exclusively on Reformers, in small groups, to ensure we keep the focus on technique, alignment, and control.</p>
-                <p>At Anya, movement is not about rushing, but about presence — an intimate, bright environment that invites relaxation and reconnection with your own body.</p>
+                <p>{t('aboutP1')}</p>
+                <p>{t('aboutP2')}</p>
+                <p>{t('aboutP3')}</p>
               </div>
             </div>
             <div className="hidden lg:grid grid-cols-2 gap-4">
               {settings?.aboutImage1 ? (
-                <img src={settings.aboutImage1} alt="Studio Interior" className="col-span-2 h-72 w-full object-cover rounded-2xl" />
+                <img src={settings.aboutImage1} alt="{t('studioInterior')}" className="col-span-2 h-72 w-full object-cover rounded-2xl" />
               ) : (
                 <div className="col-span-2 h-72 bg-white/10 rounded-2xl flex items-center justify-center font-serif italic text-white/40">
-                  Studio Interior
+                  {t('studioInterior')}
                 </div>
               )}
               
@@ -302,7 +304,7 @@ export default async function HomePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left mb-16">
             <div>
-              <h3 className="text-lg font-light uppercase tracking-widest mb-6">Contact</h3>
+              <h3 className="text-lg font-light uppercase tracking-widest mb-6">{t('contactTitle')}</h3>
               <ul className="space-y-4 text-white/70 font-light">
                 <li>{settings?.contactAddress || 'Bangkok, Thailand'}</li>
                 <li>{settings?.contactEmail || 'hello@anyapilatesstudio.com'}</li>
@@ -310,7 +312,7 @@ export default async function HomePage() {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-light uppercase tracking-widest mb-6">Hours</h3>
+              <h3 className="text-lg font-light uppercase tracking-widest mb-6">{t('hoursTitle')}</h3>
               <ul className="space-y-4 text-white/70 font-light">
                 <li>Monday – Friday: {settings?.hoursWeekday || '07:00 – 21:00'}</li>
                 <li>Saturday: {settings?.hoursSaturday || '09:00 – 15:00'}</li>
@@ -318,7 +320,7 @@ export default async function HomePage() {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-light uppercase tracking-widest mb-6">Social</h3>
+              <h3 className="text-lg font-light uppercase tracking-widest mb-6">{t('socialTitle')}</h3>
               <div className="flex justify-center md:justify-start gap-6">
                 {settings?.instagramUrl ? (
                   <a href={settings.instagramUrl} target="_blank" aria-label="Instagram" className="text-white/60 hover:text-white transition-colors">
@@ -349,10 +351,10 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/50">
-            <p>© 2026 Anya Pilates. All rights reserved.</p>
+            <p>{t('allRightsReserved')}</p>
             <div className="flex gap-6">
-              <Link href="/en/terms" className="hover:text-white transition-colors">Terms & Conditions</Link>
-              <Link href="/en/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+              <Link href="/en/terms" className="hover:text-white transition-colors">{t('termsAndConditions')}</Link>
+              <Link href="/en/privacy" className="hover:text-white transition-colors">{t('privacyPolicy')}</Link>
             </div>
           </div>
         </div>
