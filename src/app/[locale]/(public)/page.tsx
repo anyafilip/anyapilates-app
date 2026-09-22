@@ -130,15 +130,15 @@ export default async function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a href="#schedule" className="font-light tracking-widest text-xs sm:text-sm text-[var(--foreground)] bg-white rounded-full px-8 py-4 hover:bg-white/90 shadow-sm transition-all uppercase">
-                View Schedule
+                {t('heroCta')}
               </a>
               {isLoggedIn ? (
                 <Link href="/en/account" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
-                  Go to Dashboard
+                  {t('goToDashboard')}
                 </Link>
               ) : (
                 <Link href="/en/login" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
-                  Sign In
+                  {t('signIn')}
                 </Link>
               )}
             </div>
@@ -150,7 +150,7 @@ export default async function HomePage() {
       <section id="schedule" className="py-24 md:py-28 bg-[var(--background)]">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="mb-16 text-center">
-            <h2 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-4">Upcoming Classes</h2>
+            <h2 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-4">{t('upcomingClasses')}</h2>
             <div className="w-16 h-px bg-[var(--accent-light)] mx-auto"></div>
           </div>
 
