@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 export default async function AdminDashboard() {
   const now = new Date()
@@ -99,7 +99,7 @@ export default async function AdminDashboard() {
               </p>
             </div>
           </div>
-          <Link href="/en/admin/payments" className="w-full md:w-auto text-center bg-orange-600 text-white px-6 py-2.5 rounded-full text-[10px] tracking-widest uppercase hover:bg-orange-700 transition-colors">
+          <Link href="/admin/payments" className="w-full md:w-auto text-center bg-orange-600 text-white px-6 py-2.5 rounded-full text-[10px] tracking-widest uppercase hover:bg-orange-700 transition-colors">
             Review Payments
           </Link>
         </div>
@@ -195,7 +195,7 @@ export default async function AdminDashboard() {
         <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
           <div className="flex justify-between items-end mb-6 border-b border-black/5 pb-4">
             <h2 className="text-xl font-serif text-[var(--foreground)]">Today's Schedule</h2>
-            <Link href="/en/admin/schedule" className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
+            <Link href="/admin/schedule" className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
               Full Calendar →
             </Link>
           </div>

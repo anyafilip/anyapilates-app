@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { logout } from '@/app/actions/auth'
 
 export default function MemberNavbar() {
@@ -11,7 +11,7 @@ export default function MemberNavbar() {
     <header className="relative z-50 w-full shrink-0">
       {/* Topbar (Always visible on all screens) */}
       <div className="flex items-center justify-between px-6 py-4 bg-[var(--foreground)] text-[var(--background)] w-full">
-        <Link href="/en/account">
+        <Link href="/account">
           <span className="text-base tracking-[0.3em] uppercase font-light">ANYA</span>
           <span className="text-[9px] tracking-[0.35em] uppercase text-white/50 ml-2">Member</span>
         </Link>
@@ -41,49 +41,49 @@ export default function MemberNavbar() {
       `}>
         <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto">
           <Link
-            href="/en/account"
+            href="/account"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
             Dashboard
           </Link>
           <Link
-            href="/en/account/upcoming"
+            href="/account/upcoming"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
             Upcoming Classes
           </Link>
           <Link
-            href="/en/account/history"
+            href="/account/history"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
             Class History
           </Link>
           <Link
-            href="/en/account/purchases"
+            href="/account/purchases"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
             Purchase History
           </Link>
           <Link
-            href="/en/account/settings"
+            href="/account/settings"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
             Profile Settings
           </Link>
           <Link
-            href="/en/#schedule"
+            href="/#schedule"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
             Book a Class
           </Link>
           <Link
-            href="/en/#packages"
+            href="/#packages"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
@@ -92,7 +92,7 @@ export default function MemberNavbar() {
         </nav>
 
         <div className="px-4 pb-8 space-y-2">
-          <Link href="/en" className="block w-full px-3 py-3 text-sm font-light text-white/50 hover:text-white hover:bg-white/10 rounded-lg text-left transition-colors">
+          <Link href="/" className="block w-full px-3 py-3 text-sm font-light text-white/50 hover:text-white hover:bg-white/10 rounded-lg text-left transition-colors">
             ⚲ View Public Site
           </Link>
           <form action={logout}>

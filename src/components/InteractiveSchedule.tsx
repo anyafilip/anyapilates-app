@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import BookButton from './BookButton'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
@@ -268,7 +268,7 @@ export default function InteractiveSchedule({
               {/* Upcoming sessions link */}
               {selectedClass.classTypeId && (
                 <Link
-                  href={`/en/classes/${selectedClass.classTypeId}`}
+                  href={`/classes/${selectedClass.classTypeId}`}
                   className="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
                   onClick={() => setSelectedClass(null)}
                 >

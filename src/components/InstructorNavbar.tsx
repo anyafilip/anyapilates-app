@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { logout } from '@/app/actions/auth'
 
 export default function InstructorNavbar() {
@@ -11,7 +11,7 @@ export default function InstructorNavbar() {
     <header className="relative z-50 w-full shrink-0">
       {/* Topbar (Always visible on all screens) */}
       <div className="flex items-center justify-between px-6 py-4 bg-[var(--foreground)] text-[var(--background)] w-full">
-        <Link href="/en/instructor" onClick={() => setIsOpen(false)}>
+        <Link href="/instructor" onClick={() => setIsOpen(false)}>
           <span className="text-base tracking-[0.3em] uppercase font-light">ANYA</span>
           <span className="text-[9px] tracking-[0.35em] uppercase text-white/50 ml-2">Instructor</span>
         </Link>
@@ -41,28 +41,28 @@ export default function InstructorNavbar() {
       `}>
         <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto">
           <Link
-            href="/en/instructor"
+            href="/instructor"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
             Dashboard
           </Link>
           <Link
-            href="/en/instructor/schedule"
+            href="/instructor/schedule"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
             My Schedule
           </Link>
           <Link
-            href="/en/instructor/history"
+            href="/instructor/history"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
             Class History
           </Link>
           <Link
-            href="/en/instructor/profile"
+            href="/instructor/profile"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
@@ -71,7 +71,7 @@ export default function InstructorNavbar() {
         </nav>
 
         <div className="px-4 pb-8 space-y-2">
-          <Link href="/en" className="block w-full px-3 py-3 text-sm font-light text-white/50 hover:text-white hover:bg-white/10 rounded-lg text-left transition-colors">
+          <Link href="/" className="block w-full px-3 py-3 text-sm font-light text-white/50 hover:text-white hover:bg-white/10 rounded-lg text-left transition-colors">
             ⚲ View Public Site
           </Link>
           <form action={logout}>

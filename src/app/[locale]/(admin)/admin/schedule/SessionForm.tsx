@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { createSession, createRecurringClass } from '@/app/actions/templates'
 import { updateSession } from '@/app/actions/admin'
 import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
 import CustomDropdown from '@/components/CustomDropdown'
 
 
@@ -26,7 +26,7 @@ export default function SessionForm({
       if (initialData) {
         await updateSession(formData)
         toast.success('Session updated!')
-        router.push('/en/admin/schedule')
+        router.push('/admin/schedule')
       } else if (repeat) {
         await createRecurringClass(formData)
         toast.success('Recurring class created — next 8 weeks scheduled!')
@@ -201,7 +201,7 @@ export default function SessionForm({
           {initialData && (
             <button
               type="button"
-              onClick={() => router.push('/en/admin/schedule')}
+              onClick={() => router.push('/admin/schedule')}
               className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
             >
               Cancel

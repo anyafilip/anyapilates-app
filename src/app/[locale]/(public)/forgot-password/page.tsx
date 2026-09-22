@@ -3,7 +3,7 @@
 import { useActionState } from 'react'
 import { requestPasswordReset, type ForgotState } from '@/app/actions/password'
 import PublicNavbar from '@/components/PublicNavbar'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 export default function ForgotPasswordPage() {
   const [state, formAction, isPending] = useActionState(requestPasswordReset, {})
@@ -23,7 +23,7 @@ export default function ForgotPasswordPage() {
             <div className="text-center">
               <p className="text-[var(--foreground)] font-medium mb-8">{state.message}</p>
               <Link 
-                href="/en/login" 
+                href="/login" 
                 className="inline-block bg-[var(--foreground)] text-[var(--background)] px-8 py-3.5 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors"
               >
                 Return to Login
@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
 
               <p className="text-center text-sm text-[var(--foreground-muted)] pt-4">
                 Remembered?{' '}
-                <Link href="/en/login" className="text-[var(--foreground)] hover:underline">
+                <Link href="/login" className="text-[var(--foreground)] hover:underline">
                   Log in
                 </Link>
               </p>

@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { deleteClassType } from '@/app/actions/admin'
 import ClassTypeForm from './ClassTypeForm'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import Modal from '@/components/Modal'
 import DataTableTools from '@/components/admin/DataTableTools'
 import Pagination from '@/components/admin/Pagination'
@@ -53,7 +53,7 @@ export default async function AdminClassTypesPage({ searchParams }: { searchPara
               Are you sure you want to delete <span className="font-medium">"{deletingClassType.name}"</span>?
             </p>
             <form action={deleteClassType.bind(null, deletingClassType.id)} className="flex items-center justify-center gap-4">
-              <Link href="/en/admin/classes" className="btn-ghost">Cancel</Link>
+              <Link href="/admin/classes" className="btn-ghost">Cancel</Link>
               <button type="submit" className="btn-primary !bg-red-800 hover:!bg-red-900 border !border-red-800">Confirm Delete</button>
             </form>
           </div>

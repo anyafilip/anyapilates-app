@@ -3,7 +3,7 @@ import { cancelSession } from '@/app/actions/admin'
 import { autoFillSchedule } from '@/app/actions/templates'
 import SessionForm from './SessionForm'
 import StopRecurringButton from './StopRecurringButton'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import Modal from '@/components/Modal'
 
 const TZ_OFFSET = 7 // Bangkok
@@ -72,7 +72,7 @@ export default async function AdminSchedulePage({
               action={cancelSession.bind(null, cancelingSession.id)}
               className="flex items-center justify-center gap-4"
             >
-              <Link href="/en/admin/schedule" className="btn-ghost">
+              <Link href="/admin/schedule" className="btn-ghost">
                 Close
               </Link>
               <button

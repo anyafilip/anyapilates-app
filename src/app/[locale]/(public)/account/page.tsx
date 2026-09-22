@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { cancelBooking } from '@/app/actions/booking'
 import { redirect } from 'next/navigation'
 
@@ -64,7 +64,7 @@ export default async function AccountPage() {
           <div className="py-8 border-y border-[var(--border)] mb-12">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-serif text-[var(--foreground)]">My Classes</h2>
-              <Link href="/en/#packages" className="btn-ghost text-[11px] px-6 py-3">
+              <Link href="/#packages" className="btn-ghost text-[11px] px-6 py-3">
                 Buy Classes
               </Link>
             </div>
@@ -95,7 +95,7 @@ export default async function AccountPage() {
           <section className="mb-14">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-serif font-normal text-[var(--foreground)]">Upcoming Classes</h2>
-              <Link href="/en/account/upcoming" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">
+              <Link href="/account/upcoming" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">
                 View All →
               </Link>
             </div>
@@ -103,7 +103,7 @@ export default async function AccountPage() {
             {upcoming.length === 0 ? (
               <div className="py-10 text-center border border-dashed border-[var(--border)] rounded-lg">
                 <p className="text-[var(--foreground-muted)] font-light mb-4">No upcoming classes booked.</p>
-                <Link href="/en/#schedule" className="text-[var(--accent)] text-sm underline underline-offset-4">
+                <Link href="/#schedule" className="text-[var(--accent)] text-sm underline underline-offset-4">
                   Browse schedule →
                 </Link>
               </div>
@@ -129,15 +129,15 @@ export default async function AccountPage() {
 
           {/* Quick Links */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link href="/en/account/settings" className="bg-white/30 hover:bg-white/60 transition-colors border border-white/60 rounded-2xl p-6 text-center">
+            <Link href="/account/settings" className="bg-white/30 hover:bg-white/60 transition-colors border border-white/60 rounded-2xl p-6 text-center">
               <p className="font-serif text-lg text-[var(--foreground)] mb-1">Profile</p>
               <p className="text-xs text-[var(--foreground-muted)]">Update info and picture</p>
             </Link>
-            <Link href="/en/account/history" className="bg-white/30 hover:bg-white/60 transition-colors border border-white/60 rounded-2xl p-6 text-center">
+            <Link href="/account/history" className="bg-white/30 hover:bg-white/60 transition-colors border border-white/60 rounded-2xl p-6 text-center">
               <p className="font-serif text-lg text-[var(--foreground)] mb-1">Class History</p>
               <p className="text-xs text-[var(--foreground-muted)]">View past attendances</p>
             </Link>
-            <Link href="/en/account/purchases" className="bg-white/30 hover:bg-white/60 transition-colors border border-white/60 rounded-2xl p-6 text-center">
+            <Link href="/account/purchases" className="bg-white/30 hover:bg-white/60 transition-colors border border-white/60 rounded-2xl p-6 text-center">
               <p className="font-serif text-lg text-[var(--foreground)] mb-1">Purchases</p>
               <p className="text-xs text-[var(--foreground-muted)]">View receipts and status</p>
             </Link>

@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
 
@@ -77,7 +77,7 @@ export default async function InstructorDashboard() {
       <div>
         <div className="flex items-baseline justify-between mb-8">
           <h2 className="text-2xl font-serif font-light text-[var(--foreground)]">Your Next Sessions</h2>
-          <Link href="/en/instructor/schedule" className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:text-[var(--accent-dark)] transition-colors border-b border-transparent hover:border-[var(--accent-dark)] pb-1">
+          <Link href="/instructor/schedule" className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:text-[var(--accent-dark)] transition-colors border-b border-transparent hover:border-[var(--accent-dark)] pb-1">
             View All Schedule
           </Link>
         </div>

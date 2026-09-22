@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import PublicNavbar from '@/components/PublicNavbar'
 import SlipUpload from './SlipUpload'
 
@@ -26,7 +26,7 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
   })
 
   if (!payment || payment.clientId !== user.id) {
-    redirect('/en')
+    redirect('/en/')
   }
 
   const settings = await prisma.studioSettings.findUnique({ where: { id: 'default' } })
@@ -125,13 +125,13 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
 
           {payment.status === 'PAID' ? (
             <div className="mt-8">
-              <Link href="/en/account" className="w-full bg-[var(--foreground)] text-[var(--background)] py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors shadow-sm flex items-center justify-center">
+              <Link href="/account" className="w-full bg-[var(--foreground)] text-[var(--background)] py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors shadow-sm flex items-center justify-center">
                 View My Account
               </Link>
             </div>
           ) : (
             <div className="mt-10 flex justify-center">
-              <Link href="/en" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
+              <Link href="/" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
                 ← Return to Home
               </Link>
             </div>

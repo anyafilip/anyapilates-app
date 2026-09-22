@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import MemberNavbar from '@/components/MemberNavbar'
 import { redirect } from 'next/navigation'
 
@@ -41,7 +41,7 @@ export default async function PurchasesPage() {
           {payments.length === 0 ? (
             <div className="py-10 text-center border border-dashed border-[var(--border)] rounded-lg">
               <p className="text-[var(--foreground-muted)] font-light mb-4">No purchases found.</p>
-              <Link href="/en/#packages" className="text-[var(--accent)] text-sm underline underline-offset-4">
+              <Link href="/#packages" className="text-[var(--accent)] text-sm underline underline-offset-4">
                 Buy a package →
               </Link>
             </div>

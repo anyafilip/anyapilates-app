@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
 import toast from 'react-hot-toast'
 import { useTranslations } from 'next-intl'
 
@@ -30,14 +30,14 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
 
   const handleSelectPackage = (pkgId: string) => {
     if (!isLoggedIn) {
-      router.push('/en/register')
+      router.push('/register')
       return
     }
     if (userRole === 'ADMIN') {
       toast.error('Admins cannot purchase packages.')
       return
     }
-    router.push(`/en/buy-credits?packageId=${pkgId}`)
+    router.push(`/buy-credits?packageId=${pkgId}`)
   }
 
   const tabs = [

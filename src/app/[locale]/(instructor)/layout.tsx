@@ -12,7 +12,7 @@ export default async function InstructorLayout({
 
   // Allow both INSTRUCTOR and ADMIN to access this portal
   if (role !== 'INSTRUCTOR' && role !== 'ADMIN') {
-    redirect('/en')
+    redirect('/en/')
   }
 
   return (

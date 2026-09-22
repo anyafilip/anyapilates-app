@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { deletePackage } from '@/app/actions/admin'
 import PackageForm from './PackageForm'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import Modal from '@/components/Modal'
 import DataTableTools from '@/components/admin/DataTableTools'
 import Pagination from '@/components/admin/Pagination'
@@ -71,7 +71,7 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
               Are you sure you want to delete <span className="font-medium">"{deletingPackage.name}"</span>?
             </p>
             <form action={deletePackage.bind(null, deletingPackage.id)} className="flex items-center justify-center gap-4">
-              <Link href="/en/admin/packages" className="btn-ghost">Cancel</Link>
+              <Link href="/admin/packages" className="btn-ghost">Cancel</Link>
               <button type="submit" className="btn-primary !bg-red-800 hover:!bg-red-900 border !border-red-800">Confirm Delete</button>
             </form>
           </div>

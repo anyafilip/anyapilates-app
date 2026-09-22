@@ -2,7 +2,7 @@
 
 import { useTransition } from 'react'
 import { bookClass } from '@/app/actions/booking'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
 import toast from 'react-hot-toast'
 
 interface Props {
@@ -29,7 +29,7 @@ export default function BookButton({ classId, isLoggedIn, isFull, isPast, userRo
 
   const handleBook = () => {
     if (!isLoggedIn) {
-      router.push('/en/login?callbackUrl=/')
+      router.push('/login?callbackUrl=/')
       return
     }
     if (userRole === 'ADMIN') {

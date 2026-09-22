@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import PublicNavbar from '@/components/PublicNavbar'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 export default async function PrivacyPage() {
   const session = await auth()
@@ -12,7 +12,7 @@ export default async function PrivacyPage() {
       
       <main className="flex-1 container mx-auto px-6 pt-32 pb-24 max-w-3xl">
         <div className="mb-12">
-          <Link href="/en" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
+          <Link href="/" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
             ← Back to Home
           </Link>
         </div>

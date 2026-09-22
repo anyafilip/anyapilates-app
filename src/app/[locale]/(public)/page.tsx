@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import LanguageToggle from '@/components/LanguageToggle'
@@ -133,11 +133,11 @@ export default async function HomePage() {
                 {t('heroCta')}
               </a>
               {isLoggedIn ? (
-                <Link href="/en/account" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
+                <Link href="/account" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
                   {t('goToDashboard')}
                 </Link>
               ) : (
-                <Link href="/en/login" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
+                <Link href="/login" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
                   {t('signIn')}
                 </Link>
               )}
@@ -353,8 +353,8 @@ export default async function HomePage() {
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/50">
             <p>{t('allRightsReserved')}</p>
             <div className="flex gap-6">
-              <Link href="/en/terms" className="hover:text-white transition-colors">{t('termsAndConditions')}</Link>
-              <Link href="/en/privacy" className="hover:text-white transition-colors">{t('privacyPolicy')}</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">{t('termsAndConditions')}</Link>
+              <Link href="/privacy" className="hover:text-white transition-colors">{t('privacyPolicy')}</Link>
             </div>
           </div>
         </div>

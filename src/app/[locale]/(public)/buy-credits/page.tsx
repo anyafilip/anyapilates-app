@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import PublicNavbar from '@/components/PublicNavbar'
 import CheckoutButton from './CheckoutButton'
 
@@ -53,7 +53,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
       <PublicNavbar isLoggedIn={true} user={user} />
 
       <main className="flex-1 container mx-auto px-6 pt-32 pb-16 max-w-lg flex flex-col justify-center">
-        <Link href="/en/#packages" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors mb-12 inline-block">
+        <Link href="/#packages" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors mb-12 inline-block">
           ← Back to Packages
         </Link>
 

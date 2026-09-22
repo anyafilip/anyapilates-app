@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import MemberNavbar from '@/components/MemberNavbar'
 import { redirect } from 'next/navigation'
 import CancelBookingButton from '../CancelBookingButton'
@@ -53,7 +53,7 @@ export default async function UpcomingPage() {
           {upcoming.length === 0 ? (
             <div className="py-10 text-center border border-dashed border-[var(--border)] rounded-lg">
               <p className="text-[var(--foreground-muted)] font-light mb-4">No upcoming classes booked.</p>
-              <Link href="/en/#schedule" className="text-[var(--accent)] text-sm underline underline-offset-4">
+              <Link href="/#schedule" className="text-[var(--accent)] text-sm underline underline-offset-4">
                 Browse schedule →
               </Link>
             </div>

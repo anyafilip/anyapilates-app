@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { signIn } from 'next-auth/react'
 import { login, type LoginState } from '@/app/actions/auth'
 import LanguageToggle from '@/components/LanguageToggle'
@@ -32,7 +32,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           {/* Brand */}
           <div className="mb-10 text-center select-none">
-            <Link href="/en">
+            <Link href="/">
               <h1 className="text-2xl tracking-[0.3em] uppercase font-light text-[var(--foreground)]">ANYA</h1>
               <p className="text-[9px] tracking-[0.4em] uppercase mt-1 text-[var(--foreground-muted)]">Pilates</p>
             </Link>
@@ -87,7 +87,7 @@ export default function LoginPage() {
                 <label className="block text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">
                   Password
                 </label>
-                <Link href="/en/forgot-password" className="text-[10px] tracking-widest uppercase text-[var(--foreground)] hover:underline">
+                <Link href="/forgot-password" className="text-[10px] tracking-widest uppercase text-[var(--foreground)] hover:underline">
                   Forgot?
                 </Link>
               </div>
@@ -117,7 +117,7 @@ export default function LoginPage() {
             <div className="h-px bg-[var(--border)] w-full mb-6"></div>
             <p className="text-sm text-[var(--foreground-muted)]">
               No account?{' '}
-              <Link href="/en/register" className="text-[var(--accent)] hover:text-[var(--accent-dark)] transition-colors">
+              <Link href="/register" className="text-[var(--accent)] hover:text-[var(--accent-dark)] transition-colors">
                 Create one
               </Link>
             </p>

@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import PublicNavbar from '@/components/PublicNavbar'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { auth } from '@/auth'
 
 export default async function ClassTypePage({ params }: { params: Promise<{ id: string }> }) {
@@ -43,7 +43,7 @@ export default async function ClassTypePage({ params }: { params: Promise<{ id: 
       
       <main className="flex-1 pt-32 pb-24 px-6 max-w-7xl mx-auto w-full">
         <div className="mb-12">
-          <Link href="/en" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-3">
+          <Link href="/" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-3">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>

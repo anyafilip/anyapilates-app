@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { markAttendance } from '@/app/actions/instructor'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { notFound } from 'next/navigation'
 
 const TZ_OFFSET = 7
@@ -32,7 +32,7 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ id
     <div className="max-w-4xl mx-auto py-8">
       {/* Premium Header */}
       <div className="mb-12 border-b border-[var(--border)] pb-8">
-        <Link href="/en/instructor" className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--accent)] transition-colors inline-block mb-6 border-b border-transparent hover:border-[var(--accent)] pb-1">
+        <Link href="/instructor" className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--accent)] transition-colors inline-block mb-6 border-b border-transparent hover:border-[var(--accent)] pb-1">
           ← Back to Schedule
         </Link>
         <h1 className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] mb-6">{cls.name}</h1>

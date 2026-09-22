@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { createPackage, updatePackage } from '@/app/actions/admin'
 import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
 import CustomDropdown from '@/components/CustomDropdown'
 
 export default function PackageForm({ initialData, classTypes = [] }: { initialData?: any, classTypes?: any[] }) {
@@ -15,7 +15,7 @@ export default function PackageForm({ initialData, classTypes = [] }: { initialD
       if (initialData) {
         await updatePackage(formData)
         toast.success('Package updated successfully!')
-        router.push('/en/admin/packages')
+        router.push('/admin/packages')
       } else {
         await createPackage(formData)
         toast.success('Package added successfully!')
@@ -72,7 +72,7 @@ export default function PackageForm({ initialData, classTypes = [] }: { initialD
           {initialData ? 'Save Changes' : 'Add Package'}
         </button>
         {initialData && (
-          <button type="button" onClick={() => router.push('/en/admin/packages')} className="w-full text-[10px] tracking-widest text-[var(--foreground-muted)] hover:text-[var(--foreground)] uppercase py-2 cursor-pointer transition-colors">
+          <button type="button" onClick={() => router.push('/admin/packages')} className="w-full text-[10px] tracking-widest text-[var(--foreground-muted)] hover:text-[var(--foreground)] uppercase py-2 cursor-pointer transition-colors">
             Cancel
           </button>
         )}

@@ -3,7 +3,7 @@
 import { useActionState, use } from 'react'
 import { resetPassword, type ResetState } from '@/app/actions/password'
 import PublicNavbar from '@/components/PublicNavbar'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 export default function ResetPasswordPage({
   searchParams
@@ -25,7 +25,7 @@ export default function ResetPasswordPage({
           <div className="text-center">
             <h1 className="text-2xl font-serif mb-4">Invalid Link</h1>
             <p className="text-gray-500 mb-8">Missing reset token.</p>
-            <Link href="/en/forgot-password" className="btn-primary">Request New Link</Link>
+            <Link href="/forgot-password" className="btn-primary">Request New Link</Link>
           </div>
         </main>
       </div>
@@ -47,7 +47,7 @@ export default function ResetPasswordPage({
             <div className="text-center">
               <p className="text-[var(--foreground)] font-medium mb-8">{state.message}</p>
               <Link 
-                href="/en/login" 
+                href="/login" 
                 className="inline-block bg-[var(--foreground)] text-[var(--background)] px-8 py-3.5 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors"
               >
                 Log In

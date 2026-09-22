@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useEffect } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { register, type RegisterState } from '@/app/actions/auth'
 import LanguageToggle from '@/components/LanguageToggle'
 import toast from 'react-hot-toast'
@@ -131,7 +131,7 @@ export default function RegisterPage() {
             <div className="h-px bg-[var(--border)] w-full mb-6"></div>
             <p className="text-sm text-[var(--foreground-muted)]">
               Already have an account?{' '}
-              <Link href="/en/login" className="text-[var(--accent)] hover:text-[var(--accent-dark)] transition-colors">
+              <Link href="/login" className="text-[var(--accent)] hover:text-[var(--accent-dark)] transition-colors">
                 Sign in
               </Link>
             </p>

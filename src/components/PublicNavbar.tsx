@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import LanguageToggle from '@/components/LanguageToggle'
 import { logout } from '@/app/actions/auth'
 import { useTranslations } from 'next-intl'
@@ -25,7 +25,7 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
           
           {/* ── 1. Logo (Left) ──────────────────────────────────────────────── */}
           <div className="flex justify-start">
-            <Link href={`/${locale}`} className="flex flex-col items-start select-none" onClick={() => setIsOpen(false)}>
+            <Link href="/" className="flex flex-col items-start select-none" onClick={() => setIsOpen(false)}>
               <span className="text-xl md:text-2xl font-light tracking-[0.35em] uppercase text-[var(--foreground)]">
                 ANYA
               </span>
@@ -85,9 +85,9 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
                 <div className="flex flex-col items-center gap-5 pt-4">
                   <Link 
                     href={
-                      user?.role === 'ADMIN' ? `/${locale}/admin` : 
-                      user?.role === 'INSTRUCTOR' ? `/${locale}/instructor` : 
-                      `/${locale}/account`
+                      user?.role === 'ADMIN' ? `/admin` : 
+                      user?.role === 'INSTRUCTOR' ? `/instructor` : 
+                      `/account`
                     } 
                     onClick={() => setIsOpen(false)} 
                     className="w-full py-4 bg-[var(--foreground)] text-[var(--background)] rounded-full text-[10px] sm:text-[11px] font-medium tracking-[0.2em] uppercase flex items-center justify-center gap-3 hover:bg-black transition-all duration-300 group shadow-md"
@@ -106,10 +106,10 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
               </div>
             ) : (
               <div className="bg-white/40 backdrop-blur-md border border-white p-6 rounded-3xl flex flex-col sm:flex-row gap-4 mt-4 shadow-sm">
-                <Link href={`/${locale}/login`} onClick={() => setIsOpen(false)} className="flex-1 text-center text-[10px] font-medium tracking-[0.2em] uppercase py-4 border border-[var(--border)] rounded-full hover:border-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors">
+                <Link href="/login" onClick={() => setIsOpen(false)} className="flex-1 text-center text-[10px] font-medium tracking-[0.2em] uppercase py-4 border border-[var(--border)] rounded-full hover:border-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors">
                   {t('signIn')}
                 </Link>
-                <Link href={`/${locale}/register`} onClick={() => setIsOpen(false)} className="flex-1 text-center text-[10px] font-medium tracking-[0.2em] uppercase py-4 bg-[var(--foreground)] text-[var(--background)] border border-[var(--foreground)] rounded-full hover:bg-black transition-colors shadow-sm">
+                <Link href="/register" onClick={() => setIsOpen(false)} className="flex-1 text-center text-[10px] font-medium tracking-[0.2em] uppercase py-4 bg-[var(--foreground)] text-[var(--background)] border border-[var(--foreground)] rounded-full hover:bg-black transition-colors shadow-sm">
                   {t('join')}
                 </Link>
               </div>

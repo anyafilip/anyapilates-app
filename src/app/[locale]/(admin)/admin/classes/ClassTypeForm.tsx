@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createClassType, updateClassType } from '@/app/actions/admin'
 import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
 
 export default function ClassTypeForm({ initialData }: { initialData?: any }) {
   const [preview, setPreview] = useState<string | null>(initialData?.imageUrl || null)
@@ -21,7 +21,7 @@ export default function ClassTypeForm({ initialData }: { initialData?: any }) {
       if (initialData) {
         await updateClassType(formData)
         toast.success('Class type updated successfully!')
-        router.push('/en/admin/classes')
+        router.push('/admin/classes')
       } else {
         await createClassType(formData)
         toast.success('Class type added successfully!')
@@ -120,7 +120,7 @@ export default function ClassTypeForm({ initialData }: { initialData?: any }) {
           {initialData && (
             <button
               type="button"
-              onClick={() => router.push('/en/admin/classes')}
+              onClick={() => router.push('/admin/classes')}
               className="text-[10px] tracking-widest text-[var(--foreground-muted)] hover:text-[var(--foreground)] uppercase cursor-pointer transition-colors"
             >
               Cancel

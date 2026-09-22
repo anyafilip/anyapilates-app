@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import TemplateForm from './TemplateForm'
 import TemplateGenerator from './TemplateGenerator'
 import TemplateDeleteButton from './TemplateDeleteButton'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import DataTableTools from '@/components/admin/DataTableTools'
 import Pagination from '@/components/admin/Pagination'
 
@@ -47,7 +47,7 @@ export default async function TemplatesPage({ searchParams }: { searchParams: Pr
     <div className="max-w-6xl mx-auto pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
         <div>
-          <Link href="/en/admin/schedule" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] mb-4 inline-block">
+          <Link href="/admin/schedule" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] mb-4 inline-block">
             ← Back to Schedule
           </Link>
           <h1 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-2">Recurring Templates</h1>

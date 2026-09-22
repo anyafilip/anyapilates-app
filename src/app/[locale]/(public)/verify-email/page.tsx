@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import PublicNavbar from '@/components/PublicNavbar'
 
 export default async function VerifyEmailPage({
@@ -46,7 +46,7 @@ export default async function VerifyEmailPage({
                 Your email has been successfully verified. You can now log in to your account.
               </p>
               <Link 
-                href="/en/login" 
+                href="/login" 
                 className="inline-block bg-[var(--foreground)] text-[var(--background)] px-8 py-3.5 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors"
               >
                 Log In
@@ -61,7 +61,7 @@ export default async function VerifyEmailPage({
                 This verification link has expired. Please try registering or logging in again to request a new link.
               </p>
               <Link 
-                href="/en/login" 
+                href="/login" 
                 className="inline-block border border-[var(--border)] text-[var(--foreground)] px-8 py-3.5 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black/5 transition-colors"
               >
                 Go to Login
@@ -76,7 +76,7 @@ export default async function VerifyEmailPage({
                 This verification link is invalid. It may have already been used.
               </p>
               <Link 
-                href="/en/login" 
+                href="/login" 
                 className="inline-block border border-[var(--border)] text-[var(--foreground)] px-8 py-3.5 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black/5 transition-colors"
               >
                 Go to Login

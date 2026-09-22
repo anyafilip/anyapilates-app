@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import ProfileForm from './ProfileForm'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { getProfile } from '@/app/actions/profile'
 import MemberNavbar from '@/components/MemberNavbar'
 
@@ -16,7 +16,7 @@ export default async function SettingsPage() {
       <main className="flex-1 overflow-y-auto w-full">
         <div className="container mx-auto px-6 py-10 max-w-4xl">
           <div className="mb-8">
-            <Link href="/en/account" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2 mb-4">
+            <Link href="/account" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2 mb-4">
               ← Back to Dashboard
             </Link>
             <h1 className="text-3xl font-serif text-[var(--foreground)]">Profile Settings</h1>
