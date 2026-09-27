@@ -18,6 +18,7 @@ export default function SessionForm({
 }) {
   const formRef = useRef<HTMLFormElement>(null)
   const router = useRouter()
+  const [selectedInstructorId, setSelectedInstructorId] = useState<string>(initialData?.instructorId ?? '')
   const [repeat, setRepeat] = useState(false)
 
   async function handleAction(formData: FormData) {
@@ -88,7 +89,19 @@ export default function SessionForm({
             defaultValue={initialData?.instructorId || ''}
             placeholder="Unassigned"
             options={instructors.map(i => ({ value: i.id, label: i.name }))}
+            onChange={(val) => setSelectedInstructorId(val)}
           />
+          {/* Reactive availability note for the selected instructor only */}
+          {(() => {
+            const note = instructors.find(i => i.id === selectedInstructorId)?.availabilityNotes
+            if (!note) return null
+            return (
+              <div className="mt-3 bg-white/40 border border-white/60 rounded-xl px-4 py-3">
+                <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">Availability Note</p>
+                <p className="text-xs font-light text-[var(--foreground)] leading-relaxed whitespace-pre-wrap">{note}</p>
+              </div>
+            )
+          })()}
         </div>
       </div>
 

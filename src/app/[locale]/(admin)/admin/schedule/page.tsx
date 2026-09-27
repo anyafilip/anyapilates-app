@@ -103,32 +103,6 @@ export default async function AdminSchedulePage({
           Toggle &ldquo;Repeat weekly&rdquo; to make it recurring
         </p>
         <SessionForm key="new" classTypes={classTypes} instructors={instructors} />
-
-        {/* Instructor availability notes */}
-        {instructors.some(i => i.availabilityNotes) && (
-          <div className="mt-8 pt-6 border-t border-black/5">
-            <h3 className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-4">
-              Instructor Availability Notes
-            </h3>
-            <div className="flex flex-wrap gap-4">
-              {instructors
-                .filter(i => i.availabilityNotes)
-                .map(i => (
-                  <div
-                    key={i.id}
-                    className="bg-white/40 px-5 py-4 rounded-2xl border border-white/60 max-w-sm"
-                  >
-                    <p className="text-xs font-medium text-[var(--foreground)] uppercase tracking-widest mb-2">
-                      {i.name}
-                    </p>
-                    <p className="text-xs text-[var(--foreground-muted)] font-light leading-relaxed whitespace-pre-wrap">
-                      {i.availabilityNotes}
-                    </p>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ── Active Recurring Classes ── */}
