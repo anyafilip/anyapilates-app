@@ -265,6 +265,7 @@ const PackageSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
   classCount: z.coerce.number().int().min(1, 'Must be at least 1 class').max(500),
   expiresInDays: z.coerce.number().int().min(1).max(3650).default(180),
+  startWindowDays: z.coerce.number().int().min(1).max(3650).default(15),
   classTypeId: z.string().min(1, 'Class type is required'),
   price: z.coerce.number().min(0, 'Price cannot be negative').max(10_000_000),
 })
@@ -276,15 +277,22 @@ export async function createPackage(formData: FormData) {
     name: formData.get('name'),
     classCount: formData.get('classCount'),
     expiresInDays: formData.get('expiresInDays') || 180,
+    startWindowDays: formData.get('startWindowDays') || 15,
     classTypeId: formData.get('classTypeId'),
     price: formData.get('price'),
   })
   if (!parsed.success) throw new Error(parsed.error.issues[0].message)
 
-  const { name, classCount, expiresInDays, classTypeId, price } = parsed.data
+  const { name, classCount, expiresInDays, startWindowDays, classTypeId, price } = parsed.data
   await prisma.package.create({
-    data: { name, classCount, expiresInDays, classTypeId, price: Math.round(price * 100) }
+    data: { name, classCount, expiresInDays, startWindowDays, classTypeId, price: Math.round(price * 100) }
   })
+  revalidatePath('/en/admin/packages')
+}
+
+export async function deletePackage(id: string) {
+  await requireAdmin()
+  await prisma.package.delete({ where: { id } })
   revalidatePath('/en/admin/packages')
 }
 
@@ -297,24 +305,18 @@ export async function updatePackage(formData: FormData) {
     name: formData.get('name'),
     classCount: formData.get('classCount'),
     expiresInDays: formData.get('expiresInDays') || 180,
+    startWindowDays: formData.get('startWindowDays') || 15,
     classTypeId: formData.get('classTypeId'),
     price: formData.get('price'),
   })
   if (!parsed.success) throw new Error(parsed.error.issues[0].message)
 
-  const { name, classCount, expiresInDays, classTypeId, price } = parsed.data
+  const { name, classCount, expiresInDays, startWindowDays, classTypeId, price } = parsed.data
   const isActive = formData.get('isActive') === 'on'
-
   await prisma.package.update({
     where: { id },
-    data: { name, classCount, expiresInDays, classTypeId, price: Math.round(price * 100), isActive }
+    data: { name, classCount, expiresInDays, startWindowDays, classTypeId, price: Math.round(price * 100), isActive }
   })
-  revalidatePath('/en/admin/packages')
-}
-
-export async function deletePackage(id: string) {
-  await requireAdmin()
-  await prisma.package.delete({ where: { id } })
   revalidatePath('/en/admin/packages')
 }
 

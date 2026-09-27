@@ -97,16 +97,17 @@ model Booking {
 }
 
 model Package {
-  id            String    @id @default(cuid())
-  name          String
-  classType     ClassType @relation(fields: [classTypeId], references: [id])
-  classTypeId   String
-  classCount    Int
-  expiresInDays Int       @default(180)
-  price         Int // in THB satang (e.g. 50000 = 500 THB)
-  isActive      Boolean   @default(true)
-  payments      Payment[]
-  createdAt     DateTime  @default(now())
+  id              String    @id @default(cuid())
+  name            String
+  classType       ClassType @relation(fields: [classTypeId], references: [id])
+  classTypeId     String
+  classCount      Int
+  expiresInDays   Int       @default(180)
+  startWindowDays Int       @default(15)
+  price           Int // in THB satang (e.g. 50000 = 500 THB)
+  isActive        Boolean   @default(true)
+  payments        Payment[]
+  createdAt       DateTime  @default(now())
 }
 
 model Payment {
@@ -136,6 +137,8 @@ model UserPass {
   originalCount  Int
   remainingCount Int
   expiresAt      DateTime
+  activatedAt    DateTime?
+  validityDays   Int       @default(180)
 
   payment   Payment? @relation(fields: [paymentId], references: [id])
   paymentId String?  @unique

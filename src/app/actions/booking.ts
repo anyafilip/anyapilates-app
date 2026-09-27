@@ -50,7 +50,7 @@ export async function bookClass(classId: string): Promise<BookingResult> {
 
   try {
     // Attempt to debit pass first to ensure they have one
-    const userPassId = await debitPass(userId, cls.classTypeId)
+    const userPassId = await debitPass(userId, cls.classTypeId, cls.date)
     
     // Create the booking
     await prisma.$transaction([
