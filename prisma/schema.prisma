@@ -179,6 +179,7 @@ enum PayStatus {
 model WeeklyScheduleTemplate {
   id           String    @id @default(cuid())
   classTypeId  String
+  name         String?
   classType    ClassType @relation(fields: [classTypeId], references: [id])
   instructorId String?
   instructor   User?     @relation("InstructorTemplates", fields: [instructorId], references: [id])
@@ -193,30 +194,30 @@ model WeeklyScheduleTemplate {
 
 // ── Settings ─────────────────────────────────────────────
 model StudioSettings {
-  id             String  @id @default("default")
-  qrCodeUrl      String? // base64 image of the QR code
-  
+  id        String  @id @default("default")
+  qrCodeUrl String? // base64 image of the QR code
+
   // Footer contact info
   contactEmail   String?
   contactPhone   String?
   contactAddress String?
-  
+
   // Footer hours
-  hoursWeekday   String?
-  hoursSaturday  String?
-  hoursSunday    String?
-  
+  hoursWeekday  String?
+  hoursSaturday String?
+  hoursSunday   String?
+
   // Social Links
-  instagramUrl   String?
-  facebookUrl    String?
-  lineUrl        String?
-  whatsappUrl    String?
+  instagramUrl String?
+  facebookUrl  String?
+  lineUrl      String?
+  whatsappUrl  String?
 
   // About Section Images
-  aboutImage1    String?
-  aboutImage2    String?
-  aboutImage3    String?
-  
+  aboutImage1 String?
+  aboutImage2 String?
+  aboutImage3 String?
+
   // Hero Section Image
-  heroImage      String?
+  heroImage String?
 }

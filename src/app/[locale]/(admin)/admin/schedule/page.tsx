@@ -204,6 +204,9 @@ export default async function AdminSchedulePage({
                     >
                       <td className="py-5 pl-8">
                         <p className="font-medium text-[var(--foreground)]">{cls.name}</p>
+                        {cls.classType && cls.name !== cls.classType.name && (
+                          <p className="text-[10px] uppercase tracking-wider text-[var(--foreground-muted)]">{cls.classType.name}</p>
+                        )}
                         <p className="text-[11px] text-[var(--foreground-muted)] mt-1">
                           {dateStr} · {cls.startTime} – {cls.endTime}
                         </p>

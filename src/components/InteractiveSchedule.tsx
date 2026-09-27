@@ -127,6 +127,11 @@ export default function InteractiveSchedule({
                   {/* Class info */}
                   <div className="flex-1 min-w-0 pr-2">
                     <p className="text-sm md:text-lg font-medium text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors truncate">{cls.name}</p>
+                    {cls.classType && cls.name !== cls.classType.name && (
+                      <p className="text-[11px] md:text-xs text-[var(--foreground)] truncate mt-0.5">
+                        {cls.classType.name}
+                      </p>
+                    )}
                     {cls.instructor && (
                       <p className="text-[11px] md:text-sm font-light text-[var(--foreground-muted)] mt-0.5 truncate">
                         with <span className="font-medium text-[var(--foreground)]">{cls.instructor.name}</span>
@@ -178,6 +183,9 @@ export default function InteractiveSchedule({
               <div>
                 <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">{t('classDetails')}</p>
                 <h3 className="text-2xl font-serif font-normal text-[var(--foreground)]">{selectedClass.name}</h3>
+                {selectedClass.classType && selectedClass.name !== selectedClass.classType.name && (
+                  <p className="text-sm font-light text-[var(--foreground)] mt-1">{selectedClass.classType.name}</p>
+                )}
               </div>
               <button
                 onClick={() => setSelectedClass(null)}

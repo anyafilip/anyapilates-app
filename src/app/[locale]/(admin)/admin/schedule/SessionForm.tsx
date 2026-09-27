@@ -7,7 +7,6 @@ import toast from 'react-hot-toast'
 import { useRouter } from '@/i18n/routing'
 import CustomDropdown from '@/components/CustomDropdown'
 
-
 export default function SessionForm({
   classTypes,
   instructors,
@@ -42,7 +41,6 @@ export default function SessionForm({
     }
   }
 
-  // For edit mode, format initial date
   let dateStr = ''
   if (initialData?.date) {
     const d = new Date(initialData.date)
@@ -55,8 +53,20 @@ export default function SessionForm({
     <form ref={formRef} action={handleAction} className="space-y-6">
       {initialData && <input type="hidden" name="id" value={initialData.id} />}
 
-      {/* Row 1: Class type + Instructor */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {/* Row 1: Class Name + Class type + Instructor */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div>
+          <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
+            Class Name (Optional)
+          </label>
+          <input
+            name="name"
+            type="text"
+            placeholder="e.g. Body Lean"
+            defaultValue={initialData?.name || ''}
+            className="w-full border-b border-[var(--border)] px-3 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors"
+          />
+        </div>
         <div>
           <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
             Class Type *

@@ -148,10 +148,16 @@ export async function updateSession(formData: FormData) {
   const startTime    = String(formData.get('startTime'))
   const instructorId = formData.get('instructorId') ? String(formData.get('instructorId')) : null
 
+  let name = formData.get('name')?.toString().trim()
+  if (!name) {
+    const existing = await prisma.class.findUnique({ where: { id }, include: { classType: true } })
+    name = existing?.classType?.name || 'Class'
+  }
+
   await prisma.class.update({
     where: { id },
     data: {
-      name:        String(formData.get('name')),
+      name,
       startTime,
       endTime:     String(formData.get('endTime')),
       capacity:    Number(formData.get('capacity')),

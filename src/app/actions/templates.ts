@@ -48,7 +48,7 @@ export async function autoFillSchedule(weeksAhead: number = 8) {
         await prisma.class.create({
           data: {
             classTypeId: t.classTypeId,
-            name: t.classType.name,
+            name: t.name || t.classType.name,
             instructorId: t.instructorId,
             date: classDate,
             startTime: t.startTime,
@@ -74,16 +74,21 @@ export async function createSession(formData: FormData) {
   const dateStr = String(formData.get('date'))
   const startTime = String(formData.get('startTime'))
   const endTime = String(formData.get('endTime'))
-  const classTypeId = formData.get('classTypeId') ? String(formData.get('classTypeId')) : null
+  const classTypeId = formData.get('classTypeId') ? String(formData.get('classTypeId')) : ''
+  const name = formData.get('name')?.toString().trim() || null
   const instructorId = formData.get('instructorId') ? String(formData.get('instructorId')) : null
 
   const [year, month, day] = dateStr.split('-').map(Number)
   const [hour, minute] = startTime.split(':').map(Number)
   const dateUtc = new Date(Date.UTC(year, month - 1, day, hour - 7, minute))
 
-  const classTypeName = classTypeId
-    ? (await prisma.classType.findUnique({ where: { id: classTypeId } }))?.name ?? 'Class'
-    : 'Class'
+  const rawName = formData.get('name')?.toString().trim()
+  let classTypeName = rawName
+  if (!classTypeName) {
+    classTypeName = classTypeId
+      ? (await prisma.classType.findUnique({ where: { id: classTypeId } }))?.name ?? 'Class'
+      : 'Class'
+  }
 
   await prisma.class.create({
     data: {
@@ -109,20 +114,20 @@ export async function createRecurringClass(formData: FormData) {
 
   const startTime = String(formData.get('startTime'))
   const endTime = String(formData.get('endTime'))
-  const classTypeId = formData.get('classTypeId') ? String(formData.get('classTypeId')) : null
+  const classTypeId = formData.get('classTypeId') ? String(formData.get('classTypeId')) : ''
+  const name = formData.get('name')?.toString().trim() || null
   const instructorId = formData.get('instructorId') ? String(formData.get('instructorId')) : null
   const duration = Number(formData.get('duration') ?? 60)
   const capacity = Number(formData.get('capacity') ?? 6)
 
   if (!classTypeId) throw new Error('Class type is required')
 
-  // dayOfWeek comes directly from the day-picker (0=Sun … 6=Sat)
   const dayOfWeek = Number(formData.get('dayOfWeek'))
 
-  // Save the template
   await prisma.weeklyScheduleTemplate.create({
     data: {
       classTypeId,
+      name,
       instructorId,
       dayOfWeek,
       startTime,
@@ -133,7 +138,6 @@ export async function createRecurringClass(formData: FormData) {
     },
   })
 
-  // Immediately fill the next 8 weeks
   await autoFillSchedule(8)
 
   revalidatePath('/en/admin/schedule')
