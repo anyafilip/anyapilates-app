@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { Link } from '@/i18n/routing'
 import { redirect } from 'next/navigation'
+import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 // Force this page to always be server-rendered fresh — never cached
 export const dynamic = 'force-dynamic'
@@ -187,10 +188,7 @@ export default async function InstructorDashboard() {
                       </div>
                       <div className="w-px h-8 bg-[var(--border)] hidden sm:block" />
                       <div>
-                        <p className="font-medium text-[var(--foreground)]">{cls.name}</p>
-                        {cls.classType && cls.name !== cls.classType.name && (
-                          <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">{cls.classType.name}</p>
-                        )}
+                        <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="sm" />
                       </div>
                     </div>
                     <div className="flex items-center gap-4 flex-shrink-0">
@@ -252,7 +250,7 @@ export default async function InstructorDashboard() {
                     </div>
                     <div className="w-px h-6 bg-[var(--border)]" />
                     <div>
-                      <p className="text-sm text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors">{cls.name}</p>
+                      <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="sm" />
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -290,7 +288,7 @@ export default async function InstructorDashboard() {
                       <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">{dateStr}</p>
                     </div>
                     <div className="w-px h-6 bg-[var(--border)]" />
-                    <p className="text-sm text-[var(--foreground)]">{cls.name}</p>
+                    <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="sm" />
                   </div>
                   <span className="text-sm text-[var(--foreground-muted)]">
                     {cls.bookedCount}<span className="text-[var(--foreground-muted)]/50">/{cls.capacity}</span>

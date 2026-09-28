@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import BookButton from './BookButton'
 import { Link } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
+import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
 
@@ -126,12 +127,7 @@ export default function InteractiveSchedule({
 
                   {/* Class info */}
                   <div className="flex-1 min-w-0 pr-2">
-                    <p className="text-sm md:text-lg font-medium text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors truncate">{cls.name}</p>
-                    {cls.classType && cls.name !== cls.classType.name && (
-                      <p className="text-[11px] md:text-xs text-[var(--foreground)] truncate mt-0.5">
-                        {cls.classType.name}
-                      </p>
-                    )}
+                    <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} />
                     {cls.instructor && (
                       <p className="text-[11px] md:text-sm font-light text-[var(--foreground-muted)] mt-0.5 truncate">
                         with <span className="font-medium text-[var(--foreground)]">{cls.instructor.name}</span>
@@ -182,10 +178,7 @@ export default function InteractiveSchedule({
             <div className="flex items-start justify-between px-8 pt-6 pb-5 border-b border-[var(--border)]">
               <div>
                 <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">{t('classDetails')}</p>
-                <h3 className="text-2xl font-serif font-normal text-[var(--foreground)]">{selectedClass.name}</h3>
-                {selectedClass.classType && selectedClass.name !== selectedClass.classType.name && (
-                  <p className="text-sm font-light text-[var(--foreground)] mt-1">{selectedClass.classType.name}</p>
-                )}
+                <ClassNameDisplay name={selectedClass.name} classTypeName={selectedClass.classType?.name} size="lg" />
               </div>
               <button
                 onClick={() => setSelectedClass(null)}

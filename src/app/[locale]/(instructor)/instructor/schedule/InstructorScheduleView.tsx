@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 const TZ_OFFSET = 7
 
@@ -205,10 +206,7 @@ export default function InstructorScheduleView({ classes }: { classes: ClassItem
 
                     {/* Class info */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-base font-medium text-[var(--foreground)] truncate">{cls.name}</p>
-                      {cls.classType && cls.name !== cls.classType.name && (
-                        <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mt-0.5">{cls.classType.name}</p>
-                      )}
+                      <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} />
                       <p className="text-sm text-[var(--foreground-muted)] font-light mt-1">
                         {cls.startTime} – {cls.endTime}
                       </p>

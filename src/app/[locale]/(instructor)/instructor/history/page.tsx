@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
 
@@ -51,7 +52,7 @@ export default async function InstructorHistory() {
                     </div>
                     <div className="hidden md:block w-px h-10 bg-[var(--border)]"></div>
                     <div>
-                      <p className="text-lg font-medium text-[var(--foreground)] mb-1">{cls.name}</p>
+                      <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="sm" />
                       <p className="text-sm font-light text-[var(--foreground-muted)]">{dateStr}</p>
                     </div>
                   </div>

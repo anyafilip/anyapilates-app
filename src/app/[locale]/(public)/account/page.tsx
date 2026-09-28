@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 
 import MemberNavbar from '@/components/MemberNavbar'
 import CancelBookingButton from './CancelBookingButton'
+import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 const TZ_OFFSET = 7
 
@@ -114,7 +115,7 @@ export default async function AccountPage() {
                   return (
                     <div key={booking.id} className="py-5 flex items-center justify-between gap-4">
                       <div>
-                        <p className="font-medium text-[var(--foreground)]">{booking.class.name}</p>
+                        <ClassNameDisplay name={booking.class.name} classTypeName={booking.class.classType?.name} size="sm" />
                         <p className="text-sm text-[var(--foreground-muted)] mt-0.5">
                           {bangkokDate(booking.class.date)} · {booking.class.startTime}–{booking.class.endTime}
                         </p>

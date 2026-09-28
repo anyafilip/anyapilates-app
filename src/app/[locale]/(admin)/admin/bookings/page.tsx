@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import DataTableTools from '@/components/admin/DataTableTools'
 import Pagination from '@/components/admin/Pagination'
 import { Prisma, BookingStatus } from '@prisma/client'
+import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 export default async function AdminBookingsPage(props: { searchParams: Promise<{ q?: string, page?: string, status?: string }> }) {
   const searchParams = await props.searchParams
@@ -82,7 +83,7 @@ export default async function AdminBookingsPage(props: { searchParams: Promise<{
                       <p className="text-[11px] text-[var(--foreground-muted)] mt-1">{b.client.email}</p>
                     </td>
                     <td className="py-5">
-                      <p>{b.class.classType?.name || b.class.name}</p>
+                      <ClassNameDisplay name={b.class.name} classTypeName={b.class.classType?.name} size="sm" />
                       <p className="text-[11px] text-[var(--foreground-muted)] mt-1">{bkk.date} &middot; {bkk.time}</p>
                     </td>
                     <td className="py-5">

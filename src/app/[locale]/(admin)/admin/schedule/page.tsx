@@ -5,6 +5,7 @@ import SessionForm from './SessionForm'
 import StopRecurringButton from './StopRecurringButton'
 import { Link } from '@/i18n/routing'
 import Modal from '@/components/Modal'
+import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 const TZ_OFFSET = 7 // Bangkok
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -177,10 +178,7 @@ export default async function AdminSchedulePage({
                       className="border-b border-black/5 last:border-0 hover:bg-black/[0.02] transition-colors"
                     >
                       <td className="py-5 pl-8">
-                        <p className="font-medium text-[var(--foreground)]">{cls.name}</p>
-                        {cls.classType && cls.name !== cls.classType.name && (
-                          <p className="text-[10px] uppercase tracking-wider text-[var(--foreground-muted)]">{cls.classType.name}</p>
-                        )}
+                        <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="sm" />
                         <p className="text-[11px] text-[var(--foreground-muted)] mt-1">
                           {dateStr} · {cls.startTime} – {cls.endTime}
                         </p>

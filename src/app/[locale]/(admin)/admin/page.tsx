@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { Link } from '@/i18n/routing'
+import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 export default async function AdminDashboard() {
   const now = new Date()
@@ -49,14 +50,14 @@ export default async function AdminDashboard() {
   const todaySchedule = await prisma.class.findMany({
     where: { date: { gte: startOfDay, lt: endOfDay } },
     orderBy: { startTime: 'asc' },
-    include: { instructor: { select: { name: true } } }
+    include: { instructor: { select: { name: true } }, classType: { select: { name: true } } }
   })
 
   // Tomorrow's Schedule
   const tomorrowSchedule = await prisma.class.findMany({
     where: { date: { gte: endOfDay, lt: endOfTomorrow } },
     orderBy: { startTime: 'asc' },
-    include: { instructor: { select: { name: true } } }
+    include: { instructor: { select: { name: true } }, classType: { select: { name: true } } }
   })
 
   // Recent Sales
@@ -238,7 +239,7 @@ export default async function AdminDashboard() {
                     <p className="text-[13px] tracking-wider uppercase text-[var(--foreground-muted)] mb-1">
                       {cls.startTime} {cls.instructor && <span className="lowercase normal-case font-serif italic ml-1">with {cls.instructor.name}</span>}
                     </p>
-                    <p className="text-base font-medium text-[var(--foreground)]">{cls.name}</p>
+                    <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="sm" />
                   </div>
                   <div className="text-right">
                     <span className={`text-lg font-light ${isFull ? 'text-green-700' : 'text-[var(--foreground)]'}`}>
@@ -275,7 +276,7 @@ export default async function AdminDashboard() {
                     <p className="text-[13px] tracking-wider uppercase text-[var(--foreground-muted)] mb-1">
                       {cls.startTime} {cls.instructor && <span className="lowercase normal-case font-serif italic ml-1">with {cls.instructor.name}</span>}
                     </p>
-                    <p className="text-base font-medium text-[var(--foreground)]">{cls.name}</p>
+                    <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="sm" />
                   </div>
                   <div className="text-right">
                     <span className={`text-lg font-light ${isFull ? 'text-green-700' : 'text-[var(--foreground)]'}`}>

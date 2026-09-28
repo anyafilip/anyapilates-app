@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { markAttendance } from '@/app/actions/instructor'
 import { Link } from '@/i18n/routing'
 import { notFound } from 'next/navigation'
+import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 const TZ_OFFSET = 7
 
@@ -12,6 +13,7 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ id
   const cls = await prisma.class.findUnique({
     where: { id },
     include: {
+      classType: { select: { name: true } },
       bookings: {
         include: { client: { select: { name: true, email: true } } },
         orderBy: { bookedAt: 'asc' }
@@ -35,7 +37,7 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ id
         <Link href="/instructor" className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--accent)] transition-colors inline-block mb-6 border-b border-transparent hover:border-[var(--accent)] pb-1">
           ← Back to Schedule
         </Link>
-        <h1 className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] mb-6">{cls.name}</h1>
+        <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="lg" />
         
         <div className="flex flex-wrap items-center gap-6 text-[10px] md:text-xs tracking-widest uppercase text-[var(--foreground-muted)]">
           <div className="flex items-center gap-3">

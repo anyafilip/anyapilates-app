@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
 
@@ -75,7 +76,7 @@ export default function AdminInteractiveSchedule({ sessions }: { sessions: any[]
               {filteredSessions.map(cls => (
                 <tr key={cls.id} className="border-b border-black/5 last:border-0 hover:bg-black/[0.02] transition-colors">
                   <td className="py-5 pl-8">
-                    <p className="font-medium text-[var(--foreground)]">{cls.name}</p>
+                    <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="sm" />
                     <p className="text-[11px] text-[var(--foreground-muted)] mt-1">{cls.startTime} – {cls.endTime}</p>
                   </td>
                   <td className="py-5">
