@@ -105,6 +105,50 @@ export default async function HomePage() {
 
   return (
     <div className="flex-1 w-full flex flex-col">
+
+      {/* ── JSON-LD Structured Data ── */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "HealthAndBeautyBusiness",
+            name: "Anya Pilates Studio",
+            image: "https://anyapilatesstudio.com/logo.jpg",
+            url: "https://anyapilatesstudio.com",
+            telephone: settings?.contactPhone || "",
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: settings?.contactAddress || "Bangkok",
+              addressLocality: "Bangkok",
+              addressCountry: "TH",
+            },
+            description: "Premium Pilates studio in Bangkok offering private, duo, and group reformer classes.",
+            priceRange: "$",
+            openingHoursSpecification: [
+              {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+                opens: settings?.hoursWeekday?.split(' - ')[0] || "08:00",
+                closes: settings?.hoursWeekday?.split(' - ')[1] || "20:00",
+              },
+              {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: ["Saturday"],
+                opens: settings?.hoursSaturday?.split(' - ')[0] || "09:00",
+                closes: settings?.hoursSaturday?.split(' - ')[1] || "18:00",
+              },
+              {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: ["Sunday"],
+                opens: settings?.hoursSunday?.split(' - ')[0] || "09:00",
+                closes: settings?.hoursSunday?.split(' - ')[1] || "18:00",
+              },
+            ],
+          }),
+        }}
+      />
+
       <PublicNavbar isLoggedIn={isLoggedIn} user={user} />
 
       {/* ── Hero ─────────────────────────────────────── */}

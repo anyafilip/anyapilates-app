@@ -23,16 +23,57 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Anya Pilates",
-  description: "Book your Pilates classes online",
+  metadataBase: new URL("https://anyapilatesstudio.com"),
+  title: {
+    default: "Anya Pilates Studio | Premium Pilates in Bangkok",
+    template: "%s | Anya Pilates Studio",
+  },
+  description: "Experience premium Pilates classes in Bangkok at Anya Pilates Studio. We offer private, duo, and group reformer classes designed to build strength, flexibility, and lean muscle.",
+  keywords: ["Pilates", "Reformer Pilates", "Bangkok Pilates", "Pilates Studio Bangkok", "Private Pilates", "Group Pilates", "Fitness", "Anya Pilates"],
+  authors: [{ name: "Anya Pilates Studio" }],
+  creator: "Anya Pilates Studio",
+  publisher: "Anya Pilates Studio",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: {
     icon: "/logo.jpg",
     apple: "/logo.jpg",
   },
   openGraph: {
-    title: "Anya Pilates",
-    description: "Book your Pilates classes online",
-    images: [{ url: "/logo.jpg" }],
+    title: "Anya Pilates Studio | Premium Pilates in Bangkok",
+    description: "Experience premium Pilates classes in Bangkok at Anya Pilates Studio. We offer private, duo, and group reformer classes.",
+    url: "https://anyapilatesstudio.com",
+    siteName: "Anya Pilates Studio",
+    images: [
+      {
+        url: "/logo.jpg",
+        width: 800,
+        height: 800,
+        alt: "Anya Pilates Studio Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Anya Pilates Studio | Premium Pilates in Bangkok",
+    description: "Experience premium Pilates classes in Bangkok at Anya Pilates Studio.",
+    images: ["/logo.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
