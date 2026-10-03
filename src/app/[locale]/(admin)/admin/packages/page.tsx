@@ -59,13 +59,13 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
   return (
     <div className="max-w-6xl mx-auto pb-12">
       {editingPackage && (
-        <Modal title="Edit Package" onCloseUrl="/en/admin/packages">
+        <Modal title="Edit Package" onCloseUrl="/admin/packages">
           <PackageForm initialData={editingPackage} classTypes={classTypes} />
         </Modal>
       )}
 
       {deletingPackage && (
-        <Modal title="Confirm Deletion" onCloseUrl="/en/admin/packages">
+        <Modal title="Confirm Deletion" onCloseUrl="/admin/packages">
           <div className="text-center pt-4 pb-2">
             <p className="text-[var(--foreground)] font-light text-lg mb-10">
               Are you sure you want to delete <span className="font-medium">"{deletingPackage.name}"</span>?
@@ -135,10 +135,10 @@ export default async function AdminPackagesPage({ searchParams }: { searchParams
                   </td>
                   <td className="py-4 pr-8 text-right">
                     <div className="flex items-center justify-end gap-6 leading-none">
-                      <Link href={`/en/admin/packages?editId=${pkg.id}`} scroll={true} className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">
+                      <Link href={`/admin/packages?editId=${pkg.id}`} scroll={true} className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">
                         Edit
                       </Link>
-                      <Link href={`/en/admin/packages?deleteId=${pkg.id}`} scroll={false} className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-red-700 transition-colors">
+                      <Link href={`/admin/packages?deleteId=${pkg.id}`} scroll={false} className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-red-700 transition-colors">
                         Delete
                       </Link>
                     </div>

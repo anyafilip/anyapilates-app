@@ -41,13 +41,13 @@ export default async function AdminClassTypesPage({ searchParams }: { searchPara
   return (
     <div className="max-w-6xl mx-auto pb-12">
       {editingClassType && (
-        <Modal title="Edit Class Type" onCloseUrl="/en/admin/classes">
+        <Modal title="Edit Class Type" onCloseUrl="/admin/classes">
           <ClassTypeForm initialData={editingClassType} />
         </Modal>
       )}
 
       {deletingClassType && (
-        <Modal title="Confirm Deletion" onCloseUrl="/en/admin/classes">
+        <Modal title="Confirm Deletion" onCloseUrl="/admin/classes">
           <div className="text-center pt-4 pb-2">
             <p className="text-[var(--foreground)] font-light text-lg mb-10">
               Are you sure you want to delete <span className="font-medium">"{deletingClassType.name}"</span>?
@@ -104,10 +104,10 @@ export default async function AdminClassTypesPage({ searchParams }: { searchPara
                   </td>
                   <td className="py-4 pr-8 text-right">
                     <div className="flex items-center justify-end gap-6 leading-none">
-                      <Link href={`/en/admin/classes?editId=${ct.id}`} scroll={true} className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">
+                      <Link href={`/admin/classes?editId=${ct.id}`} scroll={true} className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">
                         Edit
                       </Link>
-                      <Link href={`/en/admin/classes?deleteId=${ct.id}`} scroll={false} className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-red-700 transition-colors">
+                      <Link href={`/admin/classes?deleteId=${ct.id}`} scroll={false} className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-red-700 transition-colors">
                         Delete
                       </Link>
                     </div>

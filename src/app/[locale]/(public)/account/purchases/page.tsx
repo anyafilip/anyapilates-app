@@ -50,7 +50,7 @@ export default async function PurchasesPage() {
               {payments.map(payment => (
                 <Link
                   key={payment.id} 
-                  href={payment.status === 'PENDING' ? `/en/buy-credits/pending?paymentId=${payment.id}` : '#'}
+                  href={payment.status === 'PENDING' ? `/buy-credits/pending?paymentId=${payment.id}` : '#'}
                   className={`py-5 flex items-center justify-between gap-4 transition-colors ${payment.status === 'PENDING' ? 'hover:bg-black/5 rounded-lg px-2 -mx-2' : ''}`}
                 >
                   <div>

@@ -65,7 +65,7 @@ export default async function InstructorHistory() {
                       </p>
                     </div>
                     {cls.status === 'SCHEDULED' ? (
-                      <Link href={`/en/instructor/class/${cls.id}`} className="inline-block border border-[var(--border)] px-6 py-3 rounded-full text-[10px] tracking-widest uppercase text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-white transition-all duration-300 text-center">
+                      <Link href={`/instructor/class/${cls.id}`} className="inline-block border border-[var(--border)] px-6 py-3 rounded-full text-[10px] tracking-widest uppercase text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-white transition-all duration-300 text-center">
                         View Roster
                       </Link>
                     ) : (

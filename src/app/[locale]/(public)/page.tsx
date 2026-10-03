@@ -217,7 +217,7 @@ export default async function HomePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-10">
             {classTypes.map(ct => (
-              <Link key={ct.id} href={`/en/classes/${ct.id}`} className="group block cursor-pointer hover:-translate-y-1 transition-transform duration-300">
+              <Link key={ct.id} href={`/classes/${ct.id}`} className="group block cursor-pointer hover:-translate-y-1 transition-transform duration-300">
                 <div className="relative h-96 overflow-hidden mb-6 bg-[var(--background)]">
                   {ct.imageUrl ? (
                     <img 

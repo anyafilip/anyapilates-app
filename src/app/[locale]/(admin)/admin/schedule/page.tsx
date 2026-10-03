@@ -51,7 +51,7 @@ export default async function AdminSchedulePage({
     <div className="max-w-6xl mx-auto pb-12">
       {/* Edit modal */}
       {editingSession && (
-        <Modal title="Edit Session" onCloseUrl="/en/admin/schedule">
+        <Modal title="Edit Session" onCloseUrl="/admin/schedule">
           <SessionForm
             key={editingSession.id}
             classTypes={classTypes}
@@ -63,7 +63,7 @@ export default async function AdminSchedulePage({
 
       {/* Cancel confirmation modal */}
       {cancelingSession && (
-        <Modal title="Confirm Cancellation" onCloseUrl="/en/admin/schedule">
+        <Modal title="Confirm Cancellation" onCloseUrl="/admin/schedule">
           <div className="text-center pt-4 pb-2">
             <p className="text-[var(--foreground)] font-light text-lg mb-10">
               Cancel{' '}
@@ -201,7 +201,7 @@ export default async function AdminSchedulePage({
                       <td className="py-5 pr-8 text-right">
                         <div className="flex items-center justify-end gap-6 leading-none">
                           <Link
-                            href={`/en/admin/schedule?editSessionId=${cls.id}`}
+                            href={`/admin/schedule?editSessionId=${cls.id}`}
                             scroll={true}
                             className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
                           >
@@ -209,7 +209,7 @@ export default async function AdminSchedulePage({
                           </Link>
                           {cls.status === 'SCHEDULED' ? (
                             <Link
-                              href={`/en/admin/schedule?cancelSessionId=${cls.id}`}
+                              href={`/admin/schedule?cancelSessionId=${cls.id}`}
                               scroll={false}
                               className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-red-700 transition-colors"
                             >

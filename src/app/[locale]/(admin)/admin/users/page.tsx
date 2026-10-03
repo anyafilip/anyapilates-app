@@ -94,7 +94,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
       </div>
 
       {historyUser && (
-        <Modal title={`Credit History: ${historyUser.name}`} onCloseUrl="/en/admin/users">
+        <Modal title={`Credit History: ${historyUser.name}`} onCloseUrl="/admin/users">
           <div className="bg-white/40 rounded-2xl border border-white/80 overflow-hidden">
             <div className="max-h-[60vh] overflow-y-auto no-scrollbar">
               <table className="w-full text-left border-collapse whitespace-nowrap">
