@@ -87,14 +87,14 @@ export default function TemplateForm({ classTypes, instructors }: Props) {
         </div>
         <div>
           <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">End Time</label>
-          <input type="time" name="endTime" required className="studio-input w-full" defaultValue="10:00" />
+          <input type="time" name="endTime" required className="studio-input w-full" defaultValue="09:50" />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">Duration (mins)</label>
-          <input type="number" name="duration" required min="1" className="studio-input w-full" defaultValue="60" />
+          <input type="number" name="duration" required min="1" className="studio-input w-full" defaultValue="50" />
         </div>
         <div>
           <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">Capacity</label>

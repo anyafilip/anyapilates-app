@@ -164,7 +164,7 @@ export default function SessionForm({
             name="endTime"
             type="time"
             required
-            defaultValue={initialData?.endTime || '10:00'}
+            defaultValue={initialData?.endTime || '09:50'}
             className="w-full border-b border-[var(--border)] px-3 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors"
           />
         </div>
@@ -176,7 +176,7 @@ export default function SessionForm({
             name="duration"
             type="number"
             min={15}
-            defaultValue={initialData?.duration || 60}
+            defaultValue={initialData?.duration || 50}
             className="w-full border-b border-[var(--border)] px-3 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors"
           />
         </div>
@@ -190,7 +190,7 @@ export default function SessionForm({
             required
             min={1}
             max={20}
-            defaultValue={initialData?.capacity || 6}
+            defaultValue={initialData?.capacity || 3}
             className="w-full border-b border-[var(--border)] px-3 py-3 text-sm font-light text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors"
           />
         </div>
