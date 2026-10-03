@@ -26,6 +26,7 @@ export default async function HomePage() {
   const session = await auth()
   const user = session?.user as any
   const isLoggedIn = !!user
+  const dashboardUrl = user?.role === 'ADMIN' ? '/admin' : user?.role === 'INSTRUCTOR' ? '/instructor' : '/account'
 
   // Fetch instructors for the new section
   const instructors = await prisma.user.findMany({
@@ -177,7 +178,7 @@ export default async function HomePage() {
                 {t('heroCta')}
               </a>
               {isLoggedIn ? (
-                <Link href="/account" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
+                <Link href={dashboardUrl} className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
                   {t('goToDashboard')}
                 </Link>
               ) : (
