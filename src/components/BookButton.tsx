@@ -50,9 +50,9 @@ export default function BookButton({ classId, isLoggedIn, isFull, isPast, userRo
     <button
       onClick={handleBook}
       disabled={isPending}
-      className={`btn-primary px-6 py-2 text-[11px] disabled:opacity-50 ${fullWidth ? 'w-full justify-center' : ''}`}
+      className={`btn-primary px-4 py-2 md:px-6 md:py-2 text-[9px] md:text-[11px] disabled:opacity-50 ${fullWidth ? 'w-full justify-center' : ''}`}
     >
-      {isPending ? 'Reserving...' : isLoggedIn ? 'Reserve' : 'Sign in to Reserve'}
+      {isPending ? 'Reserving...' : isLoggedIn ? 'Reserve' : 'Sign in'}
     </button>
   )
 }
