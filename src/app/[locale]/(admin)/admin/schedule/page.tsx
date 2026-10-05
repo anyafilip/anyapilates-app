@@ -3,6 +3,7 @@ import { cancelSession } from '@/app/actions/admin'
 import { autoFillSchedule } from '@/app/actions/templates'
 import SessionForm from './SessionForm'
 import StopRecurringButton from './StopRecurringButton'
+import CancelSessionForm from './CancelSessionForm'
 import { Link } from '@/i18n/routing'
 import Modal from '@/components/Modal'
 import ClassNameDisplay from '@/components/ClassNameDisplay'
@@ -69,20 +70,7 @@ export default async function AdminSchedulePage({
               Cancel{' '}
               <span className="font-medium">&ldquo;{cancelingSession.name}&rdquo;</span>?
             </p>
-            <form
-              action={cancelSession.bind(null, cancelingSession.id)}
-              className="flex items-center justify-center gap-4"
-            >
-              <Link href="/admin/schedule" className="btn-ghost">
-                Close
-              </Link>
-              <button
-                type="submit"
-                className="btn-primary !bg-red-800 hover:!bg-red-900 border !border-red-800"
-              >
-                Confirm Cancel
-              </button>
-            </form>
+            <CancelSessionForm sessionId={cancelingSession.id} />
           </div>
         </Modal>
       )}
