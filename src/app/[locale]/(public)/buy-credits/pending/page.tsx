@@ -131,8 +131,8 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
             </div>
           ) : (
             <div className="mt-10 flex justify-center">
-              <Link href="/" className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
-                ← Return to Home
+              <Link href={`/buy-credits?packageId=${payment.packageId}`} className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1">
+                ← Back to Payment Options
               </Link>
             </div>
           )}
