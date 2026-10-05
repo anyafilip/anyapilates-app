@@ -388,3 +388,43 @@ export async function saveStudioSettings(data: {
     create: { id: 'default', ...validated },
   })
 }
+
+export async function manuallyGrantPackage(userId: string, packageId: string) {
+  const adminId = await requireAdmin()
+  
+  const pkg = await prisma.package.findUnique({ where: { id: packageId } })
+  if (!pkg) throw new Error('Package not found')
+
+  const expiresAt = new Date()
+  expiresAt.setDate(expiresAt.getDate() + pkg.startWindowDays)
+
+  await prisma.userPass.create({
+    data: {
+      userId,
+      classTypeId: pkg.classTypeId,
+      originalCount: pkg.classCount,
+      remainingCount: pkg.classCount,
+      expiresAt,
+      validityDays: pkg.expiresInDays,
+      adminId
+    }
+  })
+
+  revalidatePath(`/en/admin/users/${userId}`)
+}
+
+export async function deleteUserPass(passId: string) {
+  await requireAdmin()
+  
+  const pass = await prisma.userPass.findUnique({ where: { id: passId } })
+  if (!pass) throw new Error('Pass not found')
+
+  // Cannot delete a pass if it has bookings associated
+  const bookingsCount = await prisma.booking.count({ where: { userPassId: passId } })
+  if (bookingsCount > 0) {
+    throw new Error('Cannot delete this pass because it has bookings associated with it. Please cancel the bookings first.')
+  }
+
+  await prisma.userPass.delete({ where: { id: passId } })
+  revalidatePath(`/en/admin/users/${pass.userId}`)
+}

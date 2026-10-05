@@ -4,6 +4,7 @@ import { updateUserAccess } from '@/app/actions/admin'
 import toast from 'react-hot-toast'
 import { useTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import CustomDropdown from '@/components/CustomDropdown'
 import Modal from '@/components/Modal'
 
@@ -73,7 +74,15 @@ export default function UserRow({ user, isCurrentUser }: { user: any, isCurrentU
         </td>
         <td className="py-4 pr-8 text-right">
           {isCurrentUser ? (
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/40">You</span>
+            <div className="flex items-center justify-end gap-6">
+              <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/40">You</span>
+              <Link
+                href={`/en/admin/users/${user.id}`}
+                className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground)] hover:text-[var(--accent)] transition-colors font-medium border border-black/10 hover:border-[var(--accent)]/50 px-4 py-2 rounded-full cursor-pointer"
+              >
+                Manage
+              </Link>
+            </div>
           ) : isDirty ? (
             <div className="flex items-center justify-end gap-4">
               <button
@@ -91,7 +100,15 @@ export default function UserRow({ user, isCurrentUser }: { user: any, isCurrentU
               </button>
             </div>
           ) : (
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/30">Up to date</span>
+            <div className="flex items-center justify-end gap-6">
+              <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/30">Up to date</span>
+              <Link
+                href={`/en/admin/users/${user.id}`}
+                className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground)] hover:text-[var(--accent)] transition-colors font-medium border border-black/10 hover:border-[var(--accent)]/50 px-4 py-2 rounded-full cursor-pointer"
+              >
+                Manage
+              </Link>
+            </div>
           )}
         </td>
       </tr>
