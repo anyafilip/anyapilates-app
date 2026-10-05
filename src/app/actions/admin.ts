@@ -403,6 +403,13 @@ export async function saveStudioSettings(data: {
 export async function manuallyGrantPackage(userId: string, packageId: string, overrideCredits?: number, overrideExpiry?: string) {
   const adminId = await requireAdmin()
   
+  // Verify target user is a CLIENT
+  const targetUser = await prisma.user.findUnique({ where: { id: userId } })
+  if (!targetUser) throw new Error('User not found')
+  if (targetUser.role !== 'CLIENT') {
+    throw new Error('Packages can only be granted to clients (not admins or instructors).')
+  }
+
   const pkg = await prisma.package.findUnique({ where: { id: packageId } })
   if (!pkg) throw new Error('Package not found')
 

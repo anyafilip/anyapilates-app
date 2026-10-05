@@ -80,15 +80,23 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
         </div>
 
         {/* Grant Package — full width */}
-        <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] p-8 shadow-sm">
-          <div className="mb-6">
-            <h2 className="text-xl font-serif text-[var(--foreground)]">Grant a Package</h2>
-            <p className="text-sm text-[var(--foreground-muted)] mt-1">
-              Use this to manually add a package for a client who has already paid outside the system.
+        {user.role === 'CLIENT' ? (
+          <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] p-8 shadow-sm">
+            <div className="mb-6">
+              <h2 className="text-xl font-serif text-[var(--foreground)]">Grant a Package</h2>
+              <p className="text-sm text-[var(--foreground-muted)] mt-1">
+                Use this to manually add a package for a client who has already paid outside the system.
+              </p>
+            </div>
+            <GrantPackageForm userId={user.id} packages={allPackages} />
+          </div>
+        ) : (
+          <div className="bg-black/5 rounded-[2rem] p-8 shadow-sm text-center">
+            <p className="text-sm text-[var(--foreground-muted)] italic">
+              Packages cannot be granted to Instructors or Admins.
             </p>
           </div>
-          <GrantPackageForm userId={user.id} packages={allPackages} />
-        </div>
+        )}
       </div>
     </div>
   )
