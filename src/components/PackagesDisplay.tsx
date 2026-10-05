@@ -26,7 +26,7 @@ interface PackagesDisplayProps {
 export default function PackagesDisplay({ packages, isLoggedIn, userRole }: PackagesDisplayProps) {
   const t = useTranslations('Packages')
   const router = useRouter()
-  const [selectedTab, setSelectedTab] = useState<'ALL' | 'GROUP' | 'DUO' | 'PRIVATE' | 'INTRO'>('ALL')
+  const [selectedTab, setSelectedTab] = useState<'ALL' | 'GROUP' | 'DUO' | 'PRIVATE' | 'TRIAL'>('ALL')
 
   const handleSelectPackage = (pkgId: string) => {
     if (!isLoggedIn) {
@@ -45,14 +45,14 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
     { key: 'GROUP', label: t('group') },
     { key: 'DUO', label: t('duo') },
     { key: 'PRIVATE', label: t('private') },
-    { key: 'INTRO', label: t('introductory') },
+    { key: 'TRIAL', label: t('trial') },
   ] as const
 
   const filteredPackages = useMemo(() => {
     return packages.filter(pkg => {
-      const isIntro = pkg.name.toLowerCase().includes('intro')
+      const isTrial = pkg.name.toLowerCase().includes('trial')
       if (selectedTab === 'ALL') return true
-      if (selectedTab === 'INTRO') return isIntro
+      if (selectedTab === 'TRIAL') return isTrial
       if (selectedTab === 'GROUP') return pkg.classType.name.toLowerCase().includes('group')
       if (selectedTab === 'DUO') return pkg.classType.name.toLowerCase().includes('duo')
       if (selectedTab === 'PRIVATE') return pkg.classType.name.toLowerCase().includes('private')
@@ -111,7 +111,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {filteredPackages.map(pkg => {
-          const isIntro = pkg.name.toLowerCase().includes('intro')
+          const isTrial = pkg.name.toLowerCase().includes('trial')
           const isSingle = pkg.classCount === 1
           const priceInBaht = pkg.price / 100
           const unitPrice = Math.round(priceInBaht / pkg.classCount)
@@ -123,7 +123,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
                 shrink-0 snap-start w-[calc(33.333vw-1.5rem)] md:w-[calc(25vw-2rem)] min-w-[200px] max-w-[320px]
                 relative group bg-white/40 hover:bg-white/70 backdrop-blur-md border rounded-[2rem] p-6 text-center flex flex-col justify-between
                 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] transition-all duration-500 overflow-hidden
-                ${isIntro 
+                ${isTrial 
                   ? 'border-[var(--accent)]/40 hover:border-[var(--accent)]' 
                   : 'border-white/60 hover:border-white'
                 }
@@ -135,17 +135,17 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
               <div>
                 {/* Badge */}
                 <div className="h-5 mb-3 flex items-center justify-center">
-                  {isIntro && (
+                  {isTrial && (
                     <span className="inline-flex items-center gap-1 text-[8px] tracking-[0.2em] uppercase font-medium text-[var(--accent-dark)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20">
-                      ★ {t('introductory')}
+                      ★ {t('trial')}
                     </span>
                   )}
-                  {isSingle && !isIntro && (
+                  {isSingle && !isTrial && (
                     <span className="text-[8px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] font-medium">
                       {t('singleSession')}
                     </span>
                   )}
-                  {!isSingle && !isIntro && (
+                  {!isSingle && !isTrial && (
                     <span className="text-[8px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/70">
                       {t('classPackage')}
                     </span>
@@ -191,7 +191,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
                   onClick={() => handleSelectPackage(pkg.id)}
                   className={`
                     relative z-10 w-full block py-3 rounded-full text-[9px] tracking-[0.2em] uppercase font-medium transition-all duration-300 shadow-sm text-center cursor-pointer
-                    ${isIntro
+                    ${isTrial
                       ? 'bg-[var(--foreground)] text-[var(--background)] hover:bg-black'
                       : 'bg-transparent border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)]'
                     }

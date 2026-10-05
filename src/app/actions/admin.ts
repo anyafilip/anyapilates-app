@@ -145,29 +145,46 @@ export async function createSession(formData: FormData) {
 export async function updateSession(formData: FormData) {
   await requireAdmin()
   const id = String(formData.get('id'))
-  const startTime    = String(formData.get('startTime'))
+  const dateStr = String(formData.get('date'))
+  const startTime = String(formData.get('startTime'))
   const instructorId = formData.get('instructorId') ? String(formData.get('instructorId')) : null
+  const classTypeId = formData.get('classTypeId') ? String(formData.get('classTypeId')) : null
 
   let name = formData.get('name')?.toString().trim()
   if (!name) {
-    const existing = await prisma.class.findUnique({ where: { id }, include: { classType: true } })
-    name = existing?.classType?.name || 'Class'
+    if (classTypeId) {
+      const existingType = await prisma.classType.findUnique({ where: { id: classTypeId } })
+      name = existingType?.name || 'Class'
+    } else {
+      const existing = await prisma.class.findUnique({ where: { id }, include: { classType: true } })
+      name = existing?.classType?.name || 'Class'
+    }
+  }
+
+  // Parse date and time in Bangkok timezone (UTC+7)
+  let dateUtc;
+  if (dateStr && startTime) {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    const [hour, minute] = startTime.split(':').map(Number)
+    dateUtc = new Date(Date.UTC(year, month - 1, day, hour - 7, minute))
   }
 
   await prisma.class.update({
     where: { id },
     data: {
       name,
+      ...(classTypeId && { classTypeId }),
+      ...(dateUtc && { date: dateUtc }),
       startTime,
-      endTime:     String(formData.get('endTime')),
-      capacity:    Number(formData.get('capacity')),
-      duration:    Number(formData.get('duration')),
+      endTime: String(formData.get('endTime')),
+      capacity: Number(formData.get('capacity')),
+      duration: Number(formData.get('duration')),
       instructorId,
       description: formData.get('description') ? String(formData.get('description')) : null,
     },
   })
-  revalidatePath('/en/admin/schedule')
-  revalidatePath('/')
+  
+  revalidatePath('/', 'layout')
 }
 
 export async function cancelSession(id: string) {
