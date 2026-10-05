@@ -42,8 +42,8 @@ export default function CheckoutButton({ packageId }: { packageId: string }) {
       </div>
 
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 transition-opacity">
-          <div className="bg-[#EDE8E2] border border-white/60 rounded-[2rem] p-8 shadow-2xl max-w-sm w-full text-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 animate-modal-overlay px-4">
+          <div className="bg-[#EDE8E2] border border-white/60 rounded-[2.5rem] p-8 shadow-2xl max-w-sm w-full text-center animate-modal-content">
             <h3 className="font-serif text-2xl text-[var(--foreground)] mb-3">Pay at the Studio</h3>
             <p className="text-sm font-light text-[var(--foreground)] mb-8">
               By confirming, your order will be created. You must complete the payment at the front desk before you can book classes.
