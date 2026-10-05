@@ -8,7 +8,7 @@ import { IconInstagramColored, IconFacebookColored, IconLineColored, IconWhatsAp
 import PublicNavbar from '@/components/PublicNavbar'
 import InteractiveSchedule from '@/components/InteractiveSchedule'
 import PackagesDisplay from '@/components/PackagesDisplay'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
 
@@ -22,6 +22,7 @@ function bangkokDate(utcDate: Date) {
 }
 
 export default async function HomePage() {
+  const locale = await getLocale()
   const t = await getTranslations('Frontpage')
   const session = await auth()
   const user = session?.user as any
@@ -223,22 +224,22 @@ export default async function HomePage() {
                   {ct.imageUrl ? (
                     <img 
                       src={ct.imageUrl} 
-                      alt={ct.name} 
+                      alt={locale === 'th' && ct.nameTh ? ct.nameTh : ct.name} 
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-[var(--foreground-muted)] opacity-40 font-serif italic text-xl">
-                      {ct.name}
+                      {locale === 'th' && ct.nameTh ? ct.nameTh : ct.name}
                     </div>
                   )}
                 </div>
                 <div className="w-full h-px bg-[var(--border)] mb-6 transition-colors group-hover:bg-[var(--accent)]"></div>
                 <div className="text-center">
                   <h3 className="text-sm font-medium text-[var(--foreground)] mb-3 uppercase tracking-widest transition-colors group-hover:text-[var(--accent)]">
-                    {ct.name}
+                    {locale === 'th' && ct.nameTh ? ct.nameTh : ct.name}
                   </h3>
                   <p className="text-base font-serif text-[var(--foreground-muted)] px-4">
-                    {ct.description || 'Join us for a transformative session.'}
+                    {locale === 'th' && ct.descriptionTh ? ct.descriptionTh : (ct.description || 'Join us for a transformative session.')}
                   </p>
                 </div>
               </Link>

@@ -10,7 +10,7 @@ export default async function SettingsPage() {
   if (!dbUser) redirect('/en/login')
 
   return (
-    <div className="flex-1 w-full flex flex-col h-[100dvh] overflow-hidden bg-[var(--surface)]">
+    <div className="fixed inset-0 z-40 flex flex-col w-full bg-[var(--surface)]">
       <MemberNavbar />
 
       <main className="flex-1 overflow-y-auto w-full">

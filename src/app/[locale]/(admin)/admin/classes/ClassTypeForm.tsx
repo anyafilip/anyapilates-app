@@ -75,30 +75,57 @@ export default function ClassTypeForm({ initialData }: { initialData?: any }) {
 
       {/* Right — form fields */}
       <div className="flex-1 flex flex-col gap-6 p-8">
-        <div>
-          <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
-            Class Name *
-          </label>
-          <input
-            name="name"
-            defaultValue={initialData?.name}
-            required
-            placeholder="e.g. Group Reformer"
-            className="w-full border-b border-[var(--border)] pb-3 text-xl font-serif text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-[var(--foreground-muted)]/40"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
+              Class Name (English) *
+            </label>
+            <input
+              name="name"
+              defaultValue={initialData?.name}
+              required
+              placeholder="e.g. Group Reformer"
+              className="w-full border-b border-[var(--border)] pb-3 text-xl font-serif text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-[var(--foreground-muted)]/40"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
+              Class Name (Thai)
+            </label>
+            <input
+              name="nameTh"
+              defaultValue={initialData?.nameTh || ''}
+              placeholder="e.g. คลาสกลุ่มรีฟอร์มเมอร์"
+              className="w-full border-b border-[var(--border)] pb-3 text-xl font-serif text-[var(--foreground)] bg-transparent focus:outline-none focus:border-[var(--foreground)] transition-colors placeholder:text-[var(--foreground-muted)]/40"
+            />
+          </div>
         </div>
 
-        <div className="flex-1">
-          <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
-            Description
-          </label>
-          <textarea
-            name="description"
-            defaultValue={initialData?.description ?? undefined}
-            placeholder="Write a short description for this class type..."
-            rows={4}
-            className="w-full bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white rounded-2xl px-5 py-4 text-sm font-light text-[var(--foreground)] focus:outline-none transition-all placeholder:text-[var(--foreground-muted)]/40 resize-none"
-          />
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
+              Description (English)
+            </label>
+            <textarea
+              name="description"
+              defaultValue={initialData?.description ?? undefined}
+              placeholder="Write a short description in English..."
+              rows={4}
+              className="w-full h-full bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white rounded-2xl px-5 py-4 text-sm font-light text-[var(--foreground)] focus:outline-none transition-all placeholder:text-[var(--foreground-muted)]/40 resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
+              Description (Thai)
+            </label>
+            <textarea
+              name="descriptionTh"
+              defaultValue={initialData?.descriptionTh ?? undefined}
+              placeholder="Write a short description in Thai..."
+              rows={4}
+              className="w-full h-full bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white rounded-2xl px-5 py-4 text-sm font-light text-[var(--foreground)] focus:outline-none transition-all placeholder:text-[var(--foreground-muted)]/40 resize-none"
+            />
+          </div>
         </div>
 
         {initialData && (

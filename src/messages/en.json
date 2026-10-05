@@ -108,7 +108,7 @@
     "group": "GROUP",
     "duo": "DUO",
     "private": "PRIVATE",
-    "introductory": "INTRODUCTORY",
+    "trial": "TRIAL",
     "singleSession": "SINGLE SESSION",
     "classPackage": "CLASS PACKAGE",
     "classUnit": "class",

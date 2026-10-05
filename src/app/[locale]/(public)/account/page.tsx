@@ -118,7 +118,7 @@ export default async function AccountPage() {
                   return (
                     <div key={booking.id} className="py-5 flex items-center justify-between gap-4">
                       <div>
-                        <ClassNameDisplay name={booking.class.name} classTypeName={booking.class.classType?.name} size="sm" />
+                        <ClassNameDisplay name={booking.class.name} nameTh={booking.class.classType?.nameTh} classTypeName={booking.class.classType?.name} classTypeNameTh={booking.class.classType?.nameTh} size="sm" />
                         <p className="text-sm text-[var(--foreground-muted)] mt-0.5">
                           {bangkokDate(booking.class.date)} · {booking.class.startTime}–{booking.class.endTime}
                         </p>

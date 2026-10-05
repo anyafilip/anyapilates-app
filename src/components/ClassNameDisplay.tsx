@@ -1,3 +1,4 @@
+import { useLocale } from 'next-intl'
 /**
  * ClassNameDisplay
  * Renders class name (primary) with class type below (secondary, smaller, muted).
@@ -5,11 +6,15 @@
  */
 export default function ClassNameDisplay({
   name,
+  nameTh,
   classTypeName,
+  classTypeNameTh,
   size = 'md',
 }: {
   name: string
+  nameTh?: string | null
   classTypeName?: string | null
+  classTypeNameTh?: string | null
   /** 'sm' for compact table rows, 'md' for cards, 'lg' for page headings */
   size?: 'sm' | 'md' | 'lg'
 }) {
@@ -26,12 +31,16 @@ export default function ClassNameDisplay({
       : 'text-[10px] tracking-[0.15em] uppercase text-[var(--foreground-muted)] mt-0.5'
 
   // Only show type if it differs from the name (avoids "Group Class / Group Class")
-  const showType = classTypeName && classTypeName !== name
+  const locale = useLocale()
+  const displayTitle = locale === 'th' && nameTh ? nameTh : name
+  const displayType = locale === 'th' && classTypeNameTh ? classTypeNameTh : classTypeName
+
+  const showType = displayType && displayType !== displayTitle
 
   return (
     <div>
-      <p className={nameClass}>{name}</p>
-      {showType && <p className={typeClass}>{classTypeName}</p>}
+      <p className={nameClass}>{displayTitle}</p>
+      {showType && <p className={typeClass}>{displayType}</p>}
     </div>
   )
 }

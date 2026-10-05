@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import BookButton from './BookButton'
 import { Link } from '@/i18n/routing'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import ClassNameDisplay from '@/components/ClassNameDisplay'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
@@ -26,6 +26,7 @@ export default function InteractiveSchedule({
   userRole?: string
 }) {
   const t = useTranslations('Schedule')
+  const locale = useLocale()
   const CUTOFF_MS = 12 * 60 * 60 * 1000
 
   // Show 14 days starting today
@@ -127,7 +128,7 @@ export default function InteractiveSchedule({
 
                   {/* Class info */}
                   <div className="flex-1 min-w-0 pr-2">
-                    <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} />
+                    <ClassNameDisplay name={cls.name} nameTh={cls.classType?.nameTh} classTypeName={cls.classType?.name} classTypeNameTh={cls.classType?.nameTh} />
                     {cls.instructor && (
                       <p className="text-[11px] md:text-sm font-light text-[var(--foreground-muted)] mt-0.5 truncate">
                         with <span className="font-medium text-[var(--foreground)]">{cls.instructor.name}</span>
@@ -178,7 +179,7 @@ export default function InteractiveSchedule({
             <div className="flex items-start justify-between px-8 pt-6 pb-5 border-b border-[var(--border)]">
               <div>
                 <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-1">{t('classDetails')}</p>
-                <ClassNameDisplay name={selectedClass.name} classTypeName={selectedClass.classType?.name} size="lg" />
+                <ClassNameDisplay name={selectedClass.name} nameTh={selectedClass.classType?.nameTh} classTypeName={selectedClass.classType?.name} classTypeNameTh={selectedClass.classType?.nameTh} size="lg" />
               </div>
               <button
                 onClick={() => setSelectedClass(null)}
@@ -254,7 +255,7 @@ export default function InteractiveSchedule({
               {selectedClass.classType?.description && (
                 <div>
                   <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">{t('aboutClass')}</p>
-                  <p className="text-sm text-[var(--foreground)]/80 font-light leading-relaxed">{selectedClass.classType.description}</p>
+                  <p className="text-sm text-[var(--foreground)]/80 font-light leading-relaxed">{locale === 'th' && selectedClass.classType.descriptionTh ? selectedClass.classType.descriptionTh : selectedClass.classType.description}</p>
                 </div>
               )}
 

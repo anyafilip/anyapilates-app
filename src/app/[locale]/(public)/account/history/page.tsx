@@ -37,7 +37,7 @@ export default async function HistoryPage() {
   })
 
   return (
-    <div className="flex-1 w-full flex flex-col h-[100dvh] overflow-hidden bg-[var(--surface)]">
+    <div className="fixed inset-0 z-40 flex flex-col w-full bg-[var(--surface)]">
       <MemberNavbar />
 
       <main className="flex-1 overflow-y-auto w-full">
@@ -58,7 +58,7 @@ export default async function HistoryPage() {
               {pastBookings.map(booking => (
                 <div key={booking.id} className="py-5 flex items-center justify-between gap-4 opacity-70 hover:opacity-100 transition-opacity">
                   <div>
-                    <ClassNameDisplay name={booking.class.name} classTypeName={booking.class.classType?.name} size="sm" />
+                    <ClassNameDisplay name={booking.class.name} nameTh={booking.class.classType?.nameTh} classTypeName={booking.class.classType?.name} classTypeNameTh={booking.class.classType?.nameTh} size="sm" />
                     <p className="text-sm text-[var(--foreground-muted)] mt-0.5">
                       {bangkokDate(booking.class.date)} · {booking.class.startTime}–{booking.class.endTime}
                     </p>

@@ -59,7 +59,9 @@ export async function createClassType(formData: FormData) {
   await prisma.classType.create({
     data: {
       name:        String(formData.get('name')),
+      nameTh:      formData.get('nameTh') ? String(formData.get('nameTh')) : null,
       description: formData.get('description') ? String(formData.get('description')) : null,
+      descriptionTh: formData.get('descriptionTh') ? String(formData.get('descriptionTh')) : null,
       imageUrl:    imageUrl,
     },
   })
@@ -84,7 +86,9 @@ export async function updateClassType(formData: FormData) {
 
   const data: any = {
     name:        String(formData.get('name')),
+      nameTh:      formData.get('nameTh') ? String(formData.get('nameTh')) : null,
     description: formData.get('description') ? String(formData.get('description')) : null,
+      descriptionTh: formData.get('descriptionTh') ? String(formData.get('descriptionTh')) : null,
     isActive:    formData.get('isActive') !== 'false',
   }
   if (imageUrl !== undefined) {

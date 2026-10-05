@@ -6,6 +6,8 @@ import { auth } from '@/auth'
 
 export default async function ClassTypePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params
+  const { getLocale } = await import("next-intl/server")
+  const locale = await getLocale()
   
   const classType = await prisma.classType.findUnique({
     where: { id: resolvedParams.id },
@@ -57,10 +59,10 @@ export default async function ClassTypePage({ params }: { params: Promise<{ id: 
           <div className="w-full lg:w-5/12 lg:sticky lg:top-32">
             <div className="relative aspect-[3/4] w-full rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-white/60 bg-[var(--surface)]">
               {classType.imageUrl ? (
-                <img src={classType.imageUrl} alt={classType.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] hover:scale-105" />
+                <img src={classType.imageUrl} alt={locale === 'th' && classType.nameTh ? classType.nameTh : classType.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] hover:scale-105" />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center text-[var(--foreground-muted)] opacity-40 font-serif italic text-xl">
-                  {classType.name}
+                  {locale === 'th' && classType.nameTh ? classType.nameTh : classType.name}
                 </div>
               )}
             </div>
@@ -69,7 +71,7 @@ export default async function ClassTypePage({ params }: { params: Promise<{ id: 
           {/* Right Column: Editorial Content */}
           <div className="w-full lg:w-7/12 pt-4 lg:pt-12">
             <h1 className="text-5xl md:text-7xl font-serif text-[var(--foreground)] mb-8 leading-[1.1] tracking-tight">
-              {classType.name}
+              {locale === 'th' && classType.nameTh ? classType.nameTh : classType.name}
             </h1>
             
             <div className="flex items-center gap-6 mb-12 pb-12 border-b border-[var(--border)]">
@@ -82,7 +84,7 @@ export default async function ClassTypePage({ params }: { params: Promise<{ id: 
             </div>
 
             <div className="text-lg md:text-xl font-light text-[var(--foreground)]/80 leading-relaxed mb-20 space-y-6">
-              <p>{classType.description || "Experience a mindful connection of breath, alignment, and movement in this dedicated session."}</p>
+              <p>{locale === 'th' && classType.descriptionTh ? classType.descriptionTh : (classType.description || 'Experience a mindful connection of breath, alignment, and movement in this dedicated session.')}</p>
             </div>
 
             {/* Upcoming Sessions Section */}

@@ -11,7 +11,9 @@ datasource db {
 model ClassType {
   id          String                   @id @default(cuid())
   name        String
+  nameTh      String?
   description String?
+  descriptionTh String?
   imageUrl    String?
   isActive    Boolean                  @default(true)
   classes     Class[]

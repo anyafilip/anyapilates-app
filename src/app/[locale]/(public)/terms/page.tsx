@@ -47,7 +47,7 @@ export default async function TermsPage() {
             </p>
             <ul className="list-disc pl-5 space-y-2 text-[var(--foreground-muted)]">
               <li>Packages expire exactly on their stated expiration date. Extensions are only granted in the event of severe medical conditions (with a doctor's note).</li>
-              <li>Introductory packages are strictly limited to one per person and are for new clients only.</li>
+              <li>Trial packages are strictly limited to one per person and are for new clients only.</li>
               <li>Payments made via QR PromptPay are subject to manual verification by our administrative team before credits are applied to your account.</li>
             </ul>
           </section>

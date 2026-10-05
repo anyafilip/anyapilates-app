@@ -16,7 +16,7 @@ export default async function InstructorLayout({
   }
 
   return (
-    <div className="flex-1 w-full flex flex-col h-[100dvh] overflow-hidden">
+    <div className="fixed inset-0 z-40 flex flex-col w-full">
       <InstructorNavbar />
 
       {/* Main Content */}

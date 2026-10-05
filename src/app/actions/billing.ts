@@ -30,16 +30,16 @@ export async function requestPackagePurchase(packageId: string, method: 'QR' | '
   if (!pkg) throw new Error('Package not found')
 
   // Intro package restriction: 1 per account
-  if (pkg.name.toLowerCase().includes('intro')) {
+  if (pkg.name.toLowerCase().includes('trial')) {
     const existingIntro = await prisma.payment.findFirst({
       where: {
         clientId: user.id,
-        package: { name: { contains: 'intro', mode: 'insensitive' } },
+        package: { name: { contains: 'trial', mode: 'insensitive' } },
         status: { not: 'FAILED' }
       }
     })
     if (existingIntro) {
-      throw new Error('You can only purchase an introductory package once per account.')
+      throw new Error('You can only purchase a trial package once per account.')
     }
   }
 
