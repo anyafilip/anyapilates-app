@@ -160,3 +160,23 @@ body {
 .animate-modal-content {
   animation: modal-content-scale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Elegant horizontal scrollbar for packages */
+.packages-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-light) transparent;
+}
+.packages-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+.packages-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+.packages-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--accent-light);
+  border-radius: 10px;
+}
+.packages-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}

@@ -60,23 +60,6 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
     })
   }, [packages, selectedTab])
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-
-  // Attach wheel-to-horizontal-scroll listener
-  useEffect(() => {
-    const el = scrollContainerRef.current
-    if (!el) return
-
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        e.preventDefault()
-        el.scrollLeft += e.deltaY * 1.5
-      }
-    }
-
-    el.addEventListener('wheel', onWheel, { passive: false })
-    return () => el.removeEventListener('wheel', onWheel)
-  })
 
   return (
     <div>
@@ -105,10 +88,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
       </div>
 
       {/* ── Package Cards Grid ─────────────────────────────────────────── */}
-      <div 
-        ref={scrollContainerRef}
-        className="flex overflow-x-auto gap-6 md:gap-8 mb-16 pb-8 snap-x snap-mandatory scrollbar-hide w-full"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      <div className="flex overflow-x-auto gap-6 md:gap-8 mb-16 pb-6 snap-x snap-mandatory packages-scrollbar w-full"
       >
         {filteredPackages.map(pkg => {
           const isTrial = pkg.name.toLowerCase().includes('trial')
