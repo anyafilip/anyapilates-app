@@ -64,8 +64,8 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
   return (
     <div>
       {/* ── Category Filter Tabs ────────────────────────────────────────── */}
-      <div className="flex justify-center mb-12 overflow-x-auto py-2 -mx-4 px-4 scrollbar-hide">
-        <div className="inline-flex p-1.5 rounded-full bg-black/[0.04] backdrop-blur-md border border-white/60">
+      <div className="flex justify-start md:justify-center mb-12 overflow-x-auto py-4 -mx-4 px-4 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:bg-black/15 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <div className="inline-flex p-1.5 rounded-full bg-black/[0.04] backdrop-blur-md border border-white/60 min-w-max">
           {tabs.map(tab => {
             const isActive = selectedTab === tab.key
             return (
