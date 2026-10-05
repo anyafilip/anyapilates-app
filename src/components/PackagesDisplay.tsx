@@ -190,23 +190,6 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
           {t('noPackages')}
         </div>
       )}
-
-      {/* ── Official Flyer Footer / Disclaimers ────────────────────────── */}
-      <div className="text-center max-w-2xl mx-auto space-y-3 pt-6 border-t border-black/5">
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[10px] tracking-[0.25em] uppercase text-[var(--foreground-muted)] font-medium">
-          <span>{t('classDuration')}</span>
-          <span className="hidden sm:inline opacity-30">•</span>
-          <span>{t('introValid')}</span>
-          <span className="hidden sm:inline opacity-30">•</span>
-          <span>{t('pkgsValid')}</span>
-        </div>
-        <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] opacity-60">
-          All packages are non-refundable. Validity starts from the date of purchase.
-        </p>
-        <p className="font-serif italic text-xs text-[var(--foreground-muted)]/70 pt-2">
-          Stronger · Calmer · You
-        </p>
-      </div>
     </div>
   )
 }

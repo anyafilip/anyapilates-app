@@ -24,6 +24,7 @@ function bangkokDate(utcDate: Date) {
 export default async function HomePage() {
   const locale = await getLocale()
   const t = await getTranslations('Frontpage')
+  const tPackages = await getTranslations('Packages')
   const session = await auth()
   const user = session?.user as any
   const isLoggedIn = !!user
@@ -264,9 +265,15 @@ export default async function HomePage() {
           
           <PackagesDisplay packages={packages} isLoggedIn={isLoggedIn} userRole={user?.role} />
           
-          <div className="mt-4 max-w-3xl mx-auto text-center px-6 py-5 bg-[var(--foreground)]/[0.03] border border-black/5 rounded-2xl">
-            <p className="text-base md:text-lg text-[var(--foreground)] font-serif italic">
+          <div className="mt-4 max-w-3xl mx-auto text-center px-6 py-5 bg-[var(--foreground)]/[0.03] border border-black/5 rounded-2xl flex flex-col gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[10px] tracking-[0.25em] uppercase text-[var(--foreground-muted)] font-medium">
+              <span>{tPackages('classDuration')}</span>
+            </div>
+            <p className="text-sm md:text-base text-[var(--foreground)] font-serif italic">
               {t('packageExpiryNote')}
+            </p>
+            <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] opacity-80">
+              All packages are non-refundable. Validity starts from the date of purchase.
             </p>
           </div>
         </div>
