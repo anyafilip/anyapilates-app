@@ -33,8 +33,8 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
       router.push('/register')
       return
     }
-    if (userRole === 'ADMIN') {
-      toast.error('Admins cannot purchase packages.')
+    if (userRole === 'ADMIN' || userRole === 'INSTRUCTOR') {
+      toast.error('Admins and Instructors cannot purchase packages.')
       return
     }
     router.push(`/buy-credits?packageId=${pkgId}`)

@@ -38,7 +38,7 @@ export async function bookClass(classId: string): Promise<BookingResult> {
 
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { role: true, email: true, name: true } })
   if (!user) return { success: false, message: 'User not found.' }
-  if (user.role === 'ADMIN') return { success: false, message: 'You cannot book as an admin.' }
+  if (user.role === 'ADMIN' || user.role === 'INSTRUCTOR') return { success: false, message: 'Admins and Instructors cannot book classes.' }
 
   if (!cls.classTypeId) return { success: false, message: 'Invalid class configuration (no class type).' }
 

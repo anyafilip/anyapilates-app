@@ -16,7 +16,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
     redirect('/en/login')
   }
 
-  if (user?.role === 'ADMIN') {
+  if (user?.role === 'ADMIN' || user?.role === 'INSTRUCTOR') {
     redirect('/en/#packages')
   }
 
