@@ -225,4 +225,13 @@ model StudioSettings {
 
   // Hero Section Image
   heroImage String?
+
+  // Login Page
+  loginImage String?
+
+  // Legal (Supports basic HTML or just plain text)
+  termsContentEn  String?
+  termsContentTh  String?
+  policyContentEn String?
+  policyContentTh String?
 }

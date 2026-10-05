@@ -358,6 +358,11 @@ export async function saveStudioSettings(data: {
   aboutImage2?: string
   aboutImage3?: string
   heroImage?: string
+  loginImage?: string
+  termsContentEn?: string
+  termsContentTh?: string
+  policyContentEn?: string
+  policyContentTh?: string
 }) {
   await requireAdmin()
 
@@ -369,6 +374,7 @@ export async function saveStudioSettings(data: {
     aboutImage2: validateBase64Image(data.aboutImage2),
     aboutImage3: validateBase64Image(data.aboutImage3),
     heroImage:   validateBase64Image(data.heroImage),
+    loginImage:  validateBase64Image(data.loginImage),
     // Sanitize text fields
     contactEmail:   data.contactEmail?.substring(0, 200),
     contactPhone:   data.contactPhone?.substring(0, 50),
@@ -380,6 +386,10 @@ export async function saveStudioSettings(data: {
     facebookUrl:    data.facebookUrl?.substring(0, 300),
     lineUrl:        data.lineUrl?.substring(0, 300),
     whatsappUrl:    data.whatsappUrl?.substring(0, 300),
+    termsContentEn: data.termsContentEn,
+    termsContentTh: data.termsContentTh,
+    policyContentEn: data.policyContentEn,
+    policyContentTh: data.policyContentTh,
   }
 
   await prisma.studioSettings.upsert({

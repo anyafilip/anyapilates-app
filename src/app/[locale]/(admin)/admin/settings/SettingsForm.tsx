@@ -11,6 +11,11 @@ export default function SettingsForm({ initialSettings }: { initialSettings: any
   const [aboutImage2, setAboutImage2] = useState(initialSettings?.aboutImage2 || '')
   const [aboutImage3, setAboutImage3] = useState(initialSettings?.aboutImage3 || '')
   const [heroImage, setHeroImage] = useState(initialSettings?.heroImage || '')
+  const [loginImage, setLoginImage] = useState(initialSettings?.loginImage || '')
+  const [termsContentEn, setTermsContentEn] = useState(initialSettings?.termsContentEn || '')
+  const [termsContentTh, setTermsContentTh] = useState(initialSettings?.termsContentTh || '')
+  const [policyContentEn, setPolicyContentEn] = useState(initialSettings?.policyContentEn || '')
+  const [policyContentTh, setPolicyContentTh] = useState(initialSettings?.policyContentTh || '')
   
   const [footer, setFooter] = useState({
     contactEmail: initialSettings?.contactEmail || '',
