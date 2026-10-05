@@ -203,6 +203,38 @@ export async function createTemplate(data: { classTypeId: string, dayOfWeek: num
 
 export async function deleteTemplate(id: string) {
   await requireAdmin()
+  
+  const template = await prisma.weeklyScheduleTemplate.findUnique({
+    where: { id }
+  })
+  
+  if (template) {
+    // Clean up future unbooked classes
+    const now = new Date()
+    const futureClasses = await prisma.class.findMany({
+      where: {
+        classTypeId: template.classTypeId,
+        startTime: template.startTime,
+        date: { gt: now },
+        bookedCount: 0,
+        status: 'SCHEDULED'
+      }
+    })
+
+    const classesToDelete = futureClasses.filter(c => {
+      const bkkDate = new Date(c.date.getTime() + 7 * 60 * 60 * 1000)
+      return bkkDate.getUTCDay() === template.dayOfWeek
+    })
+
+    if (classesToDelete.length > 0) {
+      await prisma.class.deleteMany({
+        where: {
+          id: { in: classesToDelete.map(c => c.id) }
+        }
+      })
+    }
+  }
+
   await prisma.weeklyScheduleTemplate.delete({ where: { id } })
   revalidatePath('/', 'layout')
 }
