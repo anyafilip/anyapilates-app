@@ -22,8 +22,8 @@ export async function requestPackagePurchase(packageId: string, method: 'QR' | '
   }
 
   const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } })
-  if (dbUser?.role === 'ADMIN') {
-    throw new Error('Admins cannot purchase packages.')
+  if (dbUser?.role === 'ADMIN' || dbUser?.role === 'INSTRUCTOR') {
+    throw new Error('Admins and Instructors cannot purchase packages.')
   }
 
   const pkg = await prisma.package.findUnique({ where: { id: packageId, isActive: true } })
