@@ -13,11 +13,15 @@ export default function GrantPackageForm({ userId, packages }: { userId: string,
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const packageId = formData.get('packageId') as string
+    const credits = formData.get('credits') as string
+    const expiry = formData.get('expiry') as string
     if (!packageId) return
 
     startTransition(async () => {
       try {
-        await manuallyGrantPackage(userId, packageId)
+        const overrideCredits = credits ? parseInt(credits) : undefined
+        const overrideExpiry = expiry ? new Date(expiry).toISOString() : undefined
+        await manuallyGrantPackage(userId, packageId, overrideCredits, overrideExpiry)
         toast.success('Package granted successfully.')
         router.refresh()
       } catch (e: any) {
@@ -43,6 +47,28 @@ export default function GrantPackageForm({ userId, packages }: { userId: string,
           ))}
         </select>
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+        <div>
+          <label className="block text-[10px] tracking-[0.2em] uppercase text-white/50 mb-3">Remaining Credits (Optional)</label>
+          <input 
+            type="number" 
+            name="credits" 
+            placeholder="Leave blank for max"
+            className="w-full bg-white/10 text-white border border-white/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/50 placeholder-white/30"
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] tracking-[0.2em] uppercase text-white/50 mb-3">Specific Expiration Date (Optional)</label>
+          <input 
+            type="date" 
+            name="expiry" 
+            className="w-full bg-white/10 text-white border border-white/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/50"
+          />
+          <p className="text-[10px] text-white/40 mt-2">If set, the package is marked as already active.</p>
+        </div>
+      </div>
+
       
       <button 
         type="submit" 

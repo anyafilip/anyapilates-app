@@ -400,28 +400,43 @@ export async function saveStudioSettings(data: {
   })
 }
 
-export async function manuallyGrantPackage(userId: string, packageId: string) {
+export async function manuallyGrantPackage(userId: string, packageId: string, overrideCredits?: number, overrideExpiry?: string) {
   const adminId = await requireAdmin()
   
   const pkg = await prisma.package.findUnique({ where: { id: packageId } })
   if (!pkg) throw new Error('Package not found')
 
-  const expiresAt = new Date()
+  let expiresAt = new Date()
   expiresAt.setDate(expiresAt.getDate() + pkg.startWindowDays)
+  
+  let activatedAt = null
+
+  if (overrideExpiry) {
+    expiresAt = new Date(overrideExpiry)
+    // If they set a specific expiry, we assume it's an active/migrated package
+    // so we set activatedAt to now so it doesn't auto-extend on first booking.
+    activatedAt = new Date()
+  }
+
+  const remaining = overrideCredits !== undefined && overrideCredits !== null && !isNaN(overrideCredits) 
+    ? overrideCredits 
+    : pkg.classCount
 
   await prisma.userPass.create({
     data: {
       userId,
       classTypeId: pkg.classTypeId,
-      originalCount: pkg.classCount,
-      remainingCount: pkg.classCount,
+      originalCount: pkg.classCount, // keep original for reference
+      remainingCount: remaining,
       expiresAt,
       validityDays: pkg.expiresInDays,
+      activatedAt,
       adminId
     }
   })
 
   revalidatePath(`/en/admin/users/${userId}`)
+  revalidatePath(`/th/admin/users/${userId}`)
 }
 
 export async function deleteUserPass(passId: string) {
