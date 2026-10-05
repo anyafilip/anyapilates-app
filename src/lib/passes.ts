@@ -1,6 +1,9 @@
 import { prisma } from '@/lib/prisma'
 
 export async function debitPass(userId: string, classTypeId: string, classDate?: Date) {
+  // First, auto-activate any overdue passes for this user
+  await autoActivatePasses(userId)
+
   return prisma.$transaction(async (tx) => {
     // Find unexpired passes for this user and classType
     const activePasses = await tx.userPass.findMany({
@@ -26,9 +29,26 @@ export async function debitPass(userId: string, classTypeId: string, classDate?:
     let expiresAt = passToDebit.expiresAt
 
     if (isFirstUse && classDate) {
-      activatedAt = classDate
-      expiresAt = new Date(classDate)
-      expiresAt.setDate(expiresAt.getDate() + passToDebit.validityDays)
+      const activationDeadline = passToDebit.expiresAt
+      if (classDate > activationDeadline) {
+        // Booked class is after the activation deadline. Auto-activate at deadline.
+        activatedAt = activationDeadline
+        expiresAt = new Date(activationDeadline)
+        expiresAt.setDate(expiresAt.getDate() + passToDebit.validityDays)
+        
+        if (classDate > expiresAt) {
+          throw new Error('This pass will expire before the class date.')
+        }
+      } else {
+        activatedAt = classDate
+        expiresAt = new Date(classDate)
+        expiresAt.setDate(expiresAt.getDate() + passToDebit.validityDays)
+      }
+    } else if (!isFirstUse && classDate) {
+      // Already activated, just check expiration
+      if (classDate > passToDebit.expiresAt) {
+        throw new Error('This pass will expire before the class date.')
+      }
     }
 
     await tx.userPass.update({
@@ -41,6 +61,32 @@ export async function debitPass(userId: string, classTypeId: string, classDate?:
     })
 
     return passToDebit.id
+  })
+}
+
+export async function autoActivatePasses(userId?: string) {
+  const now = new Date()
+  const query: any = {
+    activatedAt: null,
+    expiresAt: { lte: now }
+  }
+  if (userId) query.userId = userId
+
+  const overduePasses = await prisma.userPass.findMany({ where: query })
+  if (overduePasses.length === 0) return
+
+  await prisma.$transaction(async (tx) => {
+    for (const pass of overduePasses) {
+      const newExpiresAt = new Date(pass.expiresAt)
+      newExpiresAt.setDate(newExpiresAt.getDate() + pass.validityDays)
+      await tx.userPass.update({
+        where: { id: pass.id },
+        data: {
+          activatedAt: pass.expiresAt,
+          expiresAt: newExpiresAt
+        }
+      })
+    }
   })
 }
 

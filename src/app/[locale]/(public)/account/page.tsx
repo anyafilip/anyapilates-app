@@ -5,6 +5,7 @@ import { cancelBooking } from '@/app/actions/booking'
 import { redirect } from 'next/navigation'
 
 import MemberNavbar from '@/components/MemberNavbar'
+import { autoActivatePasses } from "@/lib/passes"
 import CancelBookingButton from './CancelBookingButton'
 import ClassNameDisplay from '@/components/ClassNameDisplay'
 
@@ -22,6 +23,8 @@ export default async function AccountPage() {
   if (!session?.user?.id) redirect('/en/login')
 
   const userId = (session.user as any).id
+
+  await autoActivatePasses(userId)
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -48,7 +51,7 @@ export default async function AccountPage() {
   const upcoming = user.bookings
 
   return (
-    <div className="flex-1 w-full flex flex-col h-[100dvh] overflow-hidden bg-[var(--surface)]">
+    <div className="fixed inset-0 z-40 flex flex-col w-full bg-[var(--surface)]">
       <MemberNavbar />
 
       <main className="flex-1 overflow-y-auto w-full">
@@ -84,7 +87,7 @@ export default async function AccountPage() {
                       <div className="bg-[var(--foreground)] h-full" style={{ width: `${(pass.remainingCount / pass.originalCount) * 100}%` }}></div>
                     </div>
                     <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">
-                      Expires {bangkokDate(pass.expiresAt)}
+                      {pass.activatedAt ? "Expires " : "Auto-activates "} {bangkokDate(pass.expiresAt)}
                     </p>
                   </div>
                 ))}
