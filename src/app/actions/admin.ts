@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import sanitizeHtml from 'sanitize-html'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
@@ -386,10 +387,10 @@ export async function saveStudioSettings(data: {
     facebookUrl:    data.facebookUrl?.substring(0, 300),
     lineUrl:        data.lineUrl?.substring(0, 300),
     whatsappUrl:    data.whatsappUrl?.substring(0, 300),
-    termsContentEn: data.termsContentEn,
-    termsContentTh: data.termsContentTh,
-    policyContentEn: data.policyContentEn,
-    policyContentTh: data.policyContentTh,
+    termsContentEn: safeHtml(data.termsContentEn),
+    termsContentTh: safeHtml(data.termsContentTh),
+    policyContentEn: safeHtml(data.policyContentEn),
+    policyContentTh: safeHtml(data.policyContentTh),
   }
 
   await prisma.studioSettings.upsert({
@@ -437,4 +438,16 @@ export async function deleteUserPass(passId: string) {
 
   await prisma.userPass.delete({ where: { id: passId } })
   revalidatePath(`/en/admin/users/${pass.userId}`)
+}
+
+
+function safeHtml(dirty?: string) {
+  if (!dirty) return dirty
+  return sanitizeHtml(dirty, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img', 'h1', 'h2', 'h3', 'p', 'br', 'strong', 'em', 'u', 'ul', 'ol', 'li', 'a' ]),
+    allowedAttributes: {
+      a: [ 'href', 'name', 'target' ],
+      img: [ 'src', 'alt' ]
+    }
+  })
 }
