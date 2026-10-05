@@ -132,6 +132,57 @@ export default function SettingsForm({ initialSettings }: { initialSettings: any
         </div>
       </div>
 
+      
+      {/* Login & Auth Settings */}
+      <div>
+        <h2 className="text-xl font-serif text-[var(--foreground)] border-b border-black/5 pb-2 mb-6">Login Page Cover</h2>
+        <p className="text-sm text-[var(--foreground-muted)] mb-6">Upload the background image displayed on the login and register pages.</p>
+        {renderImageUploader("Login Background Image", loginImage, setLoginImage, "w-full h-48 md:h-64 object-cover")}
+      </div>
+
+      {/* Legal & Policies */}
+      <div>
+        <h2 className="text-xl font-serif text-[var(--foreground)] border-b border-black/5 pb-2 mb-6">Legal & Policies</h2>
+        <p className="text-sm text-[var(--foreground-muted)] mb-6">Enter your studio's legal documents. (Basic HTML formatting like &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt; is supported)</p>
+        
+        <div className="space-y-6">
+          <div>
+            <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">Terms & Conditions (English)</label>
+            <textarea 
+              value={termsContentEn} 
+              onChange={e => setTermsContentEn(e.target.value)}
+              className="w-full bg-white/40 border border-black/5 rounded-xl px-4 py-3 min-h-[200px]"
+              placeholder="<h1>Terms</h1><p>...</p>"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">Terms & Conditions (Thai)</label>
+            <textarea 
+              value={termsContentTh} 
+              onChange={e => setTermsContentTh(e.target.value)}
+              className="w-full bg-white/40 border border-black/5 rounded-xl px-4 py-3 min-h-[200px]"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">Privacy Policy (English)</label>
+            <textarea 
+              value={policyContentEn} 
+              onChange={e => setPolicyContentEn(e.target.value)}
+              className="w-full bg-white/40 border border-black/5 rounded-xl px-4 py-3 min-h-[200px]"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] tracking-widest uppercase mb-2 text-[var(--foreground-muted)]">Privacy Policy (Thai)</label>
+            <textarea 
+              value={policyContentTh} 
+              onChange={e => setPolicyContentTh(e.target.value)}
+              className="w-full bg-white/40 border border-black/5 rounded-xl px-4 py-3 min-h-[200px]"
+            />
+          </div>
+        </div>
+      </div>
+
+
       {/* Payment Settings */}
       <div>
         <h2 className="text-xl font-serif text-[var(--foreground)] border-b border-black/5 pb-2 mb-6">Payment Settings</h2>
