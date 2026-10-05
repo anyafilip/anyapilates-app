@@ -32,7 +32,10 @@ export default function ClassNameDisplay({
 
   // Only show type if it differs from the name (avoids "Group Class / Group Class")
   const locale = useLocale()
-  const displayTitle = locale === 'th' && nameTh ? nameTh : name
+  // If the English name was overridden and doesn't match the English type name,
+  // we shouldn't implicitly overwrite it with the generic Thai type name.
+  const resolvedNameTh = (name === classTypeName && classTypeNameTh) ? classTypeNameTh : nameTh
+  const displayTitle = locale === 'th' && resolvedNameTh ? resolvedNameTh : name
   const displayType = locale === 'th' && classTypeNameTh ? classTypeNameTh : classTypeName
 
   const showType = displayType && displayType !== displayTitle
