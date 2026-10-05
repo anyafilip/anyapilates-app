@@ -25,15 +25,11 @@ export default async function PrivacyPage() {
         <h1 className="text-4xl font-serif text-[var(--foreground)] mb-4">Privacy Policy</h1>
         <p className="text-sm text-[var(--foreground-muted)] mb-12">Last Updated: September 2026</p>
 
-        {content ? (
+        {content !== null && content !== undefined ? (
           <div className="space-y-8 text-[var(--foreground)] font-light leading-relaxed prose prose-stone max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
         ) : (
-          <div className="space-y-8 text-[var(--foreground)] font-light leading-relaxed">
-            <section>
-              <h2 className="text-xl font-serif mb-4">1. Data Collection</h2>
-              <p>We collect personal information such as your name, email address, phone number, and emergency contact details when you register.</p>
-            </section>
-            {/* Default truncated for brevity, admins will provide the real one in settings */}
+          <div className="space-y-8 text-[var(--foreground)] font-light leading-relaxed text-center italic text-[var(--foreground-muted)]">
+            Content has not been set yet.
           </div>
         )}
       </main>
