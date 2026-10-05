@@ -263,6 +263,12 @@ export default async function HomePage() {
           </div>
           
           <PackagesDisplay packages={packages} isLoggedIn={isLoggedIn} userRole={user?.role} />
+          
+          <div className="mt-4 max-w-3xl mx-auto text-center px-6 py-5 bg-[var(--foreground)]/[0.03] border border-black/5 rounded-2xl">
+            <p className="text-base md:text-lg text-[var(--foreground)] font-serif italic">
+              {t('packageExpiryNote')}
+            </p>
+          </div>
         </div>
       </section>
 
