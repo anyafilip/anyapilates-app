@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { manuallyGrantPackage } from '@/app/actions/admin'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import CustomDropdown from '@/components/CustomDropdown'
 
 export default function GrantPackageForm({ userId, packages }: { userId: string, packages: any[] }) {
   const [isPending, startTransition] = useTransition()
@@ -58,25 +59,18 @@ export default function GrantPackageForm({ userId, packages }: { userId: string,
         <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-3">
           1 — Choose Package
         </p>
-        <div className="space-y-2">
-          {packages.map(pkg => (
-            <button
-              key={pkg.id}
-              type="button"
-              onClick={() => handleSelect(pkg)}
-              className={`w-full text-left px-4 py-3 rounded-xl border transition-all text-sm ${
-                selectedPkg?.id === pkg.id
-                  ? 'bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]'
-                  : 'bg-white/60 border-black/5 text-[var(--foreground)] hover:border-black/20 hover:bg-white/80'
-              }`}
-            >
-              <span className="font-medium">{pkg.name}</span>
-              <span className={`ml-2 text-xs ${selectedPkg?.id === pkg.id ? 'opacity-60' : 'text-[var(--foreground-muted)]'}`}>
-                {pkg.classCount} credits · {pkg.classType?.name}
-              </span>
-            </button>
-          ))}
-        </div>
+        <CustomDropdown
+          variant="standard"
+          placeholder="Select a package..."
+          options={packages.map(pkg => ({
+            value: pkg.id,
+            label: `${pkg.name} — ${pkg.classCount} credits (${pkg.classType?.name})`,
+          }))}
+          onChange={val => {
+            const pkg = packages.find(p => p.id === val) ?? null
+            handleSelect(pkg)
+          }}
+        />
       </div>
 
       {/* Step 2 — Customise (only shown once a package is selected) */}
