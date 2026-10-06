@@ -246,3 +246,15 @@ export async function generateScheduleFromTemplates(weeksAhead: number = 4) {
   
   return count
 }
+
+export async function bulkStopRecurringTemplates(ids: string[]) {
+  await requireAdmin()
+  
+  for (const id of ids) {
+    try {
+      await stopRecurringClass(id)
+    } catch (e) {
+      console.error(`Failed to stop template ${id}:`, e)
+    }
+  }
+}

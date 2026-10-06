@@ -6,6 +6,8 @@ import CustomDropdown from '@/components/CustomDropdown'
 
 interface DataTableToolsProps {
   searchPlaceholder?: string
+  searchParamName?: string
+  pageParamName?: string
   filterOptions?: { label: string, value: string }[]
   filterPlaceholder?: string
   filterParamName?: string
@@ -16,6 +18,8 @@ interface DataTableToolsProps {
 
 export default function DataTableTools({ 
   searchPlaceholder = 'Search...', 
+  searchParamName = 'q',
+  pageParamName = 'page',
   filterOptions, 
   filterPlaceholder = 'All',
   filterParamName = 'filter',
@@ -27,7 +31,7 @@ export default function DataTableTools({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const initialSearch = searchParams.get('q') || ''
+  const initialSearch = searchParams.get(searchParamName) || ''
   const [searchTerm, setSearchTerm] = useState(initialSearch)
 
   const createQueryString = useCallback(
@@ -38,23 +42,23 @@ export default function DataTableTools({
       } else {
         params.delete(name)
       }
-      if (name !== 'page') {
-        params.delete('page') // Reset page on filter/search/sort change
+      if (name !== pageParamName) {
+        params.delete(pageParamName) // Reset page on filter/search/sort change
       }
       return params.toString()
     },
-    [searchParams]
+    [searchParams, pageParamName]
   )
 
   // Debounced search
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      if (searchTerm !== (searchParams.get('q') || '')) {
-        router.push(pathname + '?' + createQueryString('q', searchTerm))
+      if (searchTerm !== (searchParams.get(searchParamName) || '')) {
+        router.push(pathname + '?' + createQueryString(searchParamName, searchTerm))
       }
     }, 400)
     return () => clearTimeout(delayDebounceFn)
-  }, [searchTerm, pathname, router, createQueryString, searchParams])
+  }, [searchTerm, pathname, router, createQueryString, searchParams, searchParamName])
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">

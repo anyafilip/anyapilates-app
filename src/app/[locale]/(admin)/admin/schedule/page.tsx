@@ -7,6 +7,15 @@ import CancelSessionForm from './CancelSessionForm'
 import { Link } from '@/i18n/routing'
 import Modal from '@/components/Modal'
 import ClassNameDisplay from '@/components/ClassNameDisplay'
+import { bulkCancelSessions } from '@/app/actions/admin'
+import { bulkStopRecurringTemplates } from '@/app/actions/templates'
+import { BulkSelectionProvider } from '@/components/admin/BulkSelectionContext'
+import { BulkSelectionCheckbox, BulkSelectAllCheckbox } from '@/components/admin/BulkSelectionCheckbox'
+import { BulkActionBarController } from '@/components/admin/BulkActionBarController'
+
+import DataTableTools from '@/components/admin/DataTableTools'
+import Pagination from '@/components/admin/Pagination'
+
 
 const TZ_OFFSET = 7 // Bangkok
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -14,39 +23,89 @@ const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 export default async function AdminSchedulePage({
   searchParams,
 }: {
-  searchParams: Promise<{ editSessionId?: string; cancelSessionId?: string }>
+  searchParams: Promise<{ editSessionId?: string; cancelSessionId?: string, sq?: string, spage?: string, sfilter?: string, rq?: string, rpage?: string, rfilter?: string }>
 }) {
   const resolvedSearchParams = await searchParams
   const editSessionId = resolvedSearchParams.editSessionId
   const cancelSessionId = resolvedSearchParams.cancelSessionId
+  
+  const sq = resolvedSearchParams.sq || ''
+  const spage = resolvedSearchParams.spage ? parseInt(resolvedSearchParams.spage, 10) : 1
+  const sfilter = resolvedSearchParams.sfilter || ''
+  
+  const rq = resolvedSearchParams.rq || ''
+  const rpage = resolvedSearchParams.rpage ? parseInt(resolvedSearchParams.rpage, 10) : 1
+  const rfilter = resolvedSearchParams.rfilter || ''
 
   // Auto-fill the next 8 weeks from active recurring templates (gap-filling, idempotent)
   await autoFillSchedule(8)
+  
+  // Sessions filters
+  const sWhere: any = {}
+  if (sq) {
+    sWhere.OR = [
+      { name: { contains: sq, mode: 'insensitive' } },
+      { instructor: { name: { contains: sq, mode: 'insensitive' } } },
+      { classType: { name: { contains: sq, mode: 'insensitive' } } }
+    ]
+  }
+  if (sfilter) {
+    sWhere.status = sfilter
+  } else {
+    // Default show only scheduled or recent
+    sWhere.date = { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+  }
+  
+  // Recurring filters
+  const rWhere: any = { isActive: true }
+  if (rq) {
+    rWhere.OR = [
+      { classType: { name: { contains: rq, mode: 'insensitive' } } },
+      { instructor: { name: { contains: rq, mode: 'insensitive' } } }
+    ]
+  }
+  if (rfilter) {
+    rWhere.dayOfWeek = parseInt(rfilter, 10)
+  }
 
-  const [classTypes, instructors, sessions, recurringTemplates] = await Promise.all([
+  const sTake = 20
+  const sSkip = (spage - 1) * sTake
+  
+  const rTake = 10
+  const rSkip = (rpage - 1) * rTake
+
+  const [classTypes, instructors, sessions, sTotal, recurringTemplates, rTotal] = await Promise.all([
     prisma.classType.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } }),
     prisma.user.findMany({
       where: { role: 'INSTRUCTOR' },
       select: { id: true, name: true, availabilityNotes: true },
     }),
     prisma.class.findMany({
-      where: { date: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
+      where: sWhere,
       include: { classType: true, instructor: { select: { name: true } } },
       orderBy: { date: 'asc' },
-      take: 60,
+      take: sTake,
+      skip: sSkip,
     }),
+    prisma.class.count({ where: sWhere }),
     prisma.weeklyScheduleTemplate.findMany({
-      where: { isActive: true },
-      include: {
-        classType: true,
-        instructor: { select: { name: true } },
-      },
+      where: rWhere,
+      include: { classType: true, instructor: { select: { name: true } } },
       orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
+      take: rTake,
+      skip: rSkip,
     }),
+    prisma.weeklyScheduleTemplate.count({ where: rWhere }),
   ])
 
-  const editingSession = editSessionId ? sessions.find(s => s.id === editSessionId) ?? null : null
-  const cancelingSession = cancelSessionId ? sessions.find(s => s.id === cancelSessionId) ?? null : null
+  let editingSession = null
+  if (editSessionId) {
+    editingSession = sessions.find(s => s.id === editSessionId) || await prisma.class.findUnique({ where: { id: editSessionId }, include: { classType: true, instructor: true } })
+  }
+  let cancelingSession = null
+  if (cancelSessionId) {
+    cancelingSession = sessions.find(s => s.id === cancelSessionId) || await prisma.class.findUnique({ where: { id: cancelSessionId }, include: { classType: true, instructor: true } })
+  }
 
   return (
     <div className="max-w-6xl mx-auto pb-12">
@@ -96,14 +155,24 @@ export default async function AdminSchedulePage({
 
       {/* ── Active Recurring Classes ── */}
       {recurringTemplates.length > 0 && (
+        <BulkSelectionProvider>
         <div className="mb-12">
           <h2 className="text-xl font-serif text-[var(--foreground)] mb-6">Recurring Classes</h2>
+          <DataTableTools 
+            searchPlaceholder="Search templates..."
+            searchParamName="rq"
+            pageParamName="rpage"
+            filterParamName="rfilter"
+            filterPlaceholder="All Days"
+            filterOptions={DAYS.map((day, idx) => ({ label: day, value: idx.toString() }))}
+          />
           <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                   <tr className="border-b border-black/5 text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
-                    <th className="font-medium py-5 pl-8">Day</th>
+                    <th className="py-5 pl-8 w-12"><BulkSelectAllCheckbox ids={recurringTemplates.map(t => t.id)} /></th>
+                    <th className="font-medium py-5 pl-2">Day</th>
                     <th className="font-medium py-5">Class Type</th>
                     <th className="font-medium py-5">Time</th>
                     <th className="font-medium py-5">Instructor</th>
@@ -117,7 +186,8 @@ export default async function AdminSchedulePage({
                       key={t.id}
                       className="border-b border-black/5 last:border-0 hover:bg-black/[0.02] transition-colors"
                     >
-                      <td className="py-4 pl-8 font-medium">{DAYS[t.dayOfWeek]}</td>
+                      <td className="py-4 pl-8"><BulkSelectionCheckbox id={t.id} /></td>
+                      <td className="py-4 pl-2 font-medium">{DAYS[t.dayOfWeek]}</td>
                       <td className="py-4">{t.classType.name}</td>
                       <td className="py-4 text-[var(--foreground-muted)] text-xs">
                         {t.startTime} – {t.endTime}
@@ -133,18 +203,34 @@ export default async function AdminSchedulePage({
               </table>
             </div>
           </div>
+          <Pagination totalCount={rTotal} pageSize={10} pageParam="rpage" />
+          <BulkActionBarController actions={[{ label: "Stop Selected", action: bulkStopRecurringTemplates, confirmMessage: "Stop these recurring classes? (This will not delete existing scheduled sessions)", destructive: true }]} />
         </div>
+        </BulkSelectionProvider>
       )}
 
       {/* ── All Sessions table ── */}
+      <BulkSelectionProvider>
       <div>
         <h2 className="text-xl font-serif text-[var(--foreground)] mb-6">Upcoming Sessions</h2>
+        <DataTableTools 
+          searchPlaceholder="Search classes..."
+          searchParamName="sq"
+          pageParamName="spage"
+          filterParamName="sfilter"
+          filterPlaceholder="All Statuses"
+          filterOptions={[
+            { label: 'Scheduled', value: 'SCHEDULED' },
+            { label: 'Cancelled', value: 'CANCELLED' }
+          ]}
+        />
         <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse whitespace-nowrap">
               <thead>
                 <tr className="border-b border-black/5 text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
-                  <th className="font-medium py-6 pl-8">Class &amp; Date</th>
+                  <th className="py-6 pl-8 w-12"><BulkSelectAllCheckbox ids={sessions.map(s => s.id)} /></th>
+                  <th className="font-medium py-6 pl-2">Class &amp; Date</th>
                   <th className="font-medium py-6">Instructor</th>
                   <th className="font-medium py-6">Bookings</th>
                   <th className="font-medium py-6">Status</th>
@@ -165,7 +251,8 @@ export default async function AdminSchedulePage({
                       key={cls.id}
                       className="border-b border-black/5 last:border-0 hover:bg-black/[0.02] transition-colors"
                     >
-                      <td className="py-5 pl-8">
+                      <td className="py-5 pl-8"><BulkSelectionCheckbox id={cls.id} /></td>
+                      <td className="py-5 pl-2">
                         <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="sm" />
                         <p className="text-[11px] text-[var(--foreground-muted)] mt-1">
                           {dateStr} · {cls.startTime} – {cls.endTime}
@@ -226,7 +313,10 @@ export default async function AdminSchedulePage({
             </table>
           </div>
         </div>
+        <Pagination totalCount={sTotal} pageSize={20} pageParam="spage" />
+        <BulkActionBarController actions={[{ label: "Cancel Selected", action: bulkCancelSessions, confirmMessage: "Cancel these scheduled classes? Customers will be refunded and notified.", destructive: true }]} />
       </div>
+      </BulkSelectionProvider>
     </div>
   )
 }

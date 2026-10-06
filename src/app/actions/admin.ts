@@ -473,3 +473,15 @@ function safeHtml(dirty?: string) {
     }
   })
 }
+
+export async function bulkCancelSessions(ids: string[]) {
+  const adminId = await requireAdmin()
+  
+  for (const id of ids) {
+    try {
+      await cancelSession(id)
+    } catch (e) {
+      console.error(`Failed to cancel session ${id}:`, e)
+    }
+  }
+}

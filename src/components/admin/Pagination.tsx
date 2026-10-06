@@ -5,14 +5,15 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 interface PaginationProps {
   totalCount: number
   pageSize: number
+  pageParam?: string
 }
 
-export default function Pagination({ totalCount, pageSize }: PaginationProps) {
+export default function Pagination({ totalCount, pageSize, pageParam = 'page' }: PaginationProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const currentPage = Number(searchParams.get('page')) || 1
+  const currentPage = Number(searchParams.get(pageParam)) || 1
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
   if (totalPages <= 1) return null
@@ -20,9 +21,9 @@ export default function Pagination({ totalCount, pageSize }: PaginationProps) {
   const handlePage = (page: number) => {
     const params = new URLSearchParams(searchParams.toString())
     if (page > 1) {
-      params.set('page', page.toString())
+      params.set(pageParam, page.toString())
     } else {
-      params.delete('page')
+      params.delete(pageParam)
     }
     router.push(`${pathname}?${params.toString()}`)
   }
