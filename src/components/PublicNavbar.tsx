@@ -67,6 +67,7 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
             {/* Primary Navigation Links */}
             <div className="flex flex-col gap-8 px-2">
               <a href="#schedule" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('schedule')}</a>
+              <Link href="/account/schedule" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Full Schedule</Link>
               <a href="#classes" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('classes')}</a>
               <a href="#packages" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('packages')}</a>
               <a href="#contact" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('contact')}</a>
