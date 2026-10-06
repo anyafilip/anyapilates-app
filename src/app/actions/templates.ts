@@ -40,6 +40,10 @@ export async function autoFillSchedule(weeksAhead: number = 8) {
       const classDate = new Date(d)
       classDate.setUTCHours(hours - 7, minutes, 0, 0) // Bangkok UTC+7
 
+      if (classDate.getTime() < Date.now()) {
+        continue
+      }
+
       const existing = await prisma.class.findFirst({
         where: { classTypeId: t.classTypeId, startTime: t.startTime, date: classDate },
       })
