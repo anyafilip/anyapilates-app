@@ -208,6 +208,15 @@ export default async function HomePage() {
             isLoggedIn={isLoggedIn} 
             userRole={user?.role}
           />
+          
+          <div className="mt-16 text-center">
+            <Link 
+              href="/account/schedule" 
+              className="inline-flex items-center justify-center px-10 py-4 bg-[var(--foreground)] text-[var(--background)] hover:bg-[var(--foreground-muted)] text-[10px] tracking-[0.25em] uppercase font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-1"
+            >
+              View Full Schedule →
+            </Link>
+          </div>
         </div>
       </section>
 

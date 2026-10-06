@@ -77,7 +77,7 @@ export default function MemberNavbar() {
             {t('purchaseHistory')}
           </Link>
           <Link
-            href="/#schedule"
+            href="/account/schedule"
             onClick={() => setIsOpen(false)}
             className="px-3 py-3 rounded-lg text-sm font-light text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
