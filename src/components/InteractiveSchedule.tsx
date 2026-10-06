@@ -96,7 +96,10 @@ export default function InteractiveSchedule({
       </div>
 
       {/* ── Class List ─────────────────────────────────────────────────────── */}
-      <div className="bg-white/60 rounded-[2.5rem] p-5 md:p-12 backdrop-blur-xl border border-white shadow-sm">
+      <div 
+        className="bg-white/60 rounded-[2.5rem] p-5 md:p-12 backdrop-blur-xl border border-white shadow-sm max-h-[600px] overflow-y-auto hide-scrollbar"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
         {filteredClasses.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-[var(--foreground-muted)] font-serif italic text-xl mb-2">{t('dayOfRest')}</p>
