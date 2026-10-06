@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from '@/i18n/routing'
 import toast from 'react-hot-toast'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 type PackageItem = {
   id: string
@@ -25,6 +25,8 @@ interface PackagesDisplayProps {
 
 export default function PackagesDisplay({ packages, isLoggedIn, userRole }: PackagesDisplayProps) {
   const t = useTranslations('Packages')
+  const locale = useLocale()
+  const isEn = locale === 'en'
   const router = useRouter()
   const [selectedTab, setSelectedTab] = useState<'ALL' | 'GROUP' | 'DUO' | 'PRIVATE' | 'TRIAL'>('ALL')
 
@@ -116,17 +118,17 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
                 {/* Badge */}
                 <div className="h-5 mb-3 flex items-center justify-center">
                   {isTrial && (
-                    <span className="inline-flex items-center gap-1 text-[8px] tracking-[0.2em] uppercase font-medium text-[var(--accent-dark)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20">
+                    <span className={`inline-flex items-center gap-1 text-[8px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase font-medium text-[var(--accent-dark)] bg-[var(--accent)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20`}>
                       ★ {t('trial')}
                     </span>
                   )}
                   {isSingle && !isTrial && (
-                    <span className="text-[8px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] font-medium">
+                    <span className={`text-[8px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase text-[var(--foreground-muted)] font-medium`}>
                       {t('singleSession')}
                     </span>
                   )}
                   {!isSingle && !isTrial && (
-                    <span className="text-[8px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]/70">
+                    <span className={`text-[8px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase text-[var(--foreground-muted)]/70`}>
                       {t('classPackage')}
                     </span>
                   )}
@@ -138,27 +140,27 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
                 </h3>
 
                 {/* Class Type & Count Subtitle */}
-                <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-5 z-10">
+                <p className={`text-[9px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase text-[var(--foreground-muted)] mb-5 z-10`}>
                   {pkg.classCount} {pkg.classType.name}
                 </p>
 
                 {/* Price Display */}
                 <div className="flex flex-col justify-center items-center mb-4 z-10">
-                  <div className="text-3xl font-light text-[var(--foreground)] tracking-tight mb-1.5">
+                  <div className={`text-3xl font-light text-[var(--foreground)] ${isEn ? 'tracking-tight' : 'tracking-normal'} mb-1.5`}>
                     <span className="text-base font-normal align-top mr-0.5">฿</span>
                     {priceInBaht.toLocaleString('en-US')}
                   </div>
 
                   {/* Price per class breakdown */}
                   {pkg.classCount > 1 && (
-                    <div className="text-[9px] font-medium tracking-wider text-[var(--foreground-muted)] uppercase bg-black/[0.03] px-2.5 py-0.5 rounded-full">
+                    <div className={`text-[9px] font-medium ${isEn ? 'tracking-wider' : 'tracking-normal'} text-[var(--foreground-muted)] uppercase bg-black/[0.03] px-2.5 py-0.5 rounded-full`}>
                       ฿{unitPrice.toLocaleString('en-US')} / {t('classUnit')}
                     </div>
                   )}
                 </div>
 
                 {/* Validity */}
-                <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-5">
+                <p className={`text-[9px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase text-[var(--foreground-muted)] mb-5`}>
                   Valid {pkg.expiresInDays} days
                 </p>
               </div>
