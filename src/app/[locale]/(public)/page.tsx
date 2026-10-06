@@ -36,19 +36,19 @@ export default async function HomePage() {
     select: { id: true, name: true, bio: true, imageUrl: true },
   })
 
-  // Fetch upcoming scheduled classes
+  // Fetch upcoming scheduled classes (next 14 days)
   const now = new Date()
+  const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000)
   const classes = await prisma.class.findMany({
     where: {
       status: 'SCHEDULED',
-      date: { gte: now },
+      date: { gte: now, lte: twoWeeksFromNow },
     },
     include: {
       classType: true,
       instructor: { select: { name: true } },
     },
     orderBy: { date: 'asc' },
-    take: 20,
   })
 
   // If logged in, fetch user's current booked class IDs
