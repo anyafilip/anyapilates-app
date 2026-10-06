@@ -76,14 +76,14 @@ export default function DataTableTools({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={searchPlaceholder}
-            className="w-full pl-10 pr-4 py-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-black/20 text-stone-800 placeholder-stone-400"
+            className="w-full pl-10 pr-4 py-2 md:py-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-full text-xs md:text-sm focus:outline-none focus:ring-1 focus:ring-black/20 text-stone-800 placeholder-stone-400"
           />
         </div>
       )}
 
       <div className="flex flex-wrap gap-4">
         {filterOptions && filterOptions.length > 0 && (
-          <div className="min-w-[160px]">
+          <div className="min-w-[130px] md:min-w-[160px] flex-1 sm:flex-none">
             <CustomDropdown
               value={searchParams.get(filterParamName) || ''}
               onChange={(val) => router.push(pathname + '?' + createQueryString(filterParamName, val))}
@@ -95,7 +95,7 @@ export default function DataTableTools({
         )}
 
         {sortOptions && sortOptions.length > 0 && (
-          <div className="min-w-[160px]">
+          <div className="min-w-[130px] md:min-w-[160px] flex-1 sm:flex-none">
             <CustomDropdown
               value={searchParams.get(sortParamName) || ''}
               onChange={(val) => router.push(pathname + '?' + createQueryString(sortParamName, val))}

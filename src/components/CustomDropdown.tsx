@@ -120,7 +120,7 @@ export default function CustomDropdown({
   } else if (variant === 'minimal') {
     triggerClasses = `w-full inline-flex items-center justify-between gap-2 border border-black/10 rounded-full px-4 py-2 text-[11px] tracking-[0.12em] uppercase font-medium text-[var(--foreground)] cursor-pointer focus:outline-none hover:border-black/25 hover:bg-black/[0.03] transition-all bg-white/60 shadow-sm`
   } else if (variant === 'filter') {
-    triggerClasses = `w-full px-5 py-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-full text-sm text-stone-800 flex items-center justify-center gap-2 focus:outline-none focus:ring-1 focus:ring-black/20 cursor-pointer shadow-sm transition-colors hover:bg-white/80`
+    triggerClasses = `w-full px-3 py-2 md:px-5 md:py-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-full text-xs md:text-sm text-stone-800 flex items-center justify-center gap-2 focus:outline-none focus:ring-1 focus:ring-black/20 cursor-pointer shadow-sm transition-colors hover:bg-white/80`
   }
 
   const menu = mounted && isOpen ? createPortal(
@@ -154,7 +154,7 @@ export default function CustomDropdown({
             role="option"
             aria-selected={isSelected}
             onClick={() => handleSelect(option.value)}
-            className={`px-5 py-3.5 text-sm cursor-pointer flex items-center justify-between transition-colors hover:bg-black/5 ${
+            className={`px-4 py-3 md:px-5 md:py-3.5 text-xs md:text-sm cursor-pointer flex items-center justify-between transition-colors hover:bg-black/5 ${
               isSelected
                 ? 'font-medium text-[var(--foreground)] bg-black/[0.07]'
                 : 'text-[var(--foreground)]'
