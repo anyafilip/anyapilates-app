@@ -5,6 +5,7 @@ import { useCallback, useState, useEffect } from 'react'
 import CustomDropdown from '@/components/CustomDropdown'
 
 interface DataTableToolsProps {
+  hideSearch?: boolean
   searchPlaceholder?: string
   searchParamName?: string
   pageParamName?: string
@@ -25,7 +26,8 @@ export default function DataTableTools({
   filterParamName = 'filter',
   sortOptions,
   sortPlaceholder = 'Sort',
-  sortParamName = 'sort'
+  sortParamName = 'sort',
+  hideSearch = false
 }: DataTableToolsProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -62,20 +64,22 @@ export default function DataTableTools({
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
-      <div className="relative flex-1 max-w-sm">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <svg className="w-4 h-4 text-black/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+      {!hideSearch && (
+        <div className="relative flex-1 max-w-sm">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg className="w-4 h-4 text-black/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={searchPlaceholder}
+            className="w-full pl-10 pr-4 py-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-black/20 text-stone-800 placeholder-stone-400"
+          />
         </div>
-        <input
-          type="search"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder={searchPlaceholder}
-          className="w-full pl-10 pr-4 py-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-black/20 text-stone-800 placeholder-stone-400"
-        />
-      </div>
+      )}
 
       <div className="flex flex-wrap gap-4">
         {filterOptions && filterOptions.length > 0 && (

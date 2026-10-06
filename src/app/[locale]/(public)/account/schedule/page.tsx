@@ -20,7 +20,7 @@ const CUTOFF_MS = 12 * 60 * 60 * 1000
 export default async function FullSchedulePage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string; filter?: string; sort?: string }>
+  searchParams: Promise<{ page?: string; q?: string; filter?: string; sort?: string; day?: string }>
 }) {
   const session = await auth()
   const userId = (session?.user as any)?.id
@@ -36,6 +36,7 @@ export default async function FullSchedulePage({
   const q = resolvedParams.q || ''
   const filter = resolvedParams.filter || ''
   const sort = resolvedParams.sort || 'date_asc'
+  const dayParam = resolvedParams.day
   
   const take = 20
   const skip = (page - 1) * take
@@ -63,7 +64,7 @@ export default async function FullSchedulePage({
     ? [{ date: 'desc' }, { startTime: 'desc' }] 
     : [{ date: 'asc' }, { startTime: 'asc' }]
 
-  const [classes, totalCount, bookings, classTypes] = await Promise.all([
+  let [allClasses, bookings, classTypes] = await Promise.all([
     prisma.class.findMany({
       where,
       include: {
@@ -71,10 +72,7 @@ export default async function FullSchedulePage({
         instructor: { select: { name: true } },
       },
       orderBy,
-      take,
-      skip,
     }),
-    prisma.class.count({ where }),
     prisma.booking.findMany({
       where: { clientId: userId, status: 'BOOKED' },
       select: { classId: true },
@@ -84,6 +82,18 @@ export default async function FullSchedulePage({
       orderBy: { name: 'asc' }
     })
   ])
+
+  if (dayParam && dayParam !== 'ALL') {
+    const targetDay = parseInt(dayParam, 10)
+    allClasses = allClasses.filter(c => {
+      // Bangkok TZ adjustment for accurate day calculation
+      const localDate = new Date(c.date.getTime() + TZ_OFFSET * 60 * 60 * 1000)
+      return localDate.getUTCDay() === targetDay
+    })
+  }
+
+  const totalCount = allClasses.length
+  const classes = allClasses.slice(skip, skip + take)
 
   const bookedClassIds = new Set(bookings.map(b => b.classId))
 
@@ -99,15 +109,32 @@ export default async function FullSchedulePage({
             </h1>
           </div>
 
-          <DataTableTools 
-            searchPlaceholder="Search classes or instructors..."
-            filterOptions={classTypes.map(ct => ({ label: ct.name, value: ct.id }))}
-            filterPlaceholder="All Class Types"
-            sortOptions={[
-              { label: 'Date: Upcoming First', value: 'date_asc' },
-              { label: 'Date: Furthest First', value: 'date_desc' }
-            ]}
-          />
+          <div className="flex flex-col gap-4 mb-6">
+            <DataTableTools 
+              searchPlaceholder="Search classes or instructors..."
+              filterOptions={classTypes.map(ct => ({ label: ct.name, value: ct.id }))}
+              filterPlaceholder="All Class Types"
+              sortOptions={[
+                { label: 'Date: Upcoming First', value: 'date_asc' },
+                { label: 'Date: Furthest First', value: 'date_desc' }
+              ]}
+            />
+            {/* Secondary filter bar for Day of Week */}
+            <DataTableTools 
+              hideSearch={true}
+              filterParamName="day"
+              filterPlaceholder="All Days"
+              filterOptions={[
+                { label: 'Sunday', value: '0' },
+                { label: 'Monday', value: '1' },
+                { label: 'Tuesday', value: '2' },
+                { label: 'Wednesday', value: '3' },
+                { label: 'Thursday', value: '4' },
+                { label: 'Friday', value: '5' },
+                { label: 'Saturday', value: '6' },
+              ]}
+            />
+          </div>
 
           <div className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
             <div className="overflow-x-auto">

@@ -76,14 +76,7 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
             {/* User Section Card */}
             {isLoggedIn ? (
               <div className="bg-white/40 backdrop-blur-md border border-white p-6 md:p-8 rounded-3xl flex flex-col gap-6 mt-4 shadow-sm">
-                <div className="flex justify-between items-center border-b border-[var(--border)] pb-6">
-                  <div>
-                    <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] mb-2">{t('welcomeBack')}</p>
-                    <span className="text-2xl font-serif text-[var(--foreground)]">{user?.name}</span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col items-center gap-5 pt-4">
+                <div className="flex flex-col items-center gap-5">
                   <Link 
                     href={
                       user?.role === 'ADMIN' ? `/admin` : 
