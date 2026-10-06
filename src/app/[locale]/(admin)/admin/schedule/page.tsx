@@ -49,12 +49,16 @@ export default async function AdminSchedulePage({
       { classType: { name: { contains: sq, mode: 'insensitive' } } }
     ]
   }
-  if (sfilter) {
-    sWhere.status = sfilter
+  if (sfilter === 'ALL') {
+    // No status filter
+  } else if (sfilter === 'CANCELLED') {
+    sWhere.status = 'CANCELLED'
   } else {
-    // Default show only scheduled or recent
-    sWhere.date = { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+    sWhere.status = 'SCHEDULED'
   }
+  
+  // Always limit to recent to avoid pulling all history
+  sWhere.date = { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
   
   // Recurring filters
   const rWhere: any = { isActive: true }
@@ -218,9 +222,9 @@ export default async function AdminSchedulePage({
           searchParamName="sq"
           pageParamName="spage"
           filterParamName="sfilter"
-          filterPlaceholder="All Statuses"
+          filterPlaceholder="Scheduled"
           filterOptions={[
-            { label: 'Scheduled', value: 'SCHEDULED' },
+            { label: 'All Statuses', value: 'ALL' },
             { label: 'Cancelled', value: 'CANCELLED' }
           ]}
         />
@@ -229,7 +233,7 @@ export default async function AdminSchedulePage({
             <table className="w-full text-left border-collapse whitespace-nowrap">
               <thead>
                 <tr className="border-b border-black/5 text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
-                  <th className="py-6 pl-8 w-12"><BulkSelectAllCheckbox ids={sessions.map(s => s.id)} /></th>
+                  <th className="py-6 pl-8 w-12"><BulkSelectAllCheckbox ids={sessions.filter(s => s.status === 'SCHEDULED').map(s => s.id)} /></th>
                   <th className="font-medium py-6 pl-2">Class &amp; Date</th>
                   <th className="font-medium py-6">Instructor</th>
                   <th className="font-medium py-6">Bookings</th>
@@ -251,7 +255,7 @@ export default async function AdminSchedulePage({
                       key={cls.id}
                       className="border-b border-black/5 last:border-0 hover:bg-black/[0.02] transition-colors"
                     >
-                      <td className="py-5 pl-8"><BulkSelectionCheckbox id={cls.id} /></td>
+                      <td className="py-5 pl-8">{cls.status === 'SCHEDULED' ? <BulkSelectionCheckbox id={cls.id} /> : <div className="w-4 h-4" />}</td>
                       <td className="py-5 pl-2">
                         <ClassNameDisplay name={cls.name} classTypeName={cls.classType?.name} size="sm" />
                         <p className="text-[11px] text-[var(--foreground-muted)] mt-1">
