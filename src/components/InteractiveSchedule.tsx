@@ -45,12 +45,16 @@ export default function InteractiveSchedule({
   const [selectedTimestamp, setSelectedTimestamp] = useState(dates[0].timestamp)
   const [selectedClass, setSelectedClass] = useState<any | null>(null)
 
+  const classesWithMidnight = useMemo(() => {
+    return classes.map(cls => ({
+      ...cls,
+      midnightTime: getBangkokMidnight(new Date(cls.date)).getTime()
+    }))
+  }, [classes])
+
   const filteredClasses = useMemo(() => {
-    return classes.filter(cls => {
-      const clsBkkMidnight = getBangkokMidnight(new Date(cls.date))
-      return clsBkkMidnight.getTime() === selectedTimestamp
-    })
-  }, [classes, selectedTimestamp])
+    return classesWithMidnight.filter(cls => cls.midnightTime === selectedTimestamp)
+  }, [classesWithMidnight, selectedTimestamp])
 
   return (
     <div>
@@ -63,8 +67,8 @@ export default function InteractiveSchedule({
         >
           {dates.map(d => {
             const isSelected = d.timestamp === selectedTimestamp
-            const hasClasses = classes.some(
-              cls => getBangkokMidnight(new Date(cls.date)).getTime() === d.timestamp
+            const hasClasses = classesWithMidnight.some(
+              cls => cls.midnightTime === d.timestamp
             )
             return (
               <button
@@ -96,11 +100,12 @@ export default function InteractiveSchedule({
       </div>
 
       {/* ── Class List ─────────────────────────────────────────────────────── */}
-      <div 
-        className="bg-white/60 rounded-[2.5rem] p-5 md:p-12 backdrop-blur-xl border border-white shadow-sm max-h-[600px] overflow-y-auto hide-scrollbar"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {filteredClasses.length === 0 ? (
+      <div className="bg-white/60 rounded-[2.5rem] p-5 md:p-12 backdrop-blur-xl border border-white shadow-sm relative overflow-hidden">
+        <div 
+          className="max-h-[600px] overflow-y-auto hide-scrollbar"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {filteredClasses.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-[var(--foreground-muted)] font-serif italic text-xl mb-2">{t('dayOfRest')}</p>
             <p className="text-xs tracking-widest uppercase text-[var(--foreground-muted)]/70">{t('noClasses')}</p>
@@ -161,8 +166,7 @@ export default function InteractiveSchedule({
             })}
           </div>
         )}
-        
-
+        </div>
       </div>
 
       {/* ── Class Detail Slide-Over ─────────────────────────────────────────── */}

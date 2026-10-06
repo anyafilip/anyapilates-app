@@ -43,9 +43,11 @@ export default async function FullSchedulePage({
 
   const now = new Date()
 
+  // Limit to next 60 days to prevent massive payloads and slow queries
+  const futureLimit = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000)
   const where: any = {
     status: 'SCHEDULED',
-    date: { gte: now },
+    date: { gte: now, lte: futureLimit },
   }
 
   if (q) {
