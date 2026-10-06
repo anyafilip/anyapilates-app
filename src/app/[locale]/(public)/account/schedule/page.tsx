@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import MemberNavbar from '@/components/MemberNavbar'
 import BookButton from '@/components/BookButton'
 import ClassNameDisplay from '@/components/ClassNameDisplay'
+import DataTableTools from '@/components/admin/DataTableTools'
+import Pagination from '@/components/admin/Pagination'
 
 const TZ_OFFSET = 7
 
@@ -18,7 +20,7 @@ const CUTOFF_MS = 12 * 60 * 60 * 1000
 export default async function FullSchedulePage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; q?: string; filter?: string; sort?: string }>
 }) {
   const session = await auth()
   const userId = (session?.user as any)?.id
@@ -31,43 +33,59 @@ export default async function FullSchedulePage({
 
   const resolvedParams = await searchParams
   const page = resolvedParams.page ? parseInt(resolvedParams.page, 10) : 1
-  const take = 30
+  const q = resolvedParams.q || ''
+  const filter = resolvedParams.filter || ''
+  const sort = resolvedParams.sort || 'date_asc'
+  
+  const take = 20
   const skip = (page - 1) * take
 
   const now = new Date()
 
-  const [classes, totalCount, bookings] = await Promise.all([
+  const where: any = {
+    status: 'SCHEDULED',
+    date: { gte: now },
+  }
+
+  if (q) {
+    where.OR = [
+      { name: { contains: q, mode: 'insensitive' } },
+      { classType: { name: { contains: q, mode: 'insensitive' } } },
+      { instructor: { name: { contains: q, mode: 'insensitive' } } }
+    ]
+  }
+
+  if (filter) {
+    where.classTypeId = filter
+  }
+
+  const orderBy: any = sort === 'date_desc' 
+    ? [{ date: 'desc' }, { startTime: 'desc' }] 
+    : [{ date: 'asc' }, { startTime: 'asc' }]
+
+  const [classes, totalCount, bookings, classTypes] = await Promise.all([
     prisma.class.findMany({
-      where: {
-        status: 'SCHEDULED',
-        date: { gte: now },
-      },
+      where,
       include: {
         classType: true,
         instructor: { select: { name: true } },
       },
-      orderBy: [
-        { date: 'asc' },
-        { startTime: 'asc' }
-      ],
+      orderBy,
       take,
       skip,
     }),
-    prisma.class.count({
-      where: {
-        status: 'SCHEDULED',
-        date: { gte: now },
-      }
-    }),
+    prisma.class.count({ where }),
     prisma.booking.findMany({
       where: { clientId: userId, status: 'BOOKED' },
       select: { classId: true },
+    }),
+    prisma.classType.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' }
     })
   ])
 
   const bookedClassIds = new Set(bookings.map(b => b.classId))
-
-  const totalPages = Math.max(1, Math.ceil(totalCount / take))
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col w-full bg-[var(--surface)]">
@@ -75,12 +93,21 @@ export default async function FullSchedulePage({
 
       <main className="flex-1 overflow-y-auto w-full">
         <div className="container mx-auto px-6 py-10 max-w-5xl">
-          <div className="mb-12">
-            <p className="text-[11px] tracking-widest uppercase text-[var(--foreground-muted)] mb-2">Member Portal</p>
-            <h1 className="text-4xl font-serif font-normal text-[var(--foreground)]">
+          <div className="mb-10">
+            <h1 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)]">
               Full Schedule
             </h1>
           </div>
+
+          <DataTableTools 
+            searchPlaceholder="Search classes or instructors..."
+            filterOptions={classTypes.map(ct => ({ label: ct.name, value: ct.id }))}
+            filterPlaceholder="All Class Types"
+            sortOptions={[
+              { label: 'Date: Upcoming First', value: 'date_asc' },
+              { label: 'Date: Furthest First', value: 'date_desc' }
+            ]}
+          />
 
           <div className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
@@ -140,7 +167,7 @@ export default async function FullSchedulePage({
                     <tr>
                       <td colSpan={4} className="py-16 text-center">
                         <p className="text-[var(--foreground-muted)] font-serif italic text-lg">
-                          No classes scheduled.
+                          No classes found.
                         </p>
                       </td>
                     </tr>
@@ -149,35 +176,7 @@ export default async function FullSchedulePage({
               </table>
             </div>
             
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between px-8 py-6 border-t border-[var(--border)] bg-white/20">
-                <p className="text-[11px] tracking-widest text-[var(--foreground-muted)] uppercase">
-                  Showing {skip + 1} to {Math.min(skip + take, totalCount)} of {totalCount}
-                </p>
-                <div className="flex gap-2">
-                  {page > 1 ? (
-                    <Link href={`/account/schedule?page=${page - 1}`} className="px-4 py-2 text-[10px] tracking-widest uppercase border border-[var(--border)] rounded-full hover:bg-white/40 transition-colors text-[var(--foreground)]">
-                      Previous
-                    </Link>
-                  ) : (
-                    <span className="px-4 py-2 text-[10px] tracking-widest uppercase border border-[var(--border)] rounded-full opacity-30 text-[var(--foreground)]">
-                      Previous
-                    </span>
-                  )}
-                  
-                  {page < totalPages ? (
-                    <Link href={`/account/schedule?page=${page + 1}`} className="px-4 py-2 text-[10px] tracking-widest uppercase border border-[var(--border)] rounded-full hover:bg-white/40 transition-colors text-[var(--foreground)]">
-                      Next
-                    </Link>
-                  ) : (
-                    <span className="px-4 py-2 text-[10px] tracking-widest uppercase border border-[var(--border)] rounded-full opacity-30 text-[var(--foreground)]">
-                      Next
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
+            <Pagination totalCount={totalCount} pageSize={take} />
           </div>
         </div>
       </main>
