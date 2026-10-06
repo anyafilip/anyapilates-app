@@ -44,12 +44,6 @@ export default function InteractiveSchedule({
 
   const [selectedTimestamp, setSelectedTimestamp] = useState(dates[0].timestamp)
   const [selectedClass, setSelectedClass] = useState<any | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 5
-
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [selectedTimestamp])
 
   const filteredClasses = useMemo(() => {
     return classes.filter(cls => {
@@ -57,9 +51,6 @@ export default function InteractiveSchedule({
       return clsBkkMidnight.getTime() === selectedTimestamp
     })
   }, [classes, selectedTimestamp])
-
-  const totalPages = Math.ceil(filteredClasses.length / itemsPerPage)
-  const paginatedClasses = filteredClasses.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   return (
     <div>
@@ -113,7 +104,7 @@ export default function InteractiveSchedule({
           </div>
         ) : (
           <div className="divide-y divide-[var(--border)]">
-            {paginatedClasses.map(cls => {
+            {filteredClasses.map(cls => {
               const isFull   = cls.bookedCount >= cls.capacity
               const isPast   = Date.now() + CUTOFF_MS > new Date(cls.date).getTime()
               const isBooked = bookedClassIds.includes(cls.id)
@@ -168,29 +159,7 @@ export default function InteractiveSchedule({
           </div>
         )}
         
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between pt-6 mt-6 border-t border-[var(--border)]">
-            <p className="text-[10px] tracking-widest text-[var(--foreground-muted)] uppercase">
-              Page {currentPage} of {totalPages}
-            </p>
-            <div className="flex gap-2">
-              <button 
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 text-[10px] tracking-widest uppercase border border-[var(--border)] rounded-full hover:bg-[var(--foreground)] hover:text-[var(--background)] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-inherit transition-colors"
-              >
-                Prev
-              </button>
-              <button 
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 text-[10px] tracking-widest uppercase border border-[var(--border)] rounded-full hover:bg-[var(--foreground)] hover:text-[var(--background)] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-inherit transition-colors"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
+
       </div>
 
       {/* ── Class Detail Slide-Over ─────────────────────────────────────────── */}
