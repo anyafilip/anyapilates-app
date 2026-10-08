@@ -113,7 +113,7 @@ export default function GrantPackageForm({ userId, packages }: { userId: string,
           {/* Expiry toggle */}
           <div>
             <label className="block text-xs font-medium text-[var(--foreground)] mb-2">
-              Expiration Date
+              Activation & Expiry
             </label>
 
             <div className="flex gap-2 mb-3">
@@ -178,11 +178,13 @@ export default function GrantPackageForm({ userId, packages }: { userId: string,
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--foreground-muted)]">Expiry</span>
+              <span className="text-[var(--foreground-muted)]">
+                {useCustomExpiry ? 'Expires' : 'Auto-activates'}
+              </span>
               <span className="font-medium text-[var(--foreground)]">
                 {useCustomExpiry && expiry
                   ? new Date(expiry).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-                  : `Auto · ${defaultExpiryDate}`}
+                  : `${defaultExpiryDate}`}
               </span>
             </div>
           </div>
