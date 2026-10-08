@@ -4,6 +4,7 @@ import { useState, useMemo, useTransition } from 'react'
 import { deleteUserPass } from '@/app/actions/admin'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import Modal from '@/components/Modal'
 
 
 type Pass = {
@@ -135,15 +136,24 @@ export default function UserPassesTable({ initialPasses }: { initialPasses: Pass
                     {new Date(pass.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </td>
                   <td className="py-4 px-4 text-right">
-                    {deletingId === pass.id ? (
-                      <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => handleDelete(pass.id)} disabled={isPending} className="text-[10px] uppercase tracking-widest text-red-600 hover:text-red-800 font-medium disabled:opacity-50">Confirm</button>
-                        <button onClick={() => setDeletingId(null)} disabled={isPending} className="text-[10px] uppercase tracking-widest text-[var(--foreground-muted)] hover:text-[var(--foreground)] disabled:opacity-50">Cancel</button>
-                      </div>
-                    ) : (
-                      <button onClick={() => setDeletingId(pass.id)} className="text-[10px] uppercase tracking-widest text-red-800/60 hover:text-red-800 font-medium transition-colors">
-                        Delete
-                      </button>
+                    <button onClick={() => setDeletingId(pass.id)} className="text-[10px] uppercase tracking-widest text-red-800/60 hover:text-red-800 font-medium transition-colors">
+                      Delete
+                    </button>
+
+                    {deletingId === pass.id && (
+                      <Modal title="Delete Pass" onClose={() => setDeletingId(null)} maxWidth="max-w-md">
+                        <p className="text-sm text-[var(--foreground-muted)] mb-8 text-left whitespace-normal">
+                          Are you sure you want to delete this <strong>{pass.classType.name}</strong> pass? This action cannot be undone, and the user will permanently lose these credits.
+                        </p>
+                        <div className="flex gap-4">
+                          <button onClick={() => setDeletingId(null)} disabled={isPending} className="flex-1 bg-transparent border border-[var(--foreground)] text-[var(--foreground)] py-3 rounded-full text-[10px] tracking-widest uppercase font-medium hover:bg-black/5 transition-colors disabled:opacity-50 cursor-pointer text-center">
+                            Cancel
+                          </button>
+                          <button onClick={() => handleDelete(pass.id)} disabled={isPending} className="flex-1 bg-red-900 text-white py-3 rounded-full text-[10px] tracking-widest uppercase font-medium hover:bg-red-950 transition-colors shadow-sm disabled:opacity-50 cursor-pointer text-center">
+                            {isPending ? 'Deleting...' : 'Confirm Delete'}
+                          </button>
+                        </div>
+                      </Modal>
                     )}
                   </td>
                 </tr>
