@@ -71,6 +71,12 @@ export default function SettingsForm({ initialSettings }: { initialSettings: any
     const file = e.target.files?.[0]
     if (!file) return
 
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic']
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Image format not supported. Please use JPG, PNG, or WebP.')
+      return
+    }
+
     const reader = new FileReader()
     reader.onload = () => {
       if (typeof reader.result === 'string') {
@@ -92,12 +98,19 @@ export default function SettingsForm({ initialSettings }: { initialSettings: any
           canvas.width = width
           canvas.height = height
           const ctx = canvas.getContext('2d')
-          ctx?.drawImage(img, 0, 0, width, height)
-          setter(canvas.toDataURL('image/jpeg', 0.85)) // 85% quality to save space
+          if (ctx) {
+            ctx.fillStyle = '#ffffff'
+            ctx.fillRect(0, 0, width, height)
+            ctx.drawImage(img, 0, 0, width, height)
+            const outFormat = (file.type === 'image/png' || file.type === 'image/webp') ? 'image/webp' : 'image/jpeg'
+            setter(canvas.toDataURL(outFormat, 0.85))
+          }
         }
+        img.onerror = () => toast.error('Failed to load image. Format might be corrupted or unsupported.')
         img.src = reader.result
       }
     }
+    reader.onerror = () => toast.error('Failed to read file.')
     reader.readAsDataURL(file)
   }
 

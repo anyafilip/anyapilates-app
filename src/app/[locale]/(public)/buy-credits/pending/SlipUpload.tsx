@@ -12,6 +12,12 @@ export default function SlipUpload({ paymentId }: { paymentId: string }) {
     const file = e.target.files?.[0]
     if (!file) return
 
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic']
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Image format not supported. Please use JPG, PNG, or WebP.')
+      return
+    }
+
     const reader = new FileReader()
     reader.onload = (event) => {
       const img = new Image()
@@ -37,12 +43,17 @@ export default function SlipUpload({ paymentId }: { paymentId: string }) {
         canvas.width = width
         canvas.height = height
         const ctx = canvas.getContext('2d')
-        ctx?.drawImage(img, 0, 0, width, height)
-        
-        // Compress to 80% quality JPEG
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8)
-        setPreviewBase64(compressedBase64)
+        if (ctx) {
+          ctx.fillStyle = '#ffffff'
+          ctx.fillRect(0, 0, width, height)
+          ctx.drawImage(img, 0, 0, width, height)
+          
+          const outFormat = (file.type === 'image/png' || file.type === 'image/webp') ? 'image/webp' : 'image/jpeg'
+          const compressedBase64 = canvas.toDataURL(outFormat, 0.8)
+          setPreviewBase64(compressedBase64)
+        }
       }
+      img.onerror = () => toast.error('Failed to load image. Format might be corrupted or unsupported.')
       img.src = event.target?.result as string
     }
     reader.onerror = () => {

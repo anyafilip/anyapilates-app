@@ -16,6 +16,12 @@ export default function ProfileForm({ user }: { user: any }) {
     const file = e.target.files?.[0]
     if (!file) return
 
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic']
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Image format not supported. Please use JPG, PNG, or WebP.')
+      return
+    }
+
     const reader = new FileReader()
     reader.onload = () => {
       if (typeof reader.result === 'string') {
@@ -37,12 +43,22 @@ export default function ProfileForm({ user }: { user: any }) {
           canvas.width = width
           canvas.height = height
           const ctx = canvas.getContext('2d')
-          ctx?.drawImage(img, 0, 0, width, height)
-          setImageUrl(canvas.toDataURL('image/jpeg', 0.8))
+          if (ctx) {
+            // Fill with white first in case of transparent PNG exported as JPEG fallback
+            ctx.fillStyle = '#ffffff'
+            ctx.fillRect(0, 0, width, height)
+            ctx.drawImage(img, 0, 0, width, height)
+            
+            // Try exporting as WebP to preserve transparency, otherwise JPEG
+            const outFormat = (file.type === 'image/png' || file.type === 'image/webp') ? 'image/webp' : 'image/jpeg'
+            setImageUrl(canvas.toDataURL(outFormat, 0.8))
+          }
         }
+        img.onerror = () => toast.error('Failed to load image. Format might be corrupted or unsupported.')
         img.src = reader.result
       }
     }
+    reader.onerror = () => toast.error('Failed to read file.')
     reader.readAsDataURL(file)
   }
 
