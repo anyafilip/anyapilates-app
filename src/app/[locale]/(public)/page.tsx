@@ -46,8 +46,24 @@ export default async function HomePage() {
       date: { gte: now, lte: twoWeeksFromNow },
     },
     include: {
-      classType: true,
-      instructor: { select: { name: true } },
+      classType: {
+        select: {
+          id: true,
+          name: true,
+          nameTh: true,
+          description: true,
+          descriptionTh: true,
+          // OMITTING imageUrl to prevent massive JSON payload bloat (base64 duplication)
+        }
+      },
+      instructor: {
+        select: {
+          id: true,
+          name: true,
+          bio: true,
+          // OMITTING imageUrl for the same reason
+        }
+      },
     },
     orderBy: { date: 'asc' },
   })
@@ -76,7 +92,7 @@ export default async function HomePage() {
   // Fetch active packages
   let packages = await prisma.package.findMany({
     where: { isActive: true },
-    include: { classType: true },
+    include: { classType: { select: { id: true, name: true, nameTh: true } } },
     orderBy: { price: 'asc' }
   })
 

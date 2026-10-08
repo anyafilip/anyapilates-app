@@ -70,7 +70,15 @@ export default async function FullSchedulePage({
     prisma.class.findMany({
       where,
       include: {
-        classType: true,
+        classType: {
+          select: {
+            id: true,
+            name: true,
+            nameTh: true,
+            description: true,
+            descriptionTh: true,
+          }
+        },
         instructor: { select: { name: true } },
       },
       orderBy,

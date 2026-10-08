@@ -26,7 +26,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
 
   const pkg = await prisma.package.findUnique({ 
     where: { id: packageId },
-    include: { classType: true }
+    include: { classType: { select: { id: true, name: true, nameTh: true } } }
   })
 
   if (!pkg) {
