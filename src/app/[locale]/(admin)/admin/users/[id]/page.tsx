@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import GrantPackageForm from './GrantPackageForm'
-import DeletePassButton from './DeletePassButton'
+import UserPassesTable from './UserPassesTable'
 import { autoActivatePasses } from '@/lib/passes'
 
 export default async function UserDetailPage({ params }: { params: Promise<{ id: string, locale: string }> }) {
@@ -46,38 +46,8 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       <div className="space-y-8">
-        {/* Active Passes */}
-        <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2rem] p-8 shadow-sm">
-          <h2 className="text-xl font-serif text-[var(--foreground)] mb-6">Passes</h2>
-          {user.userPasses.length === 0 ? (
-            <p className="text-sm text-[var(--foreground-muted)] italic">No passes found for this user.</p>
-          ) : (
-            <div className="space-y-3">
-              {user.userPasses.map(pass => {
-                const isActive = pass.remainingCount > 0 && new Date(pass.expiresAt) > new Date()
-                return (
-                  <div key={pass.id} className={`p-4 rounded-2xl border flex items-center justify-between gap-4 ${isActive ? 'bg-white/40 border-[var(--border)]' : 'bg-black/[0.02] border-black/5 opacity-50'}`}>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[var(--foreground)] text-sm">{pass.classType.name}</p>
-                      <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] mt-0.5">
-                        {pass.remainingCount} / {pass.originalCount} Credits
-                      </p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)]">
-                        {pass.activatedAt ? 'Expires' : 'Auto-activates'}
-                      </p>
-                      <p className="text-xs font-medium text-[var(--foreground)] mt-0.5">
-                        {new Date(pass.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </p>
-                    </div>
-                    <DeletePassButton passId={pass.id} />
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
+        {/* Passes Table */}
+        <UserPassesTable initialPasses={user.userPasses} />
 
         {/* Grant Package — full width */}
         {user.role === 'CLIENT' ? (
