@@ -75,7 +75,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
                 key={tab.key}
                 onClick={() => setSelectedTab(tab.key)}
                 className={`
-                  px-5 md:px-7 py-2.5 rounded-full text-[10px] md:text-[11px] font-medium tracking-[0.2em] uppercase transition-all duration-300 whitespace-nowrap cursor-pointer
+                  px-5 md:px-7 py-2.5 rounded-full text-[10px] md:text-[11px] font-medium ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase transition-all duration-300 whitespace-nowrap cursor-pointer
                   ${isActive
                     ? 'bg-[var(--foreground)] text-[var(--background)] shadow-md'
                     : 'text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-white/40'
@@ -172,7 +172,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
                   type="button"
                   onClick={() => handleSelectPackage(pkg.id)}
                   className={`
-                    relative z-10 w-full block py-3 rounded-full text-[9px] tracking-[0.2em] uppercase font-medium transition-all duration-300 shadow-sm text-center cursor-pointer
+                    relative z-10 w-full block py-3 rounded-full text-[9px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase font-medium transition-all duration-300 shadow-sm text-center cursor-pointer
                     ${isTrial
                       ? 'bg-[var(--foreground)] text-[var(--background)] hover:bg-black'
                       : 'bg-transparent border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)]'
