@@ -34,9 +34,9 @@ export default function UserPassesTable({ initialPasses }: { initialPasses: Pass
       const isEmpty = pass.remainingCount === 0
 
       let status = 'ACTIVE'
-      if (!isActivated) status = 'PENDING'
+      if (isEmpty) status = 'EMPTY'
       else if (isPast) status = 'EXPIRED'
-      else if (isEmpty) status = 'EMPTY'
+      else if (!isActivated) status = 'PENDING'
 
       return { ...pass, status }
     })
