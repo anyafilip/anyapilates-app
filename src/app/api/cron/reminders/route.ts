@@ -13,6 +13,20 @@ export async function GET(req: Request) {
   try {
     const now = new Date()
     
+    // Auto-mark past classes as ATTENDED
+    // Any booking that is still 'BOOKED' for a class that ended more than 1 hour ago
+    // We approximate class end by just checking if the class date is more than 3 hours ago (most classes are 1 hr)
+    const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000)
+    await prisma.booking.updateMany({
+      where: {
+        status: 'BOOKED',
+        class: {
+          date: { lt: threeHoursAgo }
+        }
+      },
+      data: { status: 'ATTENDED' }
+    })
+
     // Look for classes starting between 24 and 25 hours from now
     const twentyFourHoursFromNow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
     const twentyFiveHoursFromNow = new Date(now.getTime() + 25 * 60 * 60 * 1000)

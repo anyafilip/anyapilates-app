@@ -23,6 +23,22 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ id
 
   if (!cls) return notFound()
 
+  // Auto-mark as ATTENDED if the class has ended and they are still BOOKED
+  const now = new Date()
+  const classEndTime = new Date(cls.date.getTime() + cls.duration * 60 * 1000)
+  
+  if (now > classEndTime) {
+    const unverifiedBookings = cls.bookings.filter(b => b.status === 'BOOKED')
+    if (unverifiedBookings.length > 0) {
+      await prisma.booking.updateMany({
+        where: { id: { in: unverifiedBookings.map(b => b.id) } },
+        data: { status: 'ATTENDED' }
+      })
+      // Mutate local array so it renders correctly immediately
+      unverifiedBookings.forEach(b => b.status = 'ATTENDED')
+    }
+  }
+
   const localDate = new Date(cls.date.getTime() + TZ_OFFSET * 60 * 60 * 1000)
   const dateStr = localDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })
 
