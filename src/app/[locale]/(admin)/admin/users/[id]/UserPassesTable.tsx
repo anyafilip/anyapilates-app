@@ -36,7 +36,7 @@ export default function UserPassesTable({ initialPasses }: { initialPasses: Pass
       let status = 'ACTIVE'
       if (isEmpty) status = 'EMPTY'
       else if (isPast) status = 'EXPIRED'
-      else if (!isActivated) status = 'PENDING'
+      else if (!isActivated) status = 'NOT_ACTIVATED'
 
       return { ...pass, status }
     })
@@ -89,7 +89,7 @@ export default function UserPassesTable({ initialPasses }: { initialPasses: Pass
           >
             <option value="ALL">All Passes</option>
             <option value="ACTIVE">Active</option>
-            <option value="PENDING">Pending (Auto-activates)</option>
+            <option value="NOT_ACTIVATED">Not Activated (Auto-activates)</option>
             <option value="EMPTY">Empty (Used Up)</option>
             <option value="EXPIRED">Expired</option>
           </select>
@@ -125,13 +125,13 @@ export default function UserPassesTable({ initialPasses }: { initialPasses: Pass
                   </td>
                   <td className="py-4 px-4">
                     {pass.status === 'ACTIVE' && <span className="text-[10px] tracking-widest uppercase bg-green-100 text-green-800 px-2.5 py-1 rounded-full">Active</span>}
-                    {pass.status === 'PENDING' && <span className="text-[10px] tracking-widest uppercase bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full">Pending</span>}
+                    {pass.status === 'NOT_ACTIVATED' && <span className="text-[10px] tracking-widest uppercase bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full">Not Activated</span>}
                     {pass.status === 'EMPTY' && <span className="text-[10px] tracking-widest uppercase bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full">Used Up</span>}
                     {pass.status === 'EXPIRED' && <span className="text-[10px] tracking-widest uppercase bg-red-100 text-red-800 px-2.5 py-1 rounded-full">Expired</span>}
                   </td>
                   <td className="py-4 px-4 text-[var(--foreground-muted)]">
                     <div className="text-[10px] tracking-widest uppercase mb-0.5">
-                      {pass.status === 'PENDING' ? 'Auto-activates' : 'Expires'}
+                      {pass.status === 'NOT_ACTIVATED' ? 'Auto-activates' : 'Expires'}
                     </div>
                     {new Date(pass.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </td>
