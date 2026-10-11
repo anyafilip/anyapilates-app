@@ -297,7 +297,7 @@ export default async function HomePage() {
               <span className="hidden md:inline">•</span>
               <span>{tPackages('pkgsValid')}</span>
             </div>
-            <p className="text-sm md:text-base text-[var(--foreground)] font-serif italic">
+            <p className={`text-sm md:text-base text-[var(--foreground)] ${isEn ? 'font-serif' : 'font-sans leading-relaxed'}`}>
               {t('packageExpiryNote')}
             </p>
             <p className={`text-[9px] uppercase text-[var(--foreground-muted)] opacity-80 ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'}`}>
