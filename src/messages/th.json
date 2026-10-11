@@ -13,6 +13,7 @@
   },
   "Navigation": {
     "schedule": "ตารางเรียน",
+    "fullSchedule": "ตารางเรียนทั้งหมด",
     "classes": "คลาสเรียน",
     "packages": "แพ็กเกจ",
     "contact": "ติดต่อเรา",

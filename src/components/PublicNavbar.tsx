@@ -17,6 +17,7 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const t = useTranslations('Navigation')
   const locale = useLocale()
+  const isEn = locale === 'en'
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 border-b border-[var(--border)] ${isOpen ? 'bg-[var(--background)]/95 backdrop-blur-xl h-[100dvh] md:h-auto overflow-y-auto' : 'bg-[var(--background)]/80 backdrop-blur-sm'}`}>
@@ -67,7 +68,7 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
             {/* Primary Navigation Links */}
             <div className="flex flex-col gap-8 px-2">
               <a href="#schedule" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('schedule')}</a>
-              <Link href="/account/schedule" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">Full Schedule</Link>
+              <Link href="/account/schedule" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('fullSchedule')}</Link>
               <a href="#classes" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('classes')}</a>
               <a href="#packages" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('packages')}</a>
               <a href="#contact" onClick={() => setIsOpen(false)} className="text-4xl md:text-5xl font-serif font-light text-[var(--foreground)] hover:text-[var(--accent)] hover:translate-x-3 transition-all duration-300">{t('contact')}</a>
@@ -84,7 +85,7 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
                       `/account`
                     } 
                     onClick={() => setIsOpen(false)} 
-                    className="w-full py-4 bg-[var(--foreground)] text-[var(--background)] rounded-full text-[10px] sm:text-[11px] font-medium tracking-[0.2em] uppercase flex items-center justify-center gap-3 hover:bg-black transition-all duration-300 group shadow-md"
+                    className={`w-full py-4 bg-[var(--foreground)] text-[var(--background)] rounded-full text-[10px] sm:text-[11px] font-medium ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase flex items-center justify-center gap-3 hover:bg-black transition-all duration-300 group shadow-md`}
                   >
                     {user?.role === 'ADMIN' ? t('adminDashboard') : 
                      user?.role === 'INSTRUCTOR' ? t('instructorDashboard') : 
@@ -92,7 +93,7 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
                     <span className="opacity-70 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">→</span>
                   </Link>
                   <form action={logout}>
-                    <button type="submit" className="text-[10px] font-medium tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors pb-1 border-b border-transparent hover:border-[var(--foreground)]">
+                    <button type="submit" className={`text-[10px] font-medium ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors pb-1 border-b border-transparent hover:border-[var(--foreground)]`}>
                       {t('logout')}
                     </button>
                   </form>
@@ -100,10 +101,10 @@ export default function PublicNavbar({ isLoggedIn, user }: PublicNavbarProps) {
               </div>
             ) : (
               <div className="bg-white/40 backdrop-blur-md border border-white p-6 rounded-3xl flex flex-col sm:flex-row gap-4 mt-4 shadow-sm">
-                <Link href="/login" onClick={() => setIsOpen(false)} className="flex-1 text-center text-[10px] font-medium tracking-[0.2em] uppercase py-4 border border-[var(--border)] rounded-full hover:border-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors">
+                <Link href="/login" onClick={() => setIsOpen(false)} className={`flex-1 text-center text-[10px] font-medium ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase py-4 border border-[var(--border)] rounded-full hover:border-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors`}>
                   {t('signIn')}
                 </Link>
-                <Link href="/register" onClick={() => setIsOpen(false)} className="flex-1 text-center text-[10px] font-medium tracking-[0.2em] uppercase py-4 bg-[var(--foreground)] text-[var(--background)] border border-[var(--foreground)] rounded-full hover:bg-black transition-colors shadow-sm">
+                <Link href="/register" onClick={() => setIsOpen(false)} className={`flex-1 text-center text-[10px] font-medium ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase py-4 bg-[var(--foreground)] text-[var(--background)] border border-[var(--foreground)] rounded-full hover:bg-black transition-colors shadow-sm`}>
                   {t('join')}
                 </Link>
               </div>

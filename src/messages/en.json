@@ -13,6 +13,7 @@
   },
   "Navigation": {
     "schedule": "Schedule",
+    "fullSchedule": "Full Schedule",
     "classes": "Classes",
     "packages": "Packages",
     "contact": "Contact",
