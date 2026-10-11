@@ -106,7 +106,7 @@ export async function cancelBooking(bookingId: string): Promise<BookingResult> {
 
   if (isLateCancel) {
     // Late cancellation: no refund
-    await Promise.all([
+    await prisma.$transaction([
       prisma.booking.update({
         where: { id: bookingId },
         data: { status: 'CANCELLED', cancelledAt: new Date() },
@@ -121,21 +121,26 @@ export async function cancelBooking(bookingId: string): Promise<BookingResult> {
     revalidatePath('/en/account')
     return { success: true, message: 'Booking cancelled. Note: Your pass was not refunded due to late cancellation.' }
   } else {
-    // Regular cancellation: full refund
-    await Promise.all([
-      prisma.booking.update({
-        where: { id: bookingId },
-        data: { status: 'CANCELLED', cancelledAt: new Date() },
-      }),
-      refundPass(bookingId),
-      prisma.class.update({
-        where: { id: booking.classId },
-        data: { bookedCount: { decrement: 1 } },
-      }),
-    ])
+    // Regular cancellation: full refund inside single atomic transaction
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.booking.update({
+          where: { id: bookingId },
+          data: { status: 'CANCELLED', cancelledAt: new Date() },
+        })
+        await refundPass(bookingId, tx)
+        await tx.class.update({
+          where: { id: booking.classId },
+          data: { bookedCount: { decrement: 1 } },
+        })
+      })
 
-    revalidatePath('/')
-    revalidatePath('/en/account')
-    return { success: true, message: 'Booking cancelled. Your pass has been refunded.' }
+      revalidatePath('/')
+      revalidatePath('/en/account')
+      return { success: true, message: 'Booking cancelled. Your pass has been refunded.' }
+    } catch (err: any) {
+      console.error('Error cancelling booking:', err)
+      return { success: false, message: err.message || 'Failed to cancel booking. Please try again.' }
+    }
   }
 }

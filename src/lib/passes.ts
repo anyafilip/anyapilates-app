@@ -90,8 +90,8 @@ export async function autoActivatePasses(userId?: string) {
   })
 }
 
-export async function refundPass(bookingId: string) {
-  return prisma.$transaction(async (tx) => {
+export async function refundPass(bookingId: string, customTx?: any) {
+  const runWithTx = async (tx: any) => {
     const booking = await tx.booking.findUnique({
       where: { id: bookingId },
       include: { userPass: true }
@@ -111,15 +111,24 @@ export async function refundPass(bookingId: string) {
       activatedAt = null
       
       // Calculate the original expiration date based on startWindowDays.
-      // Wait, we don't have startWindowDays on UserPass. We only have createdAt!
-      // But we can approximate or fetch from the package.
-      const payment = await tx.payment.findUnique({
-        where: { id: pass.paymentId! },
-        include: { package: true }
-      })
-      if (payment && payment.package) {
-        expiresAt = new Date(pass.createdAt)
-        expiresAt.setDate(expiresAt.getDate() + payment.package.startWindowDays)
+      if (pass.paymentId) {
+        const payment = await tx.payment.findUnique({
+          where: { id: pass.paymentId },
+          include: { package: true }
+        })
+        if (payment && payment.package) {
+          expiresAt = new Date(pass.createdAt)
+          expiresAt.setDate(expiresAt.getDate() + payment.package.startWindowDays)
+        }
+      } else {
+        // Fallback for manually granted packages without paymentId
+        const pkg = await tx.package.findFirst({
+          where: { classTypeId: pass.classTypeId, classCount: pass.originalCount }
+        })
+        if (pkg) {
+          expiresAt = new Date(pass.createdAt)
+          expiresAt.setDate(expiresAt.getDate() + pkg.startWindowDays)
+        }
       }
     }
 
@@ -131,7 +140,12 @@ export async function refundPass(bookingId: string) {
         expiresAt
       }
     })
-  })
+  }
+
+  if (customTx) {
+    return runWithTx(customTx)
+  }
+  return prisma.$transaction(runWithTx)
 }
 
 export async function grantPassFromPayment({
