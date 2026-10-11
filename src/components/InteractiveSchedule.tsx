@@ -128,7 +128,7 @@ export default function InteractiveSchedule({
                   {/* Time */}
                   <div className="min-w-[60px] md:min-w-[90px]">
                     <p className="text-lg md:text-2xl font-light text-[var(--foreground)] tracking-tight">{cls.startTime}</p>
-                    <p className="text-[9px] md:text-[10px] tracking-[0.15em] uppercase text-[var(--foreground-muted)] mt-1">{cls.duration} min</p>
+                    <p className="text-[9px] md:text-[10px] tracking-[0.15em] uppercase text-[var(--foreground-muted)] mt-1">{cls.duration} {t('min')}</p>
                   </div>
 
                   {/* Divider */}
@@ -139,7 +139,12 @@ export default function InteractiveSchedule({
                     <ClassNameDisplay name={cls.name} nameTh={cls.classType?.nameTh} classTypeName={cls.classType?.name} classTypeNameTh={cls.classType?.nameTh} />
                     {cls.instructor && (
                       <p className="text-[11px] md:text-sm font-light text-[var(--foreground-muted)] mt-0.5 truncate">
-                        with <span className="font-medium text-[var(--foreground)]">{cls.instructor.name}</span>
+                        {t('with')} <span className="font-medium text-[var(--foreground)]">{cls.instructor.name}</span>
+                      </p>
+                    )}
+                    {!isBooked && !isFull && !isPast && (
+                      <p className="sm:hidden text-[10px] text-[var(--foreground-muted)] mt-1">
+                        <span className="font-medium text-[var(--foreground)]">{spotsLeft}</span> {t('left')}
                       </p>
                     )}
                   </div>
@@ -154,7 +159,7 @@ export default function InteractiveSchedule({
                       <>
                         {!isFull && !isPast && (
                           <span className="hidden sm:block text-[10px] text-[var(--foreground-muted)]">
-                            <span className="font-medium text-[var(--foreground)]">{spotsLeft}</span> left
+                            <span className="font-medium text-[var(--foreground)]">{spotsLeft}</span> {t('left')}
                           </span>
                         )}
                         <BookButton classId={cls.id} isLoggedIn={isLoggedIn} isFull={isFull} isPast={isPast} userRole={userRole} />
