@@ -106,19 +106,22 @@ export async function login(
     return { message: 'Too many login attempts. Please try again later.' }
   }
 
-  const email = formData.get('email') as string
+  const rawEmail = formData.get('email') as string
+  const normalizedEmail = rawEmail?.toLowerCase().trim()
   
   // Find user to determine role-based redirect
-  const user = await prisma.user.findUnique({ where: { email } })
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
+  })
   const role = user?.role || 'CLIENT'
   
-  let redirectUrl = '/en'
+  let redirectUrl = '/en/account'
   if (role === 'ADMIN') redirectUrl = '/en/admin'
   if (role === 'INSTRUCTOR') redirectUrl = '/en/instructor'
 
   try {
     await signIn('credentials', {
-      email,
+      email: normalizedEmail,
       password: formData.get('password'),
       redirectTo: redirectUrl,
     })

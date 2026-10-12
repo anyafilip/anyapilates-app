@@ -29,7 +29,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!parsed.success) return null
 
         const { email, password } = parsed.data
-        const user = await prisma.user.findUnique({ where: { email } })
+        const normalizedEmail = email.toLowerCase().trim()
+        const user = await prisma.user.findFirst({
+          where: { email: { equals: normalizedEmail, mode: 'insensitive' } }
+        })
         if (!user || !user.password) return null
 
         const passwordsMatch = await bcrypt.compare(password, user.password)
@@ -53,41 +56,56 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ account, profile }) {
       // For Google OAuth: find or create the user in our database
       if (account?.provider === 'google' && profile?.email) {
-        const existing = await prisma.user.findUnique({ where: { email: profile.email } })
+        const normalizedEmail = profile.email.toLowerCase().trim()
+        const existing = await prisma.user.findFirst({
+          where: { email: { equals: normalizedEmail, mode: 'insensitive' } }
+        })
         if (!existing) {
           await prisma.user.create({
             data: {
-              email:         profile.email,
-              name:          (profile.name ?? profile.email.split('@')[0]),
+              email:         normalizedEmail,
+              name:          (profile.name ?? normalizedEmail.split('@')[0]),
               password:      '', // No password for OAuth users
               role:          'CLIENT',
               emailVerified: (profile as any).email_verified ? new Date() : null,
             },
+          })
+        } else if (!existing.emailVerified && (profile as any).email_verified) {
+          await prisma.user.update({
+            where: { id: existing.id },
+            data: { emailVerified: new Date() }
           })
         }
       }
       return true
     },
 
-    // ── Builds the JWT token — runs ONCE on sign-in, then token is cached ─────
+    // ── Builds the JWT token — runs on every token verification ──────────────
     async jwt({ token, user, account }) {
       if (user) {
-        // Credentials: authorize() returns the full DB user — grab id + role directly
-        if ((user as any).id && (user as any).role) {
-          token.id   = (user as any).id
-          token.role = (user as any).role
-        } else if (user.email) {
-          // Google OAuth: fetch our DB record by email (was just created in signIn callback)
-          const dbUser = await prisma.user.findUnique({
-            where:  { email: user.email },
-            select: { id: true, role: true },
-          })
-          if (dbUser) {
-            token.id   = dbUser.id
-            token.role = dbUser.role
-          }
+        if ((user as any).id) token.id = (user as any).id
+        if ((user as any).role) token.role = (user as any).role
+      }
+
+      // Always sync live role and id from database so promotions (e.g. CLIENT -> INSTRUCTOR) take effect immediately!
+      const lookupEmail = (token.email || (user as any)?.email) as string | undefined
+      const lookupId = (token.id || (user as any)?.id) as string | undefined
+
+      if (lookupId || lookupEmail) {
+        const dbUser = await prisma.user.findFirst({
+          where: lookupId 
+            ? { id: lookupId } 
+            : { email: { equals: lookupEmail, mode: 'insensitive' } },
+          select: { id: true, role: true, email: true, name: true },
+        })
+        if (dbUser) {
+          token.id = dbUser.id
+          token.role = dbUser.role
+          token.email = dbUser.email
+          if (dbUser.name) token.name = dbUser.name
         }
       }
+
       return token
     },
 
