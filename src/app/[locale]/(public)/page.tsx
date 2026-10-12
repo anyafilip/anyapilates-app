@@ -193,15 +193,15 @@ export default async function HomePage() {
               Discover your rhythm at Anya Pilates, Bangkok
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a href="#schedule" className="font-light tracking-widest text-xs sm:text-sm text-[var(--foreground)] bg-white rounded-full px-8 py-4 hover:bg-white/90 shadow-sm transition-all uppercase">
+              <a href="#schedule" className={`font-light ${isEn ? 'tracking-widest' : 'tracking-normal'} text-xs sm:text-sm text-[var(--foreground)] bg-white rounded-full px-8 py-4 hover:bg-white/90 shadow-sm transition-all uppercase`}>
                 {t('heroCta')}
               </a>
               {isLoggedIn ? (
-                <Link href={dashboardUrl} className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
+                <Link href={dashboardUrl} className={`font-medium ${isEn ? 'tracking-widest' : 'tracking-normal'} text-xs sm:text-sm text-[var(--background)] bg-[var(--foreground)] border border-[var(--foreground)] rounded-full px-8 py-4 hover:bg-black shadow-md transition-all uppercase`}>
                   {t('goToDashboard')}
                 </Link>
               ) : (
-                <Link href="/login" className="font-light tracking-widest text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase">
+                <Link href="/login" className={`font-light ${isEn ? 'tracking-widest' : 'tracking-normal'} text-xs sm:text-sm text-white border border-white/60 rounded-full px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all uppercase`}>
                   {t('signIn')}
                 </Link>
               )}
