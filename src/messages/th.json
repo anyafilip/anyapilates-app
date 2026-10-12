@@ -52,7 +52,8 @@
     "goToDashboard": "ไปที่แดชบอร์ด",
     "viewAll": "ดูทั้งหมด",
     "book": "จองคลาส",
-    "moreInfo": "ข้อมูลเพิ่มเติม"
+    "moreInfo": "ข้อมูลเพิ่มเติม",
+    "viewFullSchedule": "ดูตารางเรียนทั้งหมด →"
   },
   "Schedule": {
     "dayOfRest": "ปิดทำการ",

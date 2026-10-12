@@ -52,7 +52,8 @@
     "goToDashboard": "Go to Dashboard",
     "viewAll": "View All",
     "book": "Book",
-    "moreInfo": "More Info"
+    "moreInfo": "More Info",
+    "viewFullSchedule": "View Full Schedule →"
   },
   "Schedule": {
     "dayOfRest": "A day of rest.",
