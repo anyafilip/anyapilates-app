@@ -82,6 +82,10 @@ model Class {
   status       ClassStatus @default(SCHEDULED)
   bookings     Booking[]
   createdAt    DateTime    @default(now())
+
+  @@index([status, date])
+  @@index([date, startTime])
+  @@index([instructorId, date])
 }
 
 model Booking {

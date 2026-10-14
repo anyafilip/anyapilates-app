@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma'
 import { cancelSession } from '@/app/actions/admin'
-import { autoFillSchedule } from '@/app/actions/templates'
 import SessionForm from './SessionForm'
 import StopRecurringButton from './StopRecurringButton'
 import CancelSessionForm from './CancelSessionForm'
@@ -37,9 +36,6 @@ export default async function AdminSchedulePage({
   const rpage = resolvedSearchParams.rpage ? parseInt(resolvedSearchParams.rpage, 10) : 1
   const rfilter = resolvedSearchParams.rfilter || ''
 
-  // Auto-fill the next 8 weeks from active recurring templates (gap-filling, idempotent)
-  await autoFillSchedule(8)
-  
   // Sessions filters
   const sWhere: any = {}
   if (sq) {
