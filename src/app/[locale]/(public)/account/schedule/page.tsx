@@ -7,6 +7,7 @@ import BookButton from '@/components/BookButton'
 import ClassNameDisplay from '@/components/ClassNameDisplay'
 import DataTableTools from '@/components/admin/DataTableTools'
 import Pagination from '@/components/admin/Pagination'
+import ScheduleDatePicker from '@/components/ScheduleDatePicker'
 
 const TZ_OFFSET = 7
 
@@ -20,7 +21,7 @@ const CUTOFF_MS = 12 * 60 * 60 * 1000
 export default async function FullSchedulePage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string; filter?: string; sort?: string; day?: string }>
+  searchParams: Promise<{ page?: string; q?: string; filter?: string; sort?: string; day?: string; date?: string }>
 }) {
   const session = await auth()
   const userId = (session?.user as any)?.id
@@ -37,6 +38,7 @@ export default async function FullSchedulePage({
   const filter = resolvedParams.filter || ''
   const sort = resolvedParams.sort || 'date_asc'
   const dayParam = resolvedParams.day
+  const dateParam = resolvedParams.date
   
   const take = 20
   const skip = (page - 1) * take
@@ -48,6 +50,14 @@ export default async function FullSchedulePage({
   const where: any = {
     status: 'SCHEDULED',
     date: { gte: now, lte: futureLimit },
+  }
+
+  // If specific date is picked, filter specifically for that full Bangkok day
+  if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+    const [y, m, d] = dateParam.split('-').map(Number)
+    const startOfTargetDay = new Date(Date.UTC(y, m - 1, d, 0 - TZ_OFFSET, 0, 0))
+    const endOfTargetDay = new Date(Date.UTC(y, m - 1, d, 24 - TZ_OFFSET, 0, 0, -1))
+    where.date = { gte: startOfTargetDay, lte: endOfTargetDay }
   }
 
   if (q) {
@@ -128,7 +138,9 @@ export default async function FullSchedulePage({
                 { label: 'Date: Upcoming First', value: 'date_asc' },
                 { label: 'Date: Furthest First', value: 'date_desc' }
               ]}
-            />
+            >
+              <ScheduleDatePicker selectedDate={dateParam} />
+            </DataTableTools>
             {/* Secondary filter bar for Day of Week */}
             <DataTableTools 
               hideSearch={true}
@@ -145,6 +157,23 @@ export default async function FullSchedulePage({
               ]}
             />
           </div>
+
+          {dateParam && (
+            <div className="flex items-center justify-between bg-white/60 backdrop-blur-md border border-white/80 rounded-2xl px-5 py-3 mb-6 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-widest text-[var(--foreground-muted)]">Showing Date:</span>
+                <span className="text-sm font-medium text-[var(--foreground)]">
+                  {new Date(dateParam + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </span>
+              </div>
+              <Link
+                href="/account/schedule"
+                className="text-xs text-[var(--foreground-muted)] hover:text-[var(--foreground)] underline underline-offset-4 uppercase tracking-wider transition-colors"
+              >
+                Clear Date ✕
+              </Link>
+            </div>
+          )}
 
           <div className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
@@ -203,9 +232,17 @@ export default async function FullSchedulePage({
                   {classes.length === 0 && (
                     <tr>
                       <td colSpan={4} className="py-16 text-center">
-                        <p className="text-[var(--foreground-muted)] font-serif italic text-lg">
-                          No classes found.
+                        <p className="text-[var(--foreground-muted)] font-serif italic text-lg mb-2">
+                          {dateParam ? 'No classes scheduled for this date.' : 'No classes found.'}
                         </p>
+                        {dateParam && (
+                          <Link
+                            href="/account/schedule"
+                            className="text-xs text-[var(--accent)] hover:underline uppercase tracking-wider font-medium"
+                          >
+                            View all upcoming classes →
+                          </Link>
+                        )}
                       </td>
                     </tr>
                   )}

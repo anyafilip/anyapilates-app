@@ -5,6 +5,7 @@ import { useCallback, useState, useEffect } from 'react'
 import CustomDropdown from '@/components/CustomDropdown'
 
 interface DataTableToolsProps {
+  children?: React.ReactNode
   hideSearch?: boolean
   searchPlaceholder?: string
   searchParamName?: string
@@ -18,6 +19,7 @@ interface DataTableToolsProps {
 }
 
 export default function DataTableTools({ 
+  children,
   searchPlaceholder = 'Search...', 
   searchParamName = 'q',
   pageParamName = 'page',
@@ -81,7 +83,8 @@ export default function DataTableTools({
         </div>
       )}
 
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 items-center">
+        {children}
         {filterOptions && filterOptions.length > 0 && (
           <div className="min-w-[130px] md:min-w-[160px] flex-1 sm:flex-none">
             <CustomDropdown
