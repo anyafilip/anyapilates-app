@@ -45,7 +45,7 @@ export async function autoFillSchedule(weeksAhead: number = 8) {
       }
 
       const existing = await prisma.class.findFirst({
-        where: { classTypeId: t.classTypeId, startTime: t.startTime, date: classDate },
+        where: { startTime: t.startTime, date: classDate },
       })
 
       if (!existing) {
@@ -55,6 +55,22 @@ export async function autoFillSchedule(weeksAhead: number = 8) {
             name: t.name || t.classType.name,
             instructorId: t.instructorId,
             date: classDate,
+            startTime: t.startTime,
+            endTime: t.endTime,
+            duration: t.duration,
+            capacity: t.capacity,
+            status: 'SCHEDULED',
+          },
+        })
+        createdCount++
+      } else if (existing.status === 'CANCELLED' && existing.bookedCount === 0) {
+        // If an old cancelled session exists in this slot with no bookings, overwrite/reactivate it with the new template
+        await prisma.class.update({
+          where: { id: existing.id },
+          data: {
+            classTypeId: t.classTypeId,
+            name: t.name || t.classType.name,
+            instructorId: t.instructorId,
             startTime: t.startTime,
             endTime: t.endTime,
             duration: t.duration,
