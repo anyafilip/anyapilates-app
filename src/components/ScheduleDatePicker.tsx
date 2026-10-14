@@ -28,6 +28,7 @@ export default function ScheduleDatePicker({
 
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({})
 
   // Determine initial calendar view month/year
@@ -40,6 +41,10 @@ export default function ScheduleDatePicker({
 
   useEffect(() => {
     setMounted(true)
+    const checkMobile = () => setIsMobile(window.innerWidth < 640)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   // If selectedDate prop changes, update view month
@@ -51,20 +56,28 @@ export default function ScheduleDatePicker({
     }
   }, [selectedDate])
 
-  const openPopover = useCallback(() => {
+  // Compute position for desktop popover
+  const openPicker = useCallback(() => {
+    if (window.innerWidth < 640) {
+      setIsMobile(true)
+      setIsOpen(true)
+      return
+    }
+
+    setIsMobile(false)
     if (!triggerRef.current) return
     const rect = triggerRef.current.getBoundingClientRect()
     const scrollY = window.scrollY
     const scrollX = window.scrollX
     const spaceBelow = window.innerHeight - rect.bottom
-    const popoverHeight = 350
+    const popoverHeight = 360
 
     if (spaceBelow < popoverHeight && rect.top > popoverHeight) {
       setMenuStyle({
         position: 'absolute',
         top: rect.top + scrollY - popoverHeight - 6,
         left: Math.max(12, Math.min(rect.left + scrollX, window.innerWidth - 320)),
-        width: 300,
+        width: 310,
         zIndex: 9999,
       })
     } else {
@@ -72,14 +85,14 @@ export default function ScheduleDatePicker({
         position: 'absolute',
         top: rect.bottom + scrollY + 6,
         left: Math.max(12, Math.min(rect.left + scrollX, window.innerWidth - 320)),
-        width: 300,
+        width: 310,
         zIndex: 9999,
       })
     }
     setIsOpen(true)
   }, [])
 
-  // Close on outside click
+  // Close on outside click or escape
   useEffect(() => {
     if (!isOpen) return
 
@@ -102,6 +115,18 @@ export default function ScheduleDatePicker({
       document.removeEventListener('keydown', handleKey)
     }
   }, [isOpen])
+
+  // Prevent background scroll when mobile bottom sheet is open
+  useEffect(() => {
+    if (isOpen && isMobile) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isOpen, isMobile])
 
   const handleSelectDate = (dateString: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -163,22 +188,19 @@ export default function ScheduleDatePicker({
     })
   }
 
-  const popover = mounted && isOpen ? createPortal(
-    <div
-      ref={popoverRef}
-      style={menuStyle}
-      className="bg-[#EDE8E2] backdrop-blur-2xl border border-white/80 rounded-3xl shadow-2xl p-5 text-stone-800 animate-in fade-in zoom-in-95 duration-150 select-none"
-    >
-      {/* Header: Month / Year + Prev/Next */}
+  // Common calendar content component
+  const CalendarBody = () => (
+    <>
+      {/* Month/Year Header */}
       <div className="flex items-center justify-between mb-4 px-1">
-        <h4 className="font-serif text-base text-[var(--foreground)] font-normal tracking-wide">
+        <h4 className="font-serif text-lg sm:text-base text-[var(--foreground)] font-normal tracking-wide">
           {MONTH_NAMES[viewMonth]} {viewYear}
         </h4>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={prevMonth}
-            className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/5 text-[var(--foreground-muted)] transition-colors"
+            className="w-8 h-8 sm:w-7 sm:h-7 rounded-full flex items-center justify-center hover:bg-black/5 active:bg-black/10 text-[var(--foreground)] text-lg transition-colors cursor-pointer"
             aria-label="Previous month"
           >
             ‹
@@ -186,7 +208,7 @@ export default function ScheduleDatePicker({
           <button
             type="button"
             onClick={nextMonth}
-            className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-black/5 text-[var(--foreground-muted)] transition-colors"
+            className="w-8 h-8 sm:w-7 sm:h-7 rounded-full flex items-center justify-center hover:bg-black/5 active:bg-black/10 text-[var(--foreground)] text-lg transition-colors cursor-pointer"
             aria-label="Next month"
           >
             ›
@@ -197,7 +219,7 @@ export default function ScheduleDatePicker({
       {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-1 text-center mb-2">
         {DAY_NAMES.map((day, i) => (
-          <div key={i} className="text-[10px] tracking-widest uppercase font-medium text-[var(--foreground-muted)]/70 py-1">
+          <div key={i} className="text-[11px] sm:text-[10px] tracking-widest uppercase font-medium text-[var(--foreground-muted)]/70 py-1">
             {day}
           </div>
         ))}
@@ -205,12 +227,10 @@ export default function ScheduleDatePicker({
 
       {/* Days grid */}
       <div className="grid grid-cols-7 gap-1 text-center">
-        {/* Leading empty cells */}
         {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-          <div key={`empty-${i}`} className="w-8 h-8" />
+          <div key={`empty-${i}`} className="h-10 sm:h-8" />
         ))}
 
-        {/* Days of month */}
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const dayNumber = i + 1
           const dateStr = formatLocalDate(viewYear, viewMonth, dayNumber)
@@ -223,10 +243,10 @@ export default function ScheduleDatePicker({
               type="button"
               onClick={() => handleSelectDate(dateStr)}
               className={`
-                w-8 h-8 rounded-full text-xs flex flex-col items-center justify-center transition-all relative mx-auto
+                h-10 sm:h-8 w-10 sm:w-8 rounded-full text-sm sm:text-xs flex flex-col items-center justify-center transition-all relative mx-auto cursor-pointer
                 ${isSelected
                   ? 'bg-[var(--foreground)] text-[var(--background)] font-medium shadow-md scale-105'
-                  : 'hover:bg-white/80 text-[var(--foreground)] font-light'
+                  : 'hover:bg-white/80 active:bg-white text-[var(--foreground)] font-light'
                 }
               `}
             >
@@ -240,19 +260,19 @@ export default function ScheduleDatePicker({
       </div>
 
       {/* Quick shortcuts at bottom */}
-      <div className="mt-4 pt-3 border-t border-black/5 flex items-center justify-between text-[11px] gap-2">
-        <div className="flex gap-1.5">
+      <div className="mt-5 pt-3.5 border-t border-black/5 flex items-center justify-between text-xs sm:text-[11px] gap-2">
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={() => handleSelectDate(todayStr)}
-            className="px-2.5 py-1 rounded-full border border-black/10 bg-white/40 hover:bg-white/80 transition-colors uppercase tracking-wider text-[9px] text-[var(--foreground)]"
+            className="px-3 py-1.5 rounded-full border border-black/10 bg-white/50 hover:bg-white/90 active:bg-white transition-colors uppercase tracking-wider text-[10px] sm:text-[9px] text-[var(--foreground)] font-medium"
           >
             Today
           </button>
           <button
             type="button"
             onClick={() => handleSelectDate(tomorrowStr)}
-            className="px-2.5 py-1 rounded-full border border-black/10 bg-white/40 hover:bg-white/80 transition-colors uppercase tracking-wider text-[9px] text-[var(--foreground)]"
+            className="px-3 py-1.5 rounded-full border border-black/10 bg-white/50 hover:bg-white/90 active:bg-white transition-colors uppercase tracking-wider text-[10px] sm:text-[9px] text-[var(--foreground)] font-medium"
           >
             Tomorrow
           </button>
@@ -262,44 +282,90 @@ export default function ScheduleDatePicker({
           <button
             type="button"
             onClick={() => handleSelectDate('')}
-            className="text-[10px] text-[var(--foreground-muted)] hover:text-[var(--foreground)] underline underline-offset-2 transition-colors uppercase tracking-wider"
+            className="text-[11px] sm:text-[10px] text-[var(--foreground-muted)] hover:text-[var(--foreground)] underline underline-offset-4 transition-colors uppercase tracking-wider"
           >
             Clear Date
           </button>
         )}
       </div>
-    </div>,
+    </>
+  )
+
+  // Portal render: Bottom Sheet on Mobile, Floating Popover on Desktop
+  const calendarModal = mounted && isOpen ? createPortal(
+    isMobile ? (
+      // ── Mobile Bottom Sheet Drawer ──────────────────────────
+      <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
+        {/* Dimmed backdrop */}
+        <div
+          onClick={() => setIsOpen(false)}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+        />
+
+        {/* Bottom sheet */}
+        <div
+          ref={popoverRef}
+          className="relative z-10 w-full bg-[#EDE8E2] rounded-t-[2.5rem] p-6 pb-8 shadow-2xl border-t border-white/60 animate-in slide-in-from-bottom duration-250 select-none max-w-md mx-auto"
+        >
+          {/* Pull grabber handle */}
+          <div className="w-12 h-1 bg-black/20 rounded-full mx-auto mb-4" />
+
+          {/* Close button */}
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-stone-500 hover:text-stone-900 bg-black/5"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+
+          <CalendarBody />
+        </div>
+      </div>
+    ) : (
+      // ── Desktop Floating Popover ────────────────────────────
+      <div
+        ref={popoverRef}
+        style={menuStyle}
+        className="bg-[#EDE8E2] backdrop-blur-2xl border border-white/80 rounded-3xl shadow-2xl p-5 text-stone-800 animate-in fade-in zoom-in-95 duration-150 select-none"
+      >
+        <CalendarBody />
+      </div>
+    ),
     document.body
   ) : null
 
   return (
-    <div className="relative">
+    <div className="relative w-full sm:w-auto">
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => isOpen ? setIsOpen(false) : openPopover()}
+        onClick={() => isOpen ? setIsOpen(false) : openPicker()}
         className={`
-          px-3 py-2 md:px-5 md:py-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-full
-          text-xs md:text-sm text-stone-800 flex items-center gap-2 focus:outline-none focus:ring-1 focus:ring-black/20
-          cursor-pointer shadow-sm transition-colors hover:bg-white/80
+          w-full sm:w-auto px-4 py-2.5 md:px-5 md:py-3 bg-white/60 backdrop-blur-md border border-white/80 rounded-full
+          text-xs md:text-sm text-stone-800 flex items-center justify-between sm:justify-start gap-2.5 focus:outline-none focus:ring-1 focus:ring-black/20
+          cursor-pointer shadow-sm transition-colors hover:bg-white/80 active:bg-white/90
           ${selectedDate ? 'border-[var(--foreground)]/40 bg-white/80 font-medium' : ''}
         `}
       >
-        <svg
-          className="w-4 h-4 text-[var(--foreground-muted)]"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
+        <div className="flex items-center gap-2">
+          <svg
+            className="w-4 h-4 text-[var(--foreground-muted)] flex-shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
 
-        <span className="truncate">{triggerLabel}</span>
+          <span className="truncate">{triggerLabel}</span>
+        </div>
 
         {selectedDate ? (
           <span
@@ -307,7 +373,7 @@ export default function ScheduleDatePicker({
               e.stopPropagation()
               handleSelectDate('')
             }}
-            className="ml-1 w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/10 text-stone-500 hover:text-stone-800 transition-colors"
+            className="ml-1 w-5 h-5 rounded-full flex items-center justify-center hover:bg-black/10 text-stone-500 hover:text-stone-800 transition-colors"
             title="Clear date"
           >
             ×
@@ -324,7 +390,7 @@ export default function ScheduleDatePicker({
         )}
       </button>
 
-      {popover}
+      {calendarModal}
     </div>
   )
 }
