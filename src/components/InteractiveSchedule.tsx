@@ -5,6 +5,7 @@ import BookButton from './BookButton'
 import { Link } from '@/i18n/routing'
 import { useTranslations, useLocale } from 'next-intl'
 import ClassNameDisplay from '@/components/ClassNameDisplay'
+import { isPastCutoff, isTooFarInAdvance } from '@/lib/booking-window'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
 
@@ -27,7 +28,6 @@ export default function InteractiveSchedule({
 }) {
   const t = useTranslations('Schedule')
   const locale = useLocale()
-  const CUTOFF_MS = 12 * 60 * 60 * 1000
 
   // Show 14 days starting today
   const todayLocal = getBangkokMidnight(new Date())
@@ -114,7 +114,8 @@ export default function InteractiveSchedule({
           <div className="divide-y divide-[var(--border)]">
             {filteredClasses.map(cls => {
               const isFull   = cls.bookedCount >= cls.capacity
-              const isPast   = Date.now() + CUTOFF_MS > new Date(cls.date).getTime()
+              const isPast   = isPastCutoff(cls.date)
+              const isTooFar = isTooFarInAdvance(cls.date)
               const isBooked = bookedClassIds.includes(cls.id)
               const spotsLeft = cls.capacity - cls.bookedCount
 
@@ -142,7 +143,7 @@ export default function InteractiveSchedule({
                         {t('with')} <span className="font-medium text-[var(--foreground)]">{cls.instructor.name}</span>
                       </p>
                     )}
-                    {!isBooked && !isFull && !isPast && (
+                    {!isBooked && !isFull && !isPast && !isTooFar && (
                       <p className="sm:hidden text-[10px] text-[var(--foreground-muted)] mt-1">
                         <span className="font-medium text-[var(--foreground)]">{spotsLeft}</span> {t('left')}
                       </p>
@@ -157,12 +158,19 @@ export default function InteractiveSchedule({
                       </span>
                     ) : (
                       <>
-                        {!isFull && !isPast && (
+                        {!isFull && !isPast && !isTooFar && (
                           <span className="hidden sm:block text-[10px] text-[var(--foreground-muted)]">
                             <span className="font-medium text-[var(--foreground)]">{spotsLeft}</span> {t('left')}
                           </span>
                         )}
-                        <BookButton classId={cls.id} isLoggedIn={isLoggedIn} isFull={isFull} isPast={isPast} userRole={userRole} />
+                        <BookButton 
+                          classId={cls.id} 
+                          isLoggedIn={isLoggedIn} 
+                          isFull={isFull} 
+                          isPast={isPast} 
+                          isTooFarInAdvance={isTooFar} 
+                          userRole={userRole} 
+                        />
                       </>
                     )}
                   </div>
@@ -308,7 +316,8 @@ export default function InteractiveSchedule({
                     classId={selectedClass.id}
                     isLoggedIn={isLoggedIn}
                     isFull={selectedClass.bookedCount >= selectedClass.capacity}
-                    isPast={Date.now() + CUTOFF_MS > new Date(selectedClass.date).getTime()}
+                    isPast={isPastCutoff(selectedClass.date)}
+                    isTooFarInAdvance={isTooFarInAdvance(selectedClass.date)}
                     userRole={userRole}
                     fullWidth
                   />

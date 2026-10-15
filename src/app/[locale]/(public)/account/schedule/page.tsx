@@ -8,6 +8,7 @@ import ClassNameDisplay from '@/components/ClassNameDisplay'
 import DataTableTools from '@/components/admin/DataTableTools'
 import Pagination from '@/components/admin/Pagination'
 import ScheduleDatePicker from '@/components/ScheduleDatePicker'
+import { isPastCutoff, isTooFarInAdvance } from '@/lib/booking-window'
 
 const TZ_OFFSET = 7
 
@@ -15,8 +16,6 @@ function bangkokDate(utcDate: Date) {
   return new Date(utcDate.getTime() + TZ_OFFSET * 60 * 60 * 1000)
     .toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })
 }
-
-const CUTOFF_MS = 12 * 60 * 60 * 1000
 
 export default async function FullSchedulePage({
   searchParams,
@@ -180,7 +179,8 @@ export default async function FullSchedulePage({
             <div className="block md:hidden divide-y divide-[var(--border)]">
               {classes.map(cls => {
                 const isBooked = bookedClassIds.has(cls.id)
-                const isPast = Date.now() + CUTOFF_MS > new Date(cls.date).getTime()
+                const isPast = isPastCutoff(cls.date)
+                const isLocked = isTooFarInAdvance(cls.date)
                 const isFull = cls.bookedCount >= cls.capacity
                 const spotsLeft = cls.capacity - cls.bookedCount
 
@@ -227,6 +227,7 @@ export default async function FullSchedulePage({
                           isLoggedIn={true}
                           isFull={isFull}
                           isPast={isPast}
+                          isTooFarInAdvance={isLocked}
                           userRole={role}
                         />
                       )}
@@ -266,7 +267,8 @@ export default async function FullSchedulePage({
                 <tbody className="text-sm font-light text-[var(--foreground)] divide-y divide-[var(--border)]">
                   {classes.map(cls => {
                     const isBooked = bookedClassIds.has(cls.id)
-                    const isPast = Date.now() + CUTOFF_MS > new Date(cls.date).getTime()
+                    const isPast = isPastCutoff(cls.date)
+                    const isLocked = isTooFarInAdvance(cls.date)
                     const isFull = cls.bookedCount >= cls.capacity
                     const spotsLeft = cls.capacity - cls.bookedCount
 
@@ -299,6 +301,7 @@ export default async function FullSchedulePage({
                               isLoggedIn={true}
                               isFull={isFull}
                               isPast={isPast}
+                              isTooFarInAdvance={isLocked}
                               userRole={role}
                             />
                           )}

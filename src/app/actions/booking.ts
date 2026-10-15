@@ -4,13 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { debitPass, refundPass } from '@/lib/passes'
-
-const BOOKING_CUTOFF_HOURS = 12
-
-function isWithinCutoff(classDate: Date): boolean {
-  const cutoff = new Date(Date.now() + BOOKING_CUTOFF_HOURS * 60 * 60 * 1000)
-  return classDate <= cutoff
-}
+import { isPastCutoff, isTooFarInAdvance } from '@/lib/booking-window'
 
 // ── Book a Class ──────────────────────────────────────────────────────────────
 
@@ -29,8 +23,11 @@ export async function bookClass(classId: string): Promise<BookingResult> {
   })
   if (!cls) return { success: false, message: 'Class not found.' }
   if (cls.status === 'CANCELLED') return { success: false, message: 'This class has been cancelled.' }
-  if (isWithinCutoff(cls.date)) {
+  if (isPastCutoff(cls.date)) {
     return { success: false, message: 'Bookings close 12 hours before class starts.' }
+  }
+  if (isTooFarInAdvance(cls.date)) {
+    return { success: false, message: 'Bookings only open 14 days in advance.' }
   }
   if (cls.bookedCount >= cls.capacity) {
     return { success: false, message: 'This class is fully booked.' }
@@ -102,7 +99,7 @@ export async function cancelBooking(bookingId: string): Promise<BookingResult> {
   if (booking.clientId !== userId) return { success: false, message: 'Not your booking.' }
   if (booking.status !== 'BOOKED') return { success: false, message: 'This booking is already cancelled.' }
 
-  const isLateCancel = isWithinCutoff(booking.class.date)
+  const isLateCancel = isPastCutoff(booking.class.date)
 
   if (isLateCancel) {
     // Late cancellation: no refund
