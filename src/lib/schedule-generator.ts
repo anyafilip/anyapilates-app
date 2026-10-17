@@ -41,10 +41,8 @@ export async function runScheduleSync(weeksAhead: number = 8): Promise<number> {
         where: {
           startTime: t.startTime,
           date: classDate,
-          OR: [
-            ...(t.instructorId ? [{ instructorId: t.instructorId }] : []),
-            { classTypeId: t.classTypeId },
-          ],
+          classTypeId: t.classTypeId,
+          ...(t.instructorId ? { instructorId: t.instructorId } : {}),
         },
       })
 
