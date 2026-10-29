@@ -2,21 +2,30 @@
 
 import { useState } from 'react'
 import { requestPackagePurchase } from '@/app/actions/billing'
+import { useRouter } from '@/i18n/routing'
 import toast from 'react-hot-toast'
 
 export default function CheckoutButton({ packageId }: { packageId: string }) {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
   const handlePurchase = async (method: 'QR' | 'COUNTER') => {
     setLoading(true)
     try {
-      await requestPackagePurchase(packageId, method)
-    } catch (e: any) {
-      if (e?.message === 'NEXT_REDIRECT' || e?.digest?.includes('NEXT_REDIRECT')) {
-        throw e // Re-throw so Next.js handles the redirect correctly
+      const res = await requestPackagePurchase(packageId, method)
+      if (!res.success) {
+        toast.error(res.error || 'Payment failed')
+        setLoading(false)
+        return
       }
-      toast.error(e.message || 'Payment failed')
+      if (res.redirectUrl) {
+        router.push(res.redirectUrl)
+      } else {
+        setLoading(false)
+      }
+    } catch (e: any) {
+      toast.error(e?.message || 'Payment failed. Please try again.')
       setLoading(false)
     }
   }

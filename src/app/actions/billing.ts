@@ -2,61 +2,108 @@
 
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import { grantPassFromPayment } from '@/lib/passes'
 import { revalidatePath } from 'next/cache'
 
 // Generate a short unique reference code e.g. "AYP-0042"
 async function generateRefCode(): Promise<string> {
   const count = await prisma.payment.count()
-  const n = (count + 1).toString().padStart(4, '0')
-  return `AYP-${n}`
+  let n = count + 1
+  let code = `AYP-${n.toString().padStart(4, '0')}`
+  while (await prisma.payment.findUnique({ where: { refCode: code } })) {
+    n++
+    code = `AYP-${n.toString().padStart(4, '0')}`
+  }
+  return code
 }
 
-export async function requestPackagePurchase(packageId: string, method: 'QR' | 'COUNTER') {
-  const session = await auth()
-  const user = session?.user as any
+export type PurchaseResult = {
+  success: boolean
+  paymentId?: string
+  redirectUrl?: string
+  error?: string
+}
 
-  if (!user?.id) {
-    throw new Error('You must be logged in to purchase packages')
-  }
+export async function requestPackagePurchase(
+  packageId: string,
+  method: 'QR' | 'COUNTER'
+): Promise<PurchaseResult> {
+  try {
+    const session = await auth()
+    const user = session?.user as any
 
-  const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } })
-  if (dbUser?.role === 'ADMIN' || dbUser?.role === 'INSTRUCTOR') {
-    throw new Error('Admins and Instructors cannot purchase packages.')
-  }
+    if (!user?.id) {
+      return { success: false, error: 'You must be logged in to purchase packages.' }
+    }
 
-  const pkg = await prisma.package.findUnique({ where: { id: packageId, isActive: true } })
-  if (!pkg) throw new Error('Package not found')
+    const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } })
+    if (dbUser?.role === 'ADMIN' || dbUser?.role === 'INSTRUCTOR') {
+      return { success: false, error: 'Admins and Instructors cannot purchase packages.' }
+    }
 
-  // Intro package restriction: 1 per account
-  if (pkg.name.toLowerCase().includes('trial')) {
-    const existingIntro = await prisma.payment.findFirst({
-      where: {
-        clientId: user.id,
-        package: { name: { contains: 'trial', mode: 'insensitive' } },
-        status: { not: 'FAILED' }
+    const pkg = await prisma.package.findUnique({ where: { id: packageId, isActive: true } })
+    if (!pkg) {
+      return { success: false, error: 'Package not found.' }
+    }
+
+    // Trial / Intro package restriction: 1 per account
+    const isTrial = pkg.name.toLowerCase().includes('trial') || pkg.name.toLowerCase().includes('intro')
+    if (isTrial) {
+      const existingIntro = await prisma.payment.findFirst({
+        where: {
+          clientId: user.id,
+          package: {
+            OR: [
+              { name: { contains: 'trial', mode: 'insensitive' } },
+              { name: { contains: 'intro', mode: 'insensitive' } },
+            ]
+          },
+          status: { not: 'FAILED' }
+        },
+        orderBy: { createdAt: 'desc' }
+      })
+
+      if (existingIntro) {
+        // If there is already an unpaid PENDING order for this trial, resume it smoothly
+        if (existingIntro.status === 'PENDING') {
+          return {
+            success: true,
+            paymentId: existingIntro.id,
+            redirectUrl: `/buy-credits/pending?paymentId=${existingIntro.id}`
+          }
+        }
+        return {
+          success: false,
+          error: 'You can only purchase a trial package once per account.'
+        }
       }
+    }
+
+    const refCode = await generateRefCode()
+
+    const payment = await prisma.payment.create({
+      data: {
+        clientId: user.id,
+        packageId: pkg.id,
+        method: method,
+        status: 'PENDING',
+        amount: pkg.price,
+        refCode,
+      },
     })
-    if (existingIntro) {
-      throw new Error('You can only purchase a trial package once per account.')
+
+    return {
+      success: true,
+      paymentId: payment.id,
+      redirectUrl: `/buy-credits/pending?paymentId=${payment.id}`
+    }
+  } catch (err: any) {
+    console.error('Error in requestPackagePurchase:', err)
+    return {
+      success: false,
+      error: err?.message || 'Payment processing failed. Please try again.'
     }
   }
-
-  const refCode = await generateRefCode()
-
-  const payment = await prisma.payment.create({
-    data: {
-      clientId: user.id,
-      packageId: pkg.id,
-      method: method,
-      status: 'PENDING',
-      amount: pkg.price,
-      refCode,
-    },
-  })
-
-  redirect(`/en/buy-credits/pending?paymentId=${payment.id}`)
 }
 
 // ── Submit payment slip (user uploads image) ─────────────────────────────────
