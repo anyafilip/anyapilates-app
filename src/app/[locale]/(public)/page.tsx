@@ -68,11 +68,26 @@ export default async function HomePage() {
     orderBy: { date: 'asc' },
   })
 
+  // Resolve live DB user ID to guarantee real database CUID even with OAuth provider tokens
+  let dbUserId = user?.id as string | undefined
+  if (isLoggedIn && user?.email) {
+    const dbUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(user.id ? [{ id: user.id }] : []),
+          { email: { equals: user.email, mode: 'insensitive' } }
+        ]
+      },
+      select: { id: true }
+    })
+    if (dbUser) dbUserId = dbUser.id
+  }
+
   // If logged in, fetch user's current booked class IDs
   const bookedClassIds = new Set<string>()
-  if (isLoggedIn) {
+  if (isLoggedIn && dbUserId) {
     const bookings = await prisma.booking.findMany({
-      where: { clientId: user.id, status: 'BOOKED' },
+      where: { clientId: dbUserId, status: 'BOOKED' },
       select: { classId: true },
     })
     bookings.forEach(b => bookedClassIds.add(b.classId))
@@ -98,10 +113,10 @@ export default async function HomePage() {
 
   // Check if logged-in user already purchased or received an Intro or Trial package
   let hasPurchasedTrial = false
-  if (isLoggedIn && user?.id) {
+  if (isLoggedIn && dbUserId) {
     const existingPayment = await prisma.payment.findFirst({
       where: {
-        clientId: user.id,
+        clientId: dbUserId,
         package: {
           OR: [
             { name: { contains: 'trial', mode: 'insensitive' } },
@@ -113,7 +128,7 @@ export default async function HomePage() {
     })
     const existingPass = await prisma.userPass.findFirst({
       where: {
-        userId: user.id,
+        userId: dbUserId,
         OR: [
           { payment: { package: { name: { contains: 'trial', mode: 'insensitive' } } } },
           { payment: { package: { name: { contains: 'intro', mode: 'insensitive' } } } },

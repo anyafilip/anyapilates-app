@@ -88,16 +88,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       // Always sync live role and id from database so promotions (e.g. CLIENT -> INSTRUCTOR) take effect immediately!
+      // Also ensure token.id is the actual database user ID (Google OAuth provides provider sub id as user.id)
       const lookupEmail = (token.email || (user as any)?.email) as string | undefined
       const lookupId = (token.id || (user as any)?.id) as string | undefined
 
       if (lookupId || lookupEmail) {
-        const dbUser = await prisma.user.findFirst({
-          where: lookupId 
-            ? { id: lookupId } 
-            : { email: { equals: lookupEmail, mode: 'insensitive' } },
-          select: { id: true, role: true, email: true, name: true },
-        })
+        let dbUser = null
+        if (lookupId) {
+          dbUser = await prisma.user.findUnique({
+            where: { id: lookupId },
+            select: { id: true, role: true, email: true, name: true },
+          })
+        }
+        if (!dbUser && lookupEmail) {
+          dbUser = await prisma.user.findFirst({
+            where: { email: { equals: lookupEmail, mode: 'insensitive' } },
+            select: { id: true, role: true, email: true, name: true },
+          })
+        }
         if (dbUser) {
           token.id = dbUser.id
           token.role = dbUser.role

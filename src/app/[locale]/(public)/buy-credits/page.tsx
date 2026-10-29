@@ -16,7 +16,20 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
     redirect('/en/login')
   }
 
-  if (user?.role === 'ADMIN' || user?.role === 'INSTRUCTOR') {
+  // Defensively resolve DB user by id or email to guarantee real DB CUID
+  let dbUser = user.id ? await prisma.user.findUnique({ where: { id: user.id }, select: { id: true, role: true } }) : null
+  if (!dbUser && user.email) {
+    dbUser = await prisma.user.findFirst({
+      where: { email: { equals: user.email, mode: 'insensitive' } },
+      select: { id: true, role: true },
+    })
+  }
+
+  if (!dbUser) {
+    redirect('/en/login')
+  }
+
+  if (dbUser.role === 'ADMIN' || dbUser.role === 'INSTRUCTOR') {
     redirect('/en/#packages')
   }
 
@@ -38,7 +51,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
   if (isTrial) {
     const existingPayment = await prisma.payment.findFirst({
       where: {
-        clientId: user.id,
+        clientId: dbUser.id,
         package: {
           OR: [
             { name: { contains: 'trial', mode: 'insensitive' } },
@@ -50,7 +63,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
     })
     const existingPass = await prisma.userPass.findFirst({
       where: {
-        userId: user.id,
+        userId: dbUser.id,
         OR: [
           { payment: { package: { name: { contains: 'trial', mode: 'insensitive' } } } },
           { payment: { package: { name: { contains: 'intro', mode: 'insensitive' } } } },

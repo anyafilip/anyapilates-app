@@ -16,6 +16,15 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
     redirect('/en/login')
   }
 
+  let dbUser = user.id ? await prisma.user.findUnique({ where: { id: user.id }, select: { id: true } }) : null
+  if (!dbUser && user.email) {
+    dbUser = await prisma.user.findFirst({
+      where: { email: { equals: user.email, mode: 'insensitive' } },
+      select: { id: true }
+    })
+  }
+  const clientId = dbUser?.id || user.id
+
   if (!paymentId) {
     redirect('/en/#packages')
   }
@@ -25,7 +34,7 @@ export default async function PendingPaymentPage({ searchParams }: { searchParam
     include: { package: { include: { classType: true } }, client: { select: { name: true } } }
   })
 
-  if (!payment || payment.clientId !== user.id) {
+  if (!payment || (payment.clientId !== clientId && payment.clientId !== user.id)) {
     redirect('/en/')
   }
 

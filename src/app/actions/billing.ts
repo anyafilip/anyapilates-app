@@ -32,14 +32,28 @@ export async function requestPackagePurchase(
     const session = await auth()
     const user = session?.user as any
 
-    if (!user?.id) {
+    if (!user) {
       return { success: false, error: 'You must be logged in to purchase packages.' }
     }
 
-    const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } })
-    if (dbUser?.role === 'ADMIN' || dbUser?.role === 'INSTRUCTOR') {
+    // Defensively resolve DB user by id or email to guarantee real DB CUID
+    let dbUser = user.id ? await prisma.user.findUnique({ where: { id: user.id }, select: { id: true, role: true } }) : null
+    if (!dbUser && user.email) {
+      dbUser = await prisma.user.findFirst({
+        where: { email: { equals: user.email, mode: 'insensitive' } },
+        select: { id: true, role: true },
+      })
+    }
+
+    if (!dbUser) {
+      return { success: false, error: 'User account not found. Please log in again.' }
+    }
+
+    if (dbUser.role === 'ADMIN' || dbUser.role === 'INSTRUCTOR') {
       return { success: false, error: 'Admins and Instructors cannot purchase packages.' }
     }
+
+    const clientId = dbUser.id
 
     const pkg = await prisma.package.findUnique({ where: { id: packageId, isActive: true } })
     if (!pkg) {
@@ -51,7 +65,7 @@ export async function requestPackagePurchase(
     if (isTrial) {
       const existingIntro = await prisma.payment.findFirst({
         where: {
-          clientId: user.id,
+          clientId,
           package: {
             OR: [
               { name: { contains: 'trial', mode: 'insensitive' } },
@@ -81,7 +95,7 @@ export async function requestPackagePurchase(
       // Check 2: UserPass from a trial/intro package or manual trial pass (<= 2 classes, <= 15 days)
       const existingTrialPass = await prisma.userPass.findFirst({
         where: {
-          userId: user.id,
+          userId: clientId,
           OR: [
             { payment: { package: { name: { contains: 'trial', mode: 'insensitive' } } } },
             { payment: { package: { name: { contains: 'intro', mode: 'insensitive' } } } },
@@ -102,7 +116,7 @@ export async function requestPackagePurchase(
 
     const payment = await prisma.payment.create({
       data: {
-        clientId: user.id,
+        clientId,
         packageId: pkg.id,
         method: method,
         status: 'PENDING',
@@ -133,7 +147,16 @@ const MAX_SLIP_LENGTH = 4_000_000
 export async function submitPaymentSlip(paymentId: string, slipBase64: string) {
   const session = await auth()
   const user = session?.user as any
-  if (!user?.id) throw new Error('Unauthorized')
+  if (!user) throw new Error('Unauthorized')
+
+  let dbUser = user.id ? await prisma.user.findUnique({ where: { id: user.id }, select: { id: true } }) : null
+  if (!dbUser && user.email) {
+    dbUser = await prisma.user.findFirst({
+      where: { email: { equals: user.email, mode: 'insensitive' } },
+      select: { id: true }
+    })
+  }
+  const clientId = dbUser?.id || user.id
 
   // Server-side upload validation
   if (!slipBase64 || typeof slipBase64 !== 'string') throw new Error('Invalid upload')
@@ -149,7 +172,7 @@ export async function submitPaymentSlip(paymentId: string, slipBase64: string) {
 
   const payment = await prisma.payment.findUnique({ where: { id: paymentId } })
   if (!payment) throw new Error('Payment not found')
-  if (payment.clientId !== user.id) throw new Error('Unauthorized')
+  if (payment.clientId !== clientId && payment.clientId !== user.id) throw new Error('Unauthorized')
   if (payment.status !== 'PENDING') throw new Error('Payment already processed')
 
   await prisma.payment.update({
