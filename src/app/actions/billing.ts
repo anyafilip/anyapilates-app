@@ -77,6 +77,25 @@ export async function requestPackagePurchase(
           error: 'You can only purchase a trial package once per account.'
         }
       }
+
+      // Check 2: UserPass from a trial/intro package or manual trial pass (<= 2 classes, <= 15 days)
+      const existingTrialPass = await prisma.userPass.findFirst({
+        where: {
+          userId: user.id,
+          OR: [
+            { payment: { package: { name: { contains: 'trial', mode: 'insensitive' } } } },
+            { payment: { package: { name: { contains: 'intro', mode: 'insensitive' } } } },
+            { originalCount: { lte: 2 }, validityDays: { lte: 15 } }
+          ]
+        }
+      })
+
+      if (existingTrialPass) {
+        return {
+          success: false,
+          error: 'You can only purchase a trial package once per account.'
+        }
+      }
     }
 
     const refCode = await generateRefCode()

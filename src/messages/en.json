@@ -118,6 +118,8 @@
     "valid": "Valid",
     "days": "days",
     "select": "SELECT",
+    "purchased": "PURCHASED",
+    "trialAlreadyPurchased": "Trial packages are limited to 1 per member.",
     "noPackages": "No packages currently available in this category.",
     "classDuration": "Class Duration: 50 Minutes",
     "introValid": "Intro Packages: Valid 15 Days",

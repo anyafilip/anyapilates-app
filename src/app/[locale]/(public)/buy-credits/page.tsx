@@ -36,7 +36,7 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
   // Restrict intro/trial package purchase to once per account
   const isTrial = pkg.name.toLowerCase().includes('trial') || pkg.name.toLowerCase().includes('intro')
   if (isTrial) {
-    const existingIntro = await prisma.payment.findFirst({
+    const existingPayment = await prisma.payment.findFirst({
       where: {
         clientId: user.id,
         package: {
@@ -48,9 +48,51 @@ export default async function BuyCreditsPage({ searchParams }: { searchParams: P
         status: 'PAID'
       }
     })
+    const existingPass = await prisma.userPass.findFirst({
+      where: {
+        userId: user.id,
+        OR: [
+          { payment: { package: { name: { contains: 'trial', mode: 'insensitive' } } } },
+          { payment: { package: { name: { contains: 'intro', mode: 'insensitive' } } } },
+          { originalCount: { lte: 2 }, validityDays: { lte: 15 } }
+        ]
+      }
+    })
     
-    if (existingIntro) {
-      redirect('/en/#packages')
+    if (existingPayment || existingPass) {
+      return (
+        <div className="flex-1 w-full flex flex-col relative min-h-screen">
+          <PublicNavbar isLoggedIn={true} user={user} />
+
+          <main className="flex-1 container mx-auto px-6 pt-32 pb-16 max-w-lg flex flex-col justify-center">
+            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 md:p-12 shadow-sm text-center">
+              <span className="inline-block text-[10px] uppercase tracking-[0.2em] font-medium text-[var(--accent-dark)] bg-[var(--accent)]/10 px-3.5 py-1 rounded-full border border-[var(--accent)]/20 mb-6">
+                ✓ Already Purchased
+              </span>
+              <h1 className="text-2xl md:text-3xl font-serif text-[var(--foreground)] mb-4">
+                Trial Package Claimed
+              </h1>
+              <p className="text-sm font-light text-[var(--foreground-muted)] mb-8 leading-relaxed">
+                Trial packages are exclusively for first-time visitors and limited to one per member. You have already enjoyed a trial package with us!
+              </p>
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="/#packages"
+                  className="w-full bg-[var(--foreground)] text-[var(--background)] py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black transition-colors shadow-sm flex items-center justify-center cursor-pointer"
+                >
+                  Explore Regular Packages
+                </Link>
+                <Link
+                  href="/account"
+                  className="w-full bg-transparent border border-[var(--foreground)] text-[var(--foreground)] py-4 rounded-full text-[10px] tracking-[0.2em] uppercase font-medium hover:bg-black/5 transition-colors flex items-center justify-center cursor-pointer"
+                >
+                  Go to My Account
+                </Link>
+              </div>
+            </div>
+          </main>
+        </div>
+      )
     }
   }
 

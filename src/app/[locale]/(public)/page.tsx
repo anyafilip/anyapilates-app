@@ -96,30 +96,40 @@ export default async function HomePage() {
     orderBy: { price: 'asc' }
   })
 
-  // If user is logged in, check if they already bought an intro package
-  let hasIntro = false
-  if (isLoggedIn) {
-    const introCount = await prisma.payment.count({
+  // Check if logged-in user already purchased or received an Intro or Trial package
+  let hasPurchasedTrial = false
+  if (isLoggedIn && user?.id) {
+    const existingPayment = await prisma.payment.findFirst({
       where: {
         clientId: user.id,
-        package: { name: { contains: 'intro', mode: 'insensitive' } },
-        status: { not: 'FAILED' }
+        package: {
+          OR: [
+            { name: { contains: 'trial', mode: 'insensitive' } },
+            { name: { contains: 'intro', mode: 'insensitive' } },
+          ]
+        },
+        status: { in: ['PAID', 'PENDING'] }
       }
     })
-    hasIntro = introCount > 0
+    const existingPass = await prisma.userPass.findFirst({
+      where: {
+        userId: user.id,
+        OR: [
+          { payment: { package: { name: { contains: 'trial', mode: 'insensitive' } } } },
+          { payment: { package: { name: { contains: 'intro', mode: 'insensitive' } } } },
+          { originalCount: { lte: 2 }, validityDays: { lte: 15 } }
+        ]
+      }
+    })
+    hasPurchasedTrial = !!(existingPayment || existingPass)
   }
 
-  // Hide intro packages if they already bought one
-  if (hasIntro) {
-    packages = packages.filter(p => !p.name.toLowerCase().includes('intro'))
-  }
-
-  // Ensure intro packages are always first (for new users)
+  // Ensure trial/intro packages are always first in list
   packages.sort((a, b) => {
-    const aIsIntro = a.name.toLowerCase().includes('intro')
-    const bIsIntro = b.name.toLowerCase().includes('intro')
-    if (aIsIntro && !bIsIntro) return -1
-    if (!aIsIntro && bIsIntro) return 1
+    const aIsTrial = a.name.toLowerCase().includes('trial') || a.name.toLowerCase().includes('intro')
+    const bIsTrial = b.name.toLowerCase().includes('trial') || b.name.toLowerCase().includes('intro')
+    if (aIsTrial && !bIsTrial) return -1
+    if (!aIsTrial && bIsTrial) return 1
     return 0
   })
 
@@ -289,7 +299,7 @@ export default async function HomePage() {
             <div className="w-16 h-px bg-[var(--accent-light)] mx-auto"></div>
           </div>
           
-          <PackagesDisplay packages={packages} isLoggedIn={isLoggedIn} userRole={user?.role} />
+          <PackagesDisplay packages={packages} isLoggedIn={isLoggedIn} userRole={user?.role} hasPurchasedTrial={hasPurchasedTrial} />
           
           <div className="mt-4 max-w-3xl mx-auto text-center px-6 py-5 bg-[var(--foreground)]/[0.03] border border-black/5 rounded-2xl flex flex-col gap-3">
             <div className={`flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[10px] uppercase text-[var(--foreground-muted)] font-medium ${isEn ? 'tracking-[0.25em]' : 'tracking-normal'}`}>

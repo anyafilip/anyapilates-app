@@ -21,9 +21,10 @@ interface PackagesDisplayProps {
   packages: PackageItem[]
   isLoggedIn: boolean
   userRole?: string
+  hasPurchasedTrial?: boolean
 }
 
-export default function PackagesDisplay({ packages, isLoggedIn, userRole }: PackagesDisplayProps) {
+export default function PackagesDisplay({ packages, isLoggedIn, userRole, hasPurchasedTrial }: PackagesDisplayProps) {
   const t = useTranslations('Packages')
   const locale = useLocale()
   const isEn = locale === 'en'
@@ -37,6 +38,12 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
     }
     if (userRole === 'ADMIN' || userRole === 'INSTRUCTOR') {
       toast.error('Admins and Instructors cannot purchase packages.')
+      return
+    }
+    const pkg = packages.find(p => p.id === pkgId)
+    const isTrial = pkg && (pkg.name.toLowerCase().includes('trial') || pkg.name.toLowerCase().includes('intro'))
+    if (isTrial && hasPurchasedTrial) {
+      toast.error(t('trialAlreadyPurchased'))
       return
     }
     router.push(`/buy-credits?packageId=${pkgId}`)
@@ -168,19 +175,33 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole }: Pack
               <div>
                 <div className="w-full h-px bg-gradient-to-r from-transparent via-black/10 to-transparent mb-4 z-10" />
 
-                <button
-                  type="button"
-                  onClick={() => handleSelectPackage(pkg.id)}
-                  className={`
-                    relative z-10 w-full block py-3 rounded-full text-[9px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase font-medium transition-all duration-300 shadow-sm text-center cursor-pointer
-                    ${isTrial
-                      ? 'bg-[var(--foreground)] text-[var(--background)] hover:bg-black'
-                      : 'bg-transparent border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)]'
-                    }
-                  `}
-                >
-                  {t('select')}
-                </button>
+                {isTrial && hasPurchasedTrial ? (
+                  <button
+                    type="button"
+                    disabled
+                    aria-disabled="true"
+                    className={`
+                      relative z-10 w-full block py-3 rounded-full text-[9px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase font-medium shadow-sm text-center cursor-not-allowed
+                      bg-black/5 text-[var(--foreground-muted)] border border-black/10 opacity-70
+                    `}
+                  >
+                    ✓ {t('purchased')}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleSelectPackage(pkg.id)}
+                    className={`
+                      relative z-10 w-full block py-3 rounded-full text-[9px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase font-medium transition-all duration-300 shadow-sm text-center cursor-pointer
+                      ${isTrial
+                        ? 'bg-[var(--foreground)] text-[var(--background)] hover:bg-black'
+                        : 'bg-transparent border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)]'
+                      }
+                    `}
+                  >
+                    {t('select')}
+                  </button>
+                )}
               </div>
             </div>
           )
