@@ -67,7 +67,18 @@ export default async function HomePage() {
     }),
     prisma.classType.findMany({
       where: { isActive: true },
-      orderBy: { createdAt: 'asc' }
+      orderBy: { createdAt: 'asc' },
+      // PERF: Exclude imageUrl (base64 blobs up to 800KB each) — images are
+      // served on demand via /api/class-image/[id] with browser caching.
+      select: {
+        id: true,
+        name: true,
+        nameTh: true,
+        description: true,
+        descriptionTh: true,
+        isActive: true,
+        createdAt: true,
+      },
     }),
     prisma.studioSettings.findUnique({ where: { id: 'default' } }),
     prisma.package.findMany({
@@ -263,9 +274,9 @@ export default async function HomePage() {
             {classTypes.map(ct => (
               <Link key={ct.id} href={`/classes/${ct.id}`} className="group block cursor-pointer hover:-translate-y-1 transition-transform duration-300">
                 <div className="relative h-96 overflow-hidden mb-6 bg-[var(--background)]">
-                  {ct.imageUrl ? (
+                  {ct.id ? (
                     <img 
-                      src={ct.imageUrl} 
+                      src={`/api/class-image/${ct.id}`}
                       alt={locale === 'th' && ct.nameTh ? ct.nameTh : ct.name} 
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
