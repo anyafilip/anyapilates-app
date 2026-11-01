@@ -39,6 +39,10 @@ echo "Step 2/4: Pulling latest changes from origin/main..."
 git fetch origin main
 git pull --ff-only origin main
 
+# Install dependencies
+echo "Installing any new dependencies..."
+npm install
+
 # 4. Generate Prisma Client
 echo ""
 echo "Step 3/4: Generating Prisma client & building Next.js..."
