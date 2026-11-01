@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
 import { grantPassFromPayment } from '@/lib/passes'
 import { revalidatePath } from 'next/cache'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 
 // Generate a short unique reference code e.g. "AYP-0042"
 async function generateRefCode(): Promise<string> {
@@ -175,9 +176,20 @@ export async function submitPaymentSlip(paymentId: string, slipBase64: string) {
   if (payment.clientId !== clientId && payment.clientId !== user.id) throw new Error('Unauthorized')
   if (payment.status !== 'PENDING') throw new Error('Payment already processed')
 
+  let slipUrl = slipBase64
+  try {
+    const uploaded = await uploadToCloudinary(slipBase64, {
+      folder: 'pilates/slips',
+      publicId: `slip_${payment.refCode || payment.id}`,
+    })
+    slipUrl = uploaded.url
+  } catch (err) {
+    console.error('Cloudinary slip upload error (falling back to direct base64):', err)
+  }
+
   await prisma.payment.update({
     where: { id: paymentId },
-    data: { slipUrl: slipBase64 },
+    data: { slipUrl },
   })
 
   revalidatePath(`/en/buy-credits/pending`)

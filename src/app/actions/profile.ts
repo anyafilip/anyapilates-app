@@ -4,12 +4,14 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 
 const MAX_IMAGE_LENGTH = 4_000_000
 const ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp']
 
 function validateImageBase64(value: string | undefined): string | null | undefined {
   if (!value || value === '') return null
+  if (value.startsWith('http://') || value.startsWith('https://')) return value
   if (value.length > MAX_IMAGE_LENGTH) throw new Error('Profile picture is too large. Maximum size is 3 MB.')
   if (!value.startsWith('data:image/')) throw new Error('Invalid file type for profile picture.')
   const mimeMatch = value.match(/^data:(image\/[a-zA-Z+]+);base64,/)
@@ -33,7 +35,18 @@ export async function updateProfile(data: { name: string; phone?: string; imageU
     throw new Error(parsed.error.issues[0].message)
   }
 
-  const imageUrl = validateImageBase64(data.imageUrl)
+  let imageUrl = validateImageBase64(data.imageUrl)
+  if (imageUrl && imageUrl.startsWith('data:')) {
+    try {
+      const uploaded = await uploadToCloudinary(imageUrl, {
+        folder: 'pilates/users',
+        publicId: `user_${session.user.id}`,
+      })
+      imageUrl = uploaded.url
+    } catch (err) {
+      console.error('Cloudinary user profile upload failed, falling back to base64:', err)
+    }
+  }
 
   await prisma.user.update({
     where: { id: session.user.id },

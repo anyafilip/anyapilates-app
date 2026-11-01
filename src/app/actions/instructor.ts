@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 
 const ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp']
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024 // 5 MB
@@ -62,7 +63,16 @@ export async function updateInstructorProfile(formData: FormData) {
     const buffer = Buffer.from(bytes)
     const mimeType = imageFile.type || 'image/jpeg'
     const base64 = buffer.toString('base64')
-    imageUrl = `data:${mimeType};base64,${base64}`
+    try {
+      const uploaded = await uploadToCloudinary(`data:${mimeType};base64,${base64}`, {
+        folder: 'pilates/users',
+        publicId: `user_${userId}`,
+      })
+      imageUrl = uploaded.url
+    } catch (err) {
+      console.error('Cloudinary instructor avatar upload failed, falling back to base64:', err)
+      imageUrl = `data:${mimeType};base64,${base64}`
+    }
   }
 
   await prisma.user.update({

@@ -5,6 +5,7 @@ import sanitizeHtml from 'sanitize-html'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 
 async function requireAdmin() {
   const session = await auth()
@@ -54,7 +55,15 @@ export async function createClassType(formData: FormData) {
     const buffer = Buffer.from(bytes)
     const mimeType = imageFile.type || 'image/jpeg'
     const base64 = buffer.toString('base64')
-    imageUrl = `data:${mimeType};base64,${base64}`
+    try {
+      const uploaded = await uploadToCloudinary(`data:${mimeType};base64,${base64}`, {
+        folder: 'pilates/classes',
+      })
+      imageUrl = uploaded.url
+    } catch (err) {
+      console.error('Cloudinary classType upload failed, falling back to base64:', err)
+      imageUrl = `data:${mimeType};base64,${base64}`
+    }
   }
 
   await prisma.classType.create({
@@ -82,7 +91,15 @@ export async function updateClassType(formData: FormData) {
     const buffer = Buffer.from(bytes)
     const mimeType = imageFile.type || 'image/jpeg'
     const base64 = buffer.toString('base64')
-    imageUrl = `data:${mimeType};base64,${base64}`
+    try {
+      const uploaded = await uploadToCloudinary(`data:${mimeType};base64,${base64}`, {
+        folder: 'pilates/classes',
+      })
+      imageUrl = uploaded.url
+    } catch (err) {
+      console.error('Cloudinary classType upload failed, falling back to base64:', err)
+      imageUrl = `data:${mimeType};base64,${base64}`
+    }
   }
 
   const data: any = {
