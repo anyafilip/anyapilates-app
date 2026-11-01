@@ -29,9 +29,9 @@ export default function InteractiveSchedule({
   const t = useTranslations('Schedule')
   const locale = useLocale()
 
-  // Show 14 days starting today
+  // Show 7 days starting today (1 week in advance)
   const todayLocal = getBangkokMidnight(new Date())
-  const dates = Array.from({ length: 14 }).map((_, i) => {
+  const dates = Array.from({ length: 7 }).map((_, i) => {
     const d = new Date(todayLocal.getTime() + i * 24 * 60 * 60 * 1000)
     return {
       dateObj: d,

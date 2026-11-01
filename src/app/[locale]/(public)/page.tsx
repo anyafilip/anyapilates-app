@@ -37,13 +37,13 @@ export default async function HomePage() {
     select: { id: true, name: true, bio: true, imageUrl: true },
   })
 
-  // Fetch upcoming scheduled classes (next 14 days)
+  // Fetch upcoming scheduled classes (next 7 days)
   const now = new Date()
-  const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000)
+  const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
   const classes = await prisma.class.findMany({
     where: {
       status: 'SCHEDULED',
-      date: { gte: now, lte: twoWeeksFromNow },
+      date: { gte: now, lte: oneWeekFromNow },
     },
     include: {
       classType: {

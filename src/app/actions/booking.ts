@@ -27,7 +27,7 @@ export async function bookClass(classId: string): Promise<BookingResult> {
     return { success: false, message: 'Bookings close 12 hours before class starts.' }
   }
   if (isTooFarInAdvance(cls.date)) {
-    return { success: false, message: 'Bookings only open 14 days in advance.' }
+    return { success: false, message: 'Bookings only open 7 days in advance.' }
   }
   if (cls.bookedCount >= cls.capacity) {
     return { success: false, message: 'This class is fully booked.' }

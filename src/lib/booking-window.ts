@@ -3,7 +3,7 @@
  */
 
 export const BOOKING_CUTOFF_HOURS = 12
-export const MAX_BOOKING_ADVANCE_DAYS = 14
+export const MAX_BOOKING_ADVANCE_DAYS = 7
 
 export const BOOKING_CUTOFF_MS = BOOKING_CUTOFF_HOURS * 60 * 60 * 1000
 export const MAX_BOOKING_ADVANCE_MS = MAX_BOOKING_ADVANCE_DAYS * 24 * 60 * 60 * 1000
@@ -17,7 +17,7 @@ export function isPastCutoff(classDate: Date | string | number): boolean {
 }
 
 /**
- * Returns true if the class date is further than 14 days (2 weeks) in advance.
+ * Returns true if the class date is further than 7 days (1 week) in advance.
  */
 export function isTooFarInAdvance(classDate: Date | string | number): boolean {
   const time = new Date(classDate).getTime()

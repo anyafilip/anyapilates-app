@@ -40,9 +40,9 @@ export default function BookButton({
         className={`text-[9px] md:text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] opacity-60 border border-[var(--border)] px-3 py-1.5 rounded-full inline-block text-center whitespace-nowrap ${
           fullWidth ? 'w-full' : ''
         }`}
-        title={isTh ? 'เปิดให้จองล่วงหน้า 14 วันก่อนเริ่มคลาส' : 'Bookings open 14 days before class'}
+        title={isTh ? 'เปิดให้จองล่วงหน้า 7 วันก่อนเริ่มคลาส' : 'Bookings open 7 days before class'}
       >
-        {isTh ? 'เปิดล่วงหน้า 14 วัน' : 'Opens 14d prior'}
+        {isTh ? 'เปิดล่วงหน้า 7 วัน' : 'Opens 7d prior'}
       </span>
     )
   }
@@ -61,7 +61,7 @@ export default function BookButton({
       return
     }
     if (isTooFarInAdvance) {
-      toast.error(isTh ? 'เปิดให้จองล่วงหน้า 14 วันเท่านั้น' : 'Bookings only open 14 days in advance.')
+      toast.error(isTh ? 'เปิดให้จองล่วงหน้า 7 วันเท่านั้น' : 'Bookings only open 7 days in advance.')
       return
     }
 
