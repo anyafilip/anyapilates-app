@@ -31,111 +31,101 @@ export default async function HomePage() {
   const isLoggedIn = !!user
   const dashboardUrl = user?.role === 'ADMIN' ? '/admin' : user?.role === 'INSTRUCTOR' ? '/instructor' : '/account'
 
-  // Fetch instructors for the new section
-  const instructors = await prisma.user.findMany({
-    where: { role: 'INSTRUCTOR', showOnFrontpage: true },
-    select: { id: true, name: true, bio: true, imageUrl: true },
-  })
-
-  // Fetch upcoming scheduled classes (next 7 days)
   const now = new Date()
   const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-  const classes = await prisma.class.findMany({
-    where: {
-      status: 'SCHEDULED',
-      date: { gte: now, lte: oneWeekFromNow },
-    },
-    include: {
-      classType: {
-        select: {
-          id: true,
-          name: true,
-          nameTh: true,
-          description: true,
-          descriptionTh: true,
-          // OMITTING imageUrl to prevent massive JSON payload bloat (base64 duplication)
-        }
-      },
-      instructor: {
-        select: {
-          id: true,
-          name: true,
-          bio: true,
-          // OMITTING imageUrl for the same reason
-        }
-      },
-    },
-    orderBy: { date: 'asc' },
-  })
 
-  // Resolve live DB user ID to guarantee real database CUID even with OAuth provider tokens
-  let dbUserId = user?.id as string | undefined
-  if (isLoggedIn && user?.email) {
-    const dbUser = await prisma.user.findFirst({
+  // Run all non-user independent queries in parallel to drastically improve load time
+  const [instructors, classes, classTypes, settings, initialPackages, dbUser] = await Promise.all([
+    prisma.user.findMany({
+      where: { role: 'INSTRUCTOR', showOnFrontpage: true },
+      select: { id: true, name: true, bio: true, imageUrl: true },
+    }),
+    prisma.class.findMany({
       where: {
-        OR: [
-          ...(user.id ? [{ id: user.id }] : []),
-          { email: { equals: user.email, mode: 'insensitive' } }
-        ]
+        status: 'SCHEDULED',
+        date: { gte: now, lte: oneWeekFromNow },
       },
-      select: { id: true }
-    })
-    if (dbUser) dbUserId = dbUser.id
-  }
-
-  // If logged in, fetch user's current booked class IDs
-  const bookedClassIds = new Set<string>()
-  if (isLoggedIn && dbUserId) {
-    const bookings = await prisma.booking.findMany({
-      where: { clientId: dbUserId, status: 'BOOKED' },
-      select: { classId: true },
-    })
-    bookings.forEach(b => bookedClassIds.add(b.classId))
-  }
-
-  const CUTOFF_MS = 12 * 60 * 60 * 1000
-
-  // Fetch active class types for the showcase
-  const classTypes = await prisma.classType.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: 'asc' }
-  })
-
-  // Fetch Studio Settings for the footer
-  const settings = await prisma.studioSettings.findUnique({ where: { id: 'default' } })
-
-  // Fetch active packages
-  let packages = await prisma.package.findMany({
-    where: { isActive: true },
-    include: { classType: { select: { id: true, name: true, nameTh: true } } },
-    orderBy: { price: 'asc' }
-  })
-
-  // Check if logged-in user already purchased or received an Intro or Trial package
-  let hasPurchasedTrial = false
-  if (isLoggedIn && dbUserId) {
-    const existingPayment = await prisma.payment.findFirst({
-      where: {
-        clientId: dbUserId,
-        package: {
-          OR: [
-            { name: { contains: 'trial', mode: 'insensitive' } },
-            { name: { contains: 'intro', mode: 'insensitive' } },
-          ]
+      include: {
+        classType: {
+          select: {
+            id: true,
+            name: true,
+            nameTh: true,
+            description: true,
+            descriptionTh: true,
+          }
         },
-        status: { in: ['PAID', 'PENDING'] }
-      }
-    })
-    const existingPass = await prisma.userPass.findFirst({
-      where: {
-        userId: dbUserId,
-        OR: [
-          { payment: { package: { name: { contains: 'trial', mode: 'insensitive' } } } },
-          { payment: { package: { name: { contains: 'intro', mode: 'insensitive' } } } },
-          { originalCount: { lte: 2 }, validityDays: { lte: 15 } }
-        ]
-      }
-    })
+        instructor: {
+          select: {
+            id: true,
+            name: true,
+            bio: true,
+          }
+        },
+      },
+      orderBy: { date: 'asc' },
+    }),
+    prisma.classType.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: 'asc' }
+    }),
+    prisma.studioSettings.findUnique({ where: { id: 'default' } }),
+    prisma.package.findMany({
+      where: { isActive: true },
+      include: { classType: { select: { id: true, name: true, nameTh: true } } },
+      orderBy: { price: 'asc' }
+    }),
+    isLoggedIn && (user?.id || user?.email)
+      ? prisma.user.findFirst({
+          where: {
+            OR: [
+              ...(user.id ? [{ id: user.id }] : []),
+              ...(user.email ? [{ email: { equals: user.email, mode: 'insensitive' as const } }] : [])
+            ]
+          },
+          select: { id: true }
+        })
+      : null
+  ])
+
+  let packages = initialPackages
+  const dbUserId = dbUser?.id || (user?.id as string | undefined)
+
+  // If logged in, fetch user's current booked class IDs and trial status in parallel
+  const bookedClassIds = new Set<string>()
+  let hasPurchasedTrial = false
+
+  if (isLoggedIn && dbUserId) {
+    const [bookings, existingPayment, existingPass] = await Promise.all([
+      prisma.booking.findMany({
+        where: { clientId: dbUserId, status: 'BOOKED' },
+        select: { classId: true },
+      }),
+      prisma.payment.findFirst({
+        where: {
+          clientId: dbUserId,
+          package: {
+            OR: [
+              { name: { contains: 'trial', mode: 'insensitive' } },
+              { name: { contains: 'intro', mode: 'insensitive' } },
+            ]
+          },
+          status: { in: ['PAID', 'PENDING'] }
+        }
+      }),
+      prisma.userPass.findFirst({
+        where: {
+          userId: dbUserId,
+          OR: [
+            { payment: { package: { name: { contains: 'trial', mode: 'insensitive' } } } },
+            { payment: { package: { name: { contains: 'intro', mode: 'insensitive' } } } },
+            { originalCount: { lte: 2 }, validityDays: { lte: 15 } }
+          ]
+        }
+      })
+    ])
+
+    bookings.forEach(b => bookedClassIds.add(b.classId))
     hasPurchasedTrial = !!(existingPayment || existingPass)
   }
 

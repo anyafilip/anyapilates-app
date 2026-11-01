@@ -59,10 +59,10 @@ export default function InteractiveSchedule({
   return (
     <div>
       {/* ── Horizontal Date Picker ──────────────────────────────────────────── */}
-      {/* On mobile: 7 pills visible at once (w-[calc(100%/7-4px)]), scroll for more */}
-      <div className="mb-10">
+      {/* Horizontal scrollable date pills */}
+      <div className="mb-14">
         <div
-          className="flex overflow-x-auto py-4 gap-1 snap-x hide-scrollbar -mx-4 px-4"
+          className="flex overflow-x-auto py-6 px-2 md:px-4 gap-3 md:gap-4 snap-x hide-scrollbar -mx-4"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {dates.map(d => {
@@ -76,22 +76,22 @@ export default function InteractiveSchedule({
                 onClick={() => setSelectedTimestamp(d.timestamp)}
                 className={`
                   relative snap-start flex-shrink-0 flex flex-col items-center justify-center
-                  w-[calc(100%/7.5)] md:w-[72px]
-                  h-[60px] md:h-[90px]
+                  w-[56px] md:w-[72px]
+                  h-[80px] md:h-[100px]
                   rounded-full transition-all duration-300 border text-center
                   ${isSelected
-                    ? 'bg-[var(--foreground)] border-[var(--foreground)] text-[var(--background)] shadow-lg scale-105'
+                    ? 'bg-[var(--foreground)] border-[var(--foreground)] text-[var(--background)] shadow-xl scale-105'
                     : 'bg-transparent border-[var(--border)] text-[var(--foreground)] hover:border-[var(--foreground)] hover:bg-black/5'
                   }
                   ${!hasClasses && !isSelected ? 'opacity-35' : ''}
                 `}
               >
-                <span className={`text-[7px] md:text-[9px] tracking-wider uppercase mb-0.5 ${isSelected ? 'text-[var(--background)]/75' : 'text-[var(--foreground-muted)]'}`}>
+                <span className={`text-[8px] md:text-[10px] tracking-widest uppercase mb-1 md:mb-2 ${isSelected ? 'text-[var(--background)]/80' : 'text-[var(--foreground-muted)]'}`}>
                   {d.dayName}
                 </span>
-                <span className="text-base md:text-xl font-light leading-none">{d.dateNumber}</span>
+                <span className="text-xl md:text-2xl font-light leading-none">{d.dateNumber}</span>
                 {hasClasses && (
-                  <div className={`absolute bottom-2 w-1 h-1 rounded-full ${isSelected ? 'bg-[var(--background)]' : 'bg-[var(--accent)]'}`} />
+                  <div className={`absolute bottom-3 md:bottom-4 w-1 h-1 rounded-full ${isSelected ? 'bg-[var(--background)]' : 'bg-[var(--accent)]'}`} />
                 )}
               </button>
             )
