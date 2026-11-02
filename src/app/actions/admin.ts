@@ -464,19 +464,38 @@ export async function manuallyGrantPackage(userId: string, packageId: string, ov
 }
 
 export async function deleteUserPass(passId: string) {
-  await requireAdmin()
-  
-  const pass = await prisma.userPass.findUnique({ where: { id: passId } })
-  if (!pass) throw new Error('Pass not found')
+  try {
+    await requireAdmin()
+    
+    const pass = await prisma.userPass.findUnique({ where: { id: passId } })
+    if (!pass) return { success: false, error: 'Pass not found.' }
 
-  // Cannot delete a pass if it has bookings associated
-  const bookingsCount = await prisma.booking.count({ where: { userPassId: passId } })
-  if (bookingsCount > 0) {
-    throw new Error('Cannot delete this pass because it has bookings associated with it. Please cancel the bookings first.')
+    // Cannot delete a pass if the member has active upcoming bookings
+    const activeBookingsCount = await prisma.booking.count({
+      where: { userPassId: passId, status: 'BOOKED' }
+    })
+    if (activeBookingsCount > 0) {
+      return {
+        success: false,
+        error: `Cannot delete: This pass has ${activeBookingsCount} active upcoming class(es) booked. Please cancel or complete those bookings first.`
+      }
+    }
+
+    // Safely unlink any completed or historical bookings (ATTENDED, CANCELLED, NO_SHOW)
+    // so historical attendance records are preserved without foreign key constraint errors
+    await prisma.booking.updateMany({
+      where: { userPassId: passId },
+      data: { userPassId: null }
+    })
+
+    await prisma.userPass.delete({ where: { id: passId } })
+    revalidatePath(`/en/admin/users/${pass.userId}`)
+    revalidatePath(`/th/admin/users/${pass.userId}`)
+    return { success: true }
+  } catch (err: any) {
+    console.error('deleteUserPass error:', err)
+    return { success: false, error: err.message || 'Failed to delete pass.' }
   }
-
-  await prisma.userPass.delete({ where: { id: passId } })
-  revalidatePath(`/en/admin/users/${pass.userId}`)
 }
 
 

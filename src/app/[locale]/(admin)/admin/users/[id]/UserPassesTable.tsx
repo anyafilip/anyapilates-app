@@ -59,7 +59,12 @@ export default function UserPassesTable({ initialPasses }: { initialPasses: Pass
   const handleDelete = (passId: string) => {
     startTransition(async () => {
       try {
-        await deleteUserPass(passId)
+        const res = await deleteUserPass(passId)
+        if (res && !res.success) {
+          toast.error(res.error || 'Failed to delete pass.')
+          setDeletingId(null)
+          return
+        }
         toast.success('Pass deleted successfully.')
         setDeletingId(null)
         router.refresh()
