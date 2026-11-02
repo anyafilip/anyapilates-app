@@ -73,8 +73,8 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole, hasPur
   return (
     <div>
       {/* ── Category Filter Tabs ────────────────────────────────────────── */}
-      <div className="flex justify-start md:justify-center mb-12 overflow-x-auto py-4 -mx-4 px-4 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:bg-black/15 [&::-webkit-scrollbar-thumb]:rounded-full">
-        <div className="inline-flex p-1.5 rounded-full bg-black/[0.04] backdrop-blur-md border border-white/60 min-w-max">
+      <div className="w-full flex justify-center mb-10 md:mb-12 overflow-x-auto py-2 px-2 scrollbar-hide">
+        <div className="inline-flex p-1 md:p-1.5 rounded-full bg-black/[0.04] backdrop-blur-md border border-white/60 max-w-full">
           {tabs.map(tab => {
             const isActive = selectedTab === tab.key
             return (
@@ -82,7 +82,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole, hasPur
                 key={tab.key}
                 onClick={() => setSelectedTab(tab.key)}
                 className={`
-                  px-5 md:px-7 py-2.5 rounded-full text-[10px] md:text-[11px] font-medium ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase transition-all duration-300 whitespace-nowrap cursor-pointer
+                  px-3 sm:px-4 md:px-7 py-1.5 sm:py-2 md:py-2.5 rounded-full text-[9px] sm:text-[10px] md:text-[11px] font-medium ${isEn ? 'tracking-wider md:tracking-[0.2em]' : 'tracking-normal'} uppercase transition-all duration-300 whitespace-nowrap cursor-pointer
                   ${isActive
                     ? 'bg-[var(--foreground)] text-[var(--background)] shadow-md'
                     : 'text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-white/40'
