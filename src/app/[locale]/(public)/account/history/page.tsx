@@ -1,16 +1,10 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
 import MemberNavbar from '@/components/MemberNavbar'
 import { redirect } from 'next/navigation'
-import ClassNameDisplay from '@/components/ClassNameDisplay'
+import ClassHistoryTable from './ClassHistoryTable'
 
-const TZ_OFFSET = 7
-
-function bangkokDate(utcDate: Date) {
-  return new Date(utcDate.getTime() + TZ_OFFSET * 60 * 60 * 1000)
-    .toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })
-}
+export const dynamic = 'force-dynamic'
 
 export default async function HistoryPage() {
   const session = await auth()
@@ -29,10 +23,27 @@ export default async function HistoryPage() {
         { class: { date: { lte: new Date() } } }
       ]
     },
-    include: { class: { include: { classType: true } } },
+    include: {
+      class: {
+        include: {
+          classType: {
+            select: {
+              id: true,
+              name: true,
+              nameTh: true,
+            },
+          },
+          instructor: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
     orderBy: [
       { class: { date: 'desc' } },
-      { class: { startTime: 'desc' } }
+      { class: { startTime: 'desc' } },
     ],
   })
 
@@ -41,42 +52,20 @@ export default async function HistoryPage() {
       <MemberNavbar />
 
       <main className="flex-1 overflow-y-auto w-full">
-        <div className="container mx-auto px-6 py-10 max-w-4xl">
-          <div className="mb-12">
-            <p className="text-[11px] tracking-widest uppercase text-[var(--foreground-muted)] mb-2">Member Portal</p>
-            <h1 className="text-4xl font-serif font-normal text-[var(--foreground)]">
+        <div className="container mx-auto px-4 sm:px-6 py-8 md:py-10 max-w-5xl">
+          <div className="mb-6 md:mb-8">
+            <p className="text-[11px] tracking-widest uppercase text-[var(--foreground-muted)] mb-1.5 font-normal">
+              Member Portal
+            </p>
+            <h1 className="text-3xl md:text-5xl font-serif font-normal text-[var(--foreground)]">
               Class History
             </h1>
+            <p className="text-xs md:text-sm text-[var(--foreground-muted)] mt-1.5 font-light">
+              View your past attendance, sessions, and bookings.
+            </p>
           </div>
 
-          {pastBookings.length === 0 ? (
-            <div className="py-10 text-center border border-dashed border-[var(--border)] rounded-lg">
-              <p className="text-[var(--foreground-muted)] font-light mb-4">No past classes found.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-[var(--border)] bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2rem] p-6 shadow-sm">
-              {pastBookings.map(booking => (
-                <div key={booking.id} className="py-5 flex items-center justify-between gap-4 opacity-70 hover:opacity-100 transition-opacity">
-                  <div>
-                    <ClassNameDisplay name={booking.class.name} nameTh={booking.class.classType?.nameTh} classTypeName={booking.class.classType?.name} classTypeNameTh={booking.class.classType?.nameTh} size="sm" />
-                    <p className="text-sm text-[var(--foreground-muted)] mt-0.5">
-                      {bangkokDate(booking.class.date)} · {booking.class.startTime}–{booking.class.endTime}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className={`text-[10px] tracking-widest uppercase ${
-                      booking.status === 'CANCELLED' ? 'text-[var(--foreground-muted)]' :
-                      booking.status === 'ATTENDED' ? 'text-green-700' :
-                      booking.status === 'NO_SHOW' ? 'text-red-700' :
-                      'text-[var(--foreground)]'
-                    }`}>
-                      {booking.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <ClassHistoryTable bookings={pastBookings} />
         </div>
       </main>
     </div>
