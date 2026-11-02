@@ -59,6 +59,29 @@ export default function UserRow({ user, isCurrentUser }: { user: any, isCurrentU
           {user.phone || '—'}
         </td>
         <td className="py-4">
+          {user.role === 'CLIENT' ? (
+            (() => {
+              const activePasses = user.userPasses || []
+              const totalCredits = activePasses.reduce((acc: number, p: any) => acc + (p.remainingCount || 0), 0)
+              if (totalCredits > 0) {
+                return (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-50 text-green-700 border border-green-200/60 text-[10px] font-medium uppercase tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    {totalCredits} {totalCredits === 1 ? 'Credit' : 'Credits'}
+                  </span>
+                )
+              }
+              return (
+                <span className="text-[11px] text-[var(--foreground-muted)]/60 italic font-serif">
+                  No active pass
+                </span>
+              )
+            })()
+          ) : (
+            <span className="text-[10px] uppercase tracking-wider text-[var(--foreground-muted)]/40">—</span>
+          )}
+        </td>
+        <td className="py-4">
           {isCurrentUser ? (
             <span className="text-[10px] tracking-[0.15em] uppercase text-[var(--foreground-muted)]/50">{user.role}</span>
           ) : (

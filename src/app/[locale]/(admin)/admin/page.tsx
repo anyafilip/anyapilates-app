@@ -12,25 +12,33 @@ export default async function AdminDashboard() {
   const endOfTomorrow = new Date(endOfDay.getTime() + 86400000)
 
   const [
-    revenueAgg,
+    allPaidPayments,
     trafficToday,
     totalMembers,
+    activePasses,
     newMembersThisMonth,
     classesThisWeek,
     pendingPaymentsQR,
     pendingPaymentsCounter
   ] = await Promise.all([
-    // Revenue this month
-    prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: { status: 'PAID', createdAt: { gte: startOfMonth } }
+    // All paid payments for complete monthly breakdown and stats
+    prisma.payment.findMany({
+      where: { status: 'PAID' },
+      select: { amount: true, method: true, createdAt: true },
+      orderBy: { createdAt: 'desc' }
     }),
     // Traffic today
     prisma.booking.count({
       where: { status: 'BOOKED', class: { date: { gte: startOfDay, lt: endOfDay } } }
     }),
-    // Total clients
+    // Total registered clients
     prisma.user.count({ where: { role: 'CLIENT' } }),
+    // Active clients holding valid, non-expired credits
+    prisma.userPass.findMany({
+      where: { remainingCount: { gt: 0 }, expiresAt: { gte: now }, user: { role: 'CLIENT' } },
+      select: { userId: true },
+      distinct: ['userId']
+    }),
     // Clients who joined this month
     prisma.user.count({ where: { role: 'CLIENT', createdAt: { gte: startOfMonth } } }),
     // Classes this week
@@ -44,7 +52,60 @@ export default async function AdminDashboard() {
   ])
 
   const pendingTotal = pendingPaymentsQR + pendingPaymentsCounter
-  const revenueThisMonth = (revenueAgg._sum.amount || 0) / 100
+  const activeClientsCount = activePasses.length
+
+  // Build monthly stats from all paid payments
+  const monthsMap = new Map<string, {
+    key: string
+    label: string
+    revenue: number
+    count: number
+    qrCount: number
+    counterCount: number
+  }>()
+
+  let totalRevenueAllTime = 0
+
+  for (const p of allPaidPayments) {
+    const d = new Date(p.createdAt)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    const label = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    const amountThb = p.amount / 100
+    totalRevenueAllTime += amountThb
+
+    const curr = monthsMap.get(key) || {
+      key,
+      label,
+      revenue: 0,
+      count: 0,
+      qrCount: 0,
+      counterCount: 0
+    }
+    curr.revenue += amountThb
+    curr.count += 1
+    if (p.method === 'QR') curr.qrCount += 1
+    else curr.counterCount += 1
+    monthsMap.set(key, curr)
+  }
+
+  const monthlyStats = Array.from(monthsMap.values())
+
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const currentMonthLabel = now.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  const currentMonthStat = monthsMap.get(currentMonthKey) || {
+    key: currentMonthKey,
+    label: currentMonthLabel,
+    revenue: 0,
+    count: 0,
+    qrCount: 0,
+    counterCount: 0
+  }
+
+  // Previous month stat
+  const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const prevMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, '0')}`
+  const prevMonthStat = monthsMap.get(prevMonthKey) || null
+  const revenueThisMonth = currentMonthStat.revenue
 
   // Today's Schedule
   const todaySchedule = await prisma.class.findMany({
@@ -138,9 +199,11 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         
         {/* Card 1: Monthly Revenue */}
-        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[140px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
+        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[150px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
           <div className="flex justify-between items-start">
-            <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Revenue</h3>
+            <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
+              Revenue ({currentMonthStat.label.split(' ')[0]})
+            </h3>
             <span className="text-[var(--foreground-muted)]/50">
               <svg width="16" height="16" className="md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"></line>
@@ -149,13 +212,19 @@ export default async function AdminDashboard() {
             </span>
           </div>
           <div>
-            <p className="text-3xl md:text-4xl font-serif text-[var(--foreground)] mb-1 md:mb-2">฿{revenueThisMonth.toLocaleString()}</p>
-            <p className="text-[8px] md:text-[10px] font-medium text-[var(--foreground-muted)] uppercase tracking-widest">This Month</p>
+            <p className="text-3xl md:text-4xl font-serif text-[var(--foreground)] mb-1">฿{revenueThisMonth.toLocaleString()}</p>
+            <div className="text-[8px] md:text-[10px] font-medium text-[var(--foreground-muted)] uppercase tracking-wider">
+              {prevMonthStat ? (
+                <span>Last month ({prevMonthStat.label.split(' ')[0]}): <strong className="text-[var(--foreground)] font-semibold">฿{prevMonthStat.revenue.toLocaleString()}</strong></span>
+              ) : (
+                <span>All time: ฿{totalRevenueAllTime.toLocaleString()}</span>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Card 2: Traffic Today */}
-        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[140px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
+        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[150px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
           <div className="flex justify-between items-start">
             <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Traffic</h3>
             <span className="text-[var(--foreground-muted)]/50">
@@ -173,10 +242,10 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        {/* Card 3: Members */}
-        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[140px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
+        {/* Card 3: Active Clients & Members */}
+        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[150px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
           <div className="flex justify-between items-start">
-            <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Members</h3>
+            <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Active Clients</h3>
             <span className="text-[var(--foreground-muted)]/50">
               <svg width="16" height="16" className="md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -187,16 +256,17 @@ export default async function AdminDashboard() {
           </div>
           <div>
             <div className="flex items-baseline gap-2 mb-1 md:mb-2">
-              <p className="text-4xl md:text-5xl font-serif text-[var(--foreground)]">{totalMembers}</p>
+              <p className="text-4xl md:text-5xl font-serif text-[var(--foreground)]">{activeClientsCount}</p>
+              <span className="text-xs text-[var(--foreground-muted)] font-serif">with valid pass</span>
             </div>
             <p className="text-[8px] md:text-[10px] font-medium text-[var(--foreground-muted)] uppercase tracking-widest whitespace-nowrap overflow-hidden text-ellipsis">
-              {newMembersThisMonth > 0 ? `+${newMembersThisMonth} this month` : 'Total clients'}
+              {totalMembers} total registered · {newMembersThisMonth > 0 ? `+${newMembersThisMonth} this month` : 'All clients'}
             </p>
           </div>
         </div>
 
         {/* Card 4: Classes Next 7 Days */}
-        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[140px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
+        <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-2xl md:rounded-3xl p-5 md:p-8 flex flex-col justify-between h-[150px] md:h-[200px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300">
           <div className="flex justify-between items-start">
             <h3 className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Classes</h3>
             <span className="text-[var(--foreground-muted)]/50">
@@ -216,6 +286,79 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
+      </div>
+
+      {/* ── Monthly Revenue & Stats Breakdown ── */}
+      <div className="bg-white/50 backdrop-blur-lg border border-white/60 rounded-3xl p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-end mb-6 pb-4 border-b border-black/5 gap-2">
+          <div>
+            <h2 className="text-xl md:text-2xl font-serif text-[var(--foreground)]">Monthly Revenue & Stats</h2>
+            <p className="text-[11px] tracking-[0.15em] uppercase text-[var(--foreground-muted)] mt-1">
+              All-Time Studio Revenue: <strong className="text-[var(--foreground)] font-semibold">฿{totalRevenueAllTime.toLocaleString()}</strong> ({allPaidPayments.length} paid sales)
+            </p>
+          </div>
+          <Link href="/admin/payments" className="text-[10px] tracking-[0.2em] uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors border-b border-transparent hover:border-[var(--foreground)] pb-1 w-fit">
+            View In Payments →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {monthlyStats.map((m, idx) => {
+            const isCurrentMonth = m.key === currentMonthKey
+            const prev = monthlyStats[idx + 1]
+            const growth = prev && prev.revenue > 0 ? ((m.revenue - prev.revenue) / prev.revenue) * 100 : null
+
+            return (
+              <div 
+                key={m.key} 
+                className={`p-5 rounded-2xl border transition-all ${
+                  isCurrentMonth 
+                    ? 'bg-amber-50/40 border-amber-200/70 shadow-sm' 
+                    : 'bg-white/40 border-white/80 hover:bg-white/70'
+                }`}
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-medium tracking-[0.15em] uppercase text-[var(--foreground)]">
+                      {m.label}
+                    </span>
+                    {isCurrentMonth && (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[9px] font-medium uppercase tracking-wider">
+                        Current
+                      </span>
+                    )}
+                  </div>
+                  <Link 
+                    href={`/admin/payments?month=${m.key}`}
+                    className="text-[10px] tracking-widest uppercase text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
+                  >
+                    View →
+                  </Link>
+                </div>
+
+                <div className="mb-3">
+                  <p className="text-2xl md:text-3xl font-serif text-[var(--foreground)]">
+                    ฿{m.revenue.toLocaleString()}
+                  </p>
+                  {growth !== null && (
+                    <p className={`text-[11px] font-medium mt-0.5 ${growth >= 0 ? 'text-green-700' : 'text-amber-700'}`}>
+                      {growth >= 0 ? `+${growth.toFixed(1)}%` : `${growth.toFixed(1)}%`} vs {prev?.label.split(' ')[0]}
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-3 border-t border-black/5 flex items-center justify-between text-[11px] text-[var(--foreground-muted)]">
+                  <span>{m.count} {m.count === 1 ? 'sale' : 'sales'}</span>
+                  <div className="flex gap-2 text-[10px]">
+                    <span>QR: {m.qrCount}</span>
+                    <span>•</span>
+                    <span>Counter: {m.counterCount}</span>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">

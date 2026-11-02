@@ -15,6 +15,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
 
   const session = await auth()
   const currentUser = session?.user as any
+  const now = new Date()
 
   const where: any = {}
   if (q) {
@@ -23,21 +24,49 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
       { email: { contains: q, mode: 'insensitive' } }
     ]
   }
-  if (role) {
+  if (role === 'ACTIVE_PASS') {
+    where.role = 'CLIENT'
+    where.userPasses = {
+      some: {
+        remainingCount: { gt: 0 },
+        expiresAt: { gte: now }
+      }
+    }
+  } else if (role === 'NO_PASS') {
+    where.role = 'CLIENT'
+    where.userPasses = {
+      none: {
+        remainingCount: { gt: 0 },
+        expiresAt: { gte: now }
+      }
+    }
+  } else if (role) {
     where.role = role
   }
 
   const skip = (page - 1) * 20
   const take = 20
 
-  const [users, totalCount] = await Promise.all([
+  const [users, totalCount, totalClientsCount, activeClientsCount] = await Promise.all([
     prisma.user.findMany({
       where,
+      include: {
+        userPasses: {
+          where: { remainingCount: { gt: 0 }, expiresAt: { gte: now } },
+          select: { remainingCount: true, expiresAt: true, classType: { select: { name: true } } }
+        }
+      },
       orderBy: { createdAt: 'desc' },
       skip,
       take
     }),
-    prisma.user.count({ where })
+    prisma.user.count({ where }),
+    prisma.user.count({ where: { role: 'CLIENT' } }),
+    prisma.userPass.findMany({
+      where: { remainingCount: { gt: 0 }, expiresAt: { gte: now }, user: { role: 'CLIENT' } },
+      select: { userId: true },
+      distinct: ['userId']
+    }).then(res => res.length)
   ])
 
   let historyUser = null
@@ -53,15 +82,19 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
     <div className="max-w-6xl mx-auto pb-12">
       <div className="mb-12">
         <h1 className="text-4xl md:text-5xl font-serif font-normal text-[var(--foreground)] mb-2">Users</h1>
-        <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">Manage Studio Members & Roles</p>
+        <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
+          Manage Studio Members · <strong className="text-[var(--foreground)] font-semibold">{activeClientsCount} Active Clients</strong> (with valid passes) · {totalClientsCount} Total Registered Clients
+        </p>
       </div>
 
       <DataTableTools 
         searchPlaceholder="Search users by name or email..." 
         filterOptions={[
-          {label: 'Admin', value: 'ADMIN'},
-          {label: 'Instructor', value: 'INSTRUCTOR'},
-          {label: 'Client', value: 'CLIENT'}
+          { label: 'Active Pass Holders', value: 'ACTIVE_PASS' },
+          { label: 'No Active Pass', value: 'NO_PASS' },
+          { label: 'Clients Only', value: 'CLIENT' },
+          { label: 'Instructors', value: 'INSTRUCTOR' },
+          { label: 'Admins', value: 'ADMIN' },
         ]}
       />
 
@@ -70,10 +103,11 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr className="border-b border-black/5 text-[9px] tracking-[0.2em] uppercase text-[var(--foreground-muted)]">
-                <th className="font-medium py-6 pl-8 w-[35%]">Member</th>
-                <th className="font-medium py-6 w-[20%]">Phone</th>
-                <th className="font-medium py-6 w-[25%]">Role</th>
-                <th className="font-medium py-6 pr-8 text-right w-[20%]">Actions</th>
+                <th className="font-medium py-6 pl-8 w-[30%]">Member</th>
+                <th className="font-medium py-6 w-[15%]">Phone</th>
+                <th className="font-medium py-6 w-[20%]">Credits / Pass</th>
+                <th className="font-medium py-6 w-[20%]">Role</th>
+                <th className="font-medium py-6 pr-8 text-right w-[15%]">Actions</th>
               </tr>
             </thead>
             <tbody className="text-sm font-light text-[var(--foreground)]">
@@ -82,7 +116,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-16 text-center">
+                  <td colSpan={5} className="py-16 text-center">
                     <p className="text-[var(--foreground-muted)] font-serif italic text-lg mb-2">No users found.</p>
                   </td>
                 </tr>
