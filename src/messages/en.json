@@ -67,11 +67,13 @@
     "duration": "Duration",
     "min": "min",
     "availability": "Availability",
+    "spots": "Spots",
     "spotsLeft": "spots left",
     "instructor": "Instructor",
     "aboutClass": "About this class",
     "notes": "Notes",
     "viewUpcomingSessions": "View all upcoming sessions",
+    "viewClassType": "View class type",
     "youAreReserved": "You are reserved ✓"
   },
   "MemberNav": {

@@ -32,7 +32,7 @@ export default async function HomePage() {
   const dashboardUrl = user?.role === 'ADMIN' ? '/admin' : user?.role === 'INSTRUCTOR' ? '/instructor' : '/account'
 
   const now = new Date()
-  const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+  const upcomingClassesLimit = new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000)
 
   // Run all non-user independent queries in parallel to drastically improve load time
   const [instructors, classes, classTypes, settings, initialPackages, dbUser] = await Promise.all([
@@ -43,7 +43,7 @@ export default async function HomePage() {
     prisma.class.findMany({
       where: {
         status: 'SCHEDULED',
-        date: { gte: now, lte: oneWeekFromNow },
+        date: { gte: now, lte: upcomingClassesLimit },
       },
       include: {
         classType: {

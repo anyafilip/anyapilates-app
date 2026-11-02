@@ -67,11 +67,13 @@
     "duration": "ระยะเวลา",
     "min": "นาที",
     "availability": "ที่ว่าง",
+    "spots": "ที่ว่าง",
     "spotsLeft": "ที่ว่าง",
     "instructor": "ผู้สอน",
     "aboutClass": "เกี่ยวกับคลาสนี้",
     "notes": "หมายเหตุ",
     "viewUpcomingSessions": "ดูคลาสที่กำลังจะมาถึงทั้งหมด",
+    "viewClassType": "ดูประเภทคลาส",
     "youAreReserved": "คุณได้จองคลาสนี้แล้ว ✓"
   },
   "MemberNav": {
