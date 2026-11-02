@@ -9,8 +9,79 @@ import PublicNavbar from '@/components/PublicNavbar'
 import InteractiveSchedule from '@/components/InteractiveSchedule'
 import PackagesDisplay from '@/components/PackagesDisplay'
 import { getTranslations, getLocale } from 'next-intl/server'
+import { unstable_cache } from 'next/cache'
 
 const TZ_OFFSET = 7 // Bangkok UTC+7
+
+// Cache public frontpage data for 3 minutes to eliminate Supabase egress from visitor/bot traffic
+const getCachedFrontpageData = unstable_cache(
+  async () => {
+    const now = new Date()
+    const upcomingClassesLimit = new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000)
+
+    const [instructors, rawClasses, classTypes, settings, initialPackages] = await Promise.all([
+      prisma.user.findMany({
+        where: { role: 'INSTRUCTOR', showOnFrontpage: true },
+        select: { id: true, name: true, bio: true, imageUrl: true },
+      }),
+      prisma.class.findMany({
+        where: {
+          status: 'SCHEDULED',
+          date: { gte: now, lte: upcomingClassesLimit },
+        },
+        include: {
+          classType: {
+            select: {
+              id: true,
+              name: true,
+              nameTh: true,
+              description: true,
+              descriptionTh: true,
+            },
+          },
+          instructor: {
+            select: {
+              id: true,
+              name: true,
+              bio: true,
+            },
+          },
+        },
+        orderBy: { date: 'asc' },
+      }),
+      prisma.classType.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: 'asc' },
+        select: {
+          id: true,
+          name: true,
+          nameTh: true,
+          description: true,
+          descriptionTh: true,
+          imageUrl: true,
+          isActive: true,
+          createdAt: true,
+        },
+      }),
+      prisma.studioSettings.findUnique({ where: { id: 'default' } }),
+      prisma.package.findMany({
+        where: { isActive: true },
+        include: { classType: { select: { id: true, name: true, nameTh: true } } },
+        orderBy: { price: 'asc' },
+      }),
+    ])
+
+    return {
+      instructors,
+      classes: rawClasses.map(c => ({ ...c, date: new Date(c.date) })),
+      classTypes,
+      settings,
+      initialPackages,
+    }
+  },
+  ['frontpage-public-data-v1'],
+  { revalidate: 180, tags: ['frontpage'] }
+)
 
 // Format a UTC date into Bangkok local display strings
 function bangkokDate(utcDate: Date) {
@@ -31,60 +102,9 @@ export default async function HomePage() {
   const isLoggedIn = !!user
   const dashboardUrl = user?.role === 'ADMIN' ? '/admin' : user?.role === 'INSTRUCTOR' ? '/instructor' : '/account'
 
-  const now = new Date()
-  const upcomingClassesLimit = new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000)
-
-  // Run all non-user independent queries in parallel to drastically improve load time
-  const [instructors, classes, classTypes, settings, initialPackages, dbUser] = await Promise.all([
-    prisma.user.findMany({
-      where: { role: 'INSTRUCTOR', showOnFrontpage: true },
-      select: { id: true, name: true, bio: true, imageUrl: true },
-    }),
-    prisma.class.findMany({
-      where: {
-        status: 'SCHEDULED',
-        date: { gte: now, lte: upcomingClassesLimit },
-      },
-      include: {
-        classType: {
-          select: {
-            id: true,
-            name: true,
-            nameTh: true,
-            description: true,
-            descriptionTh: true,
-          }
-        },
-        instructor: {
-          select: {
-            id: true,
-            name: true,
-            bio: true,
-          }
-        },
-      },
-      orderBy: { date: 'asc' },
-    }),
-    prisma.classType.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: 'asc' },
-      select: {
-        id: true,
-        name: true,
-        nameTh: true,
-        description: true,
-        descriptionTh: true,
-        imageUrl: true,
-        isActive: true,
-        createdAt: true,
-      },
-    }),
-    prisma.studioSettings.findUnique({ where: { id: 'default' } }),
-    prisma.package.findMany({
-      where: { isActive: true },
-      include: { classType: { select: { id: true, name: true, nameTh: true } } },
-      orderBy: { price: 'asc' }
-    }),
+  // Fetch cached public frontpage data (cached in memory on EC2 for 3 mins, eliminates Supabase egress)
+  const [{ instructors, classes, classTypes, settings, initialPackages }, dbUser] = await Promise.all([
+    getCachedFrontpageData(),
     isLoggedIn && (user?.id || user?.email)
       ? prisma.user.findFirst({
           where: {
