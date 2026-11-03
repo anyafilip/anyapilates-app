@@ -2,7 +2,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import MemberNavbar from '@/components/MemberNavbar'
-import InteractiveSchedule from '@/components/InteractiveSchedule'
+import FullScheduleTable from '@/components/FullScheduleTable'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,7 +69,7 @@ export default async function FullSchedulePage() {
             </p>
           </div>
 
-          <InteractiveSchedule
+          <FullScheduleTable
             classes={classes}
             bookedClassIds={bookedClassIds}
             isLoggedIn={true}
