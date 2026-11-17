@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { useRouter } from '@/i18n/routing'
+import { useState, useMemo } from 'react'
+import { Link } from '@/i18n/routing'
 import toast from 'react-hot-toast'
 import { useTranslations, useLocale } from 'next-intl'
 
@@ -28,26 +28,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole, hasPur
   const t = useTranslations('Packages')
   const locale = useLocale()
   const isEn = locale === 'en'
-  const router = useRouter()
   const [selectedTab, setSelectedTab] = useState<'ALL' | 'GROUP' | 'DUO' | 'PRIVATE' | 'TRIAL'>('ALL')
-
-  const handleSelectPackage = (pkgId: string) => {
-    if (!isLoggedIn) {
-      router.push('/register')
-      return
-    }
-    if (userRole === 'ADMIN' || userRole === 'INSTRUCTOR') {
-      toast.error('Admins and Instructors cannot purchase packages.')
-      return
-    }
-    const pkg = packages.find(p => p.id === pkgId)
-    const isTrial = pkg && (pkg.name.toLowerCase().includes('trial') || pkg.name.toLowerCase().includes('intro'))
-    if (isTrial && hasPurchasedTrial) {
-      toast.error(t('trialAlreadyPurchased'))
-      return
-    }
-    router.push(`/buy-credits?packageId=${pkgId}`)
-  }
 
   const tabs = [
     { key: 'ALL', label: t('allPackages') },
@@ -97,7 +78,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole, hasPur
       </div>
 
       {/* ── Package Cards Grid ─────────────────────────────────────────── */}
-      <div className="flex overflow-x-auto gap-6 md:gap-8 mb-16 pb-6 snap-x snap-mandatory packages-scrollbar w-full"
+      <div className="flex overflow-x-auto gap-6 md:gap-8 mb-16 pb-6 snap-x snap-proximity packages-scrollbar w-full touch-pan-x"
       >
         {filteredPackages.map(pkg => {
           const isTrial = pkg.name.toLowerCase().includes('trial')
@@ -105,13 +86,17 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole, hasPur
           const priceInBaht = pkg.price / 100
           const unitPrice = Math.round(priceInBaht / pkg.classCount)
 
+          const targetUrl = !isLoggedIn
+            ? `/register?callbackUrl=${encodeURIComponent(`/buy-credits?packageId=${pkg.id}`)}`
+            : `/buy-credits?packageId=${pkg.id}`
+
           return (
             <div
               key={pkg.id}
               className={`
                 shrink-0 snap-start w-[calc(33.333vw-1.5rem)] md:w-[calc(25vw-2rem)] min-w-[200px] max-w-[320px]
                 relative group bg-white/40 hover:bg-white/70 backdrop-blur-md border rounded-[2rem] p-6 text-center flex flex-col justify-between
-                shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] transition-all duration-500 overflow-hidden
+                shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] transition-all duration-500 overflow-hidden touch-manipulation
                 ${isTrial 
                   ? 'border-[var(--accent)]/40 hover:border-[var(--accent)]' 
                   : 'border-white/60 hover:border-white'
@@ -188,11 +173,16 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole, hasPur
                     ✓ {t('purchased')}
                   </button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => handleSelectPackage(pkg.id)}
+                  <Link
+                    href={targetUrl}
+                    onClick={(e) => {
+                      if (userRole === 'ADMIN' || userRole === 'INSTRUCTOR') {
+                        e.preventDefault()
+                        toast.error('Admins and Instructors cannot purchase packages.')
+                      }
+                    }}
                     className={`
-                      relative z-10 w-full block py-3 rounded-full text-[9px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase font-medium transition-all duration-300 shadow-sm text-center cursor-pointer
+                      relative z-10 w-full block py-3 rounded-full text-[9px] ${isEn ? 'tracking-[0.2em]' : 'tracking-normal'} uppercase font-medium transition-all duration-300 shadow-sm text-center cursor-pointer touch-manipulation
                       ${isTrial
                         ? 'bg-[var(--foreground)] text-[var(--background)] hover:bg-black'
                         : 'bg-transparent border border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)]'
@@ -200,7 +190,7 @@ export default function PackagesDisplay({ packages, isLoggedIn, userRole, hasPur
                     `}
                   >
                     {t('select')}
-                  </button>
+                  </Link>
                 )}
               </div>
             </div>
