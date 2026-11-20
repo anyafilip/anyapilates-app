@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag, updateTag } from 'next/cache'
 import sanitizeHtml from 'sanitize-html'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
@@ -39,6 +39,26 @@ function validateBase64Image(value: string | undefined): string | undefined {
     throw new Error('Image must be a JPEG, PNG, or WebP file.')
   }
   return value
+}
+
+export async function revalidateScheduleCache() {
+  try {
+    updateTag('frontpage')
+  } catch (e) {
+    // ignore
+  }
+  try {
+    revalidateTag('frontpage', { expire: 0 })
+  } catch (e) {
+    // ignore
+  }
+  revalidatePath('/en/admin/schedule')
+  revalidatePath('/th/admin/schedule')
+  revalidatePath('/en/account/schedule')
+  revalidatePath('/th/account/schedule')
+  revalidatePath('/en')
+  revalidatePath('/th')
+  revalidatePath('/', 'layout')
 }
 
 // ── ClassType CRUD ────────────────────────────────────────────────────────────
@@ -160,8 +180,7 @@ export async function createSession(formData: FormData) {
       description: formData.get('description') ? String(formData.get('description')) : null,
     },
   })
-  revalidatePath('/en/admin/schedule')
-  revalidatePath('/')
+  await revalidateScheduleCache()
 }
 
 export async function updateSession(formData: FormData) {
@@ -206,7 +225,7 @@ export async function updateSession(formData: FormData) {
     },
   })
   
-  revalidatePath('/', 'layout')
+  await revalidateScheduleCache()
 }
 
 export async function cancelSession(id: string) {
@@ -265,8 +284,7 @@ export async function cancelSession(id: string) {
     }
   }
 
-  revalidatePath('/en/admin/schedule')
-  revalidatePath('/')
+  await revalidateScheduleCache()
 }
 
 // ── User Management ───────────────────────────────────────────────────────────
@@ -520,4 +538,6 @@ export async function bulkCancelSessions(ids: string[]) {
       console.error(`Failed to cancel session ${id}:`, e)
     }
   }
+
+  await revalidateScheduleCache()
 }

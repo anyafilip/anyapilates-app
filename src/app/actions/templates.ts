@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
+import { revalidateScheduleCache } from '@/app/actions/admin'
 import { runScheduleSync } from '@/lib/schedule-generator'
 
 async function requireAdmin() {
@@ -55,8 +56,7 @@ export async function createSession(formData: FormData) {
     },
   })
 
-  revalidatePath('/', 'layout')
-  
+  await revalidateScheduleCache()
 }
 
 // ── Create a recurring class (template + immediate generation) ────────────────
@@ -92,8 +92,7 @@ export async function createRecurringClass(formData: FormData) {
 
   await autoFillSchedule(8)
 
-  revalidatePath('/', 'layout')
-  
+  await revalidateScheduleCache()
 }
 
 // ── Stop a recurring class ────────────────────────────────────────────────────
@@ -139,8 +138,7 @@ export async function stopRecurringClass(templateId: string) {
     })
   }
 
-  revalidatePath('/', 'layout')
-  
+  await revalidateScheduleCache()
 }
 
 // ── Legacy exports (keep for backward compat) ─────────────────────────────────
@@ -150,7 +148,7 @@ export async function createTemplate(data: { classTypeId: string, dayOfWeek: num
   await prisma.weeklyScheduleTemplate.create({
     data: { ...data, instructorId: data.instructorId || null }
   })
-  revalidatePath('/', 'layout')
+  await revalidateScheduleCache()
 }
 
 export async function deleteTemplate(id: string) {
@@ -188,13 +186,13 @@ export async function deleteTemplate(id: string) {
   }
 
   await prisma.weeklyScheduleTemplate.delete({ where: { id } })
-  revalidatePath('/', 'layout')
+  await revalidateScheduleCache()
 }
 
 export async function generateScheduleFromTemplates(weeksAhead: number = 4) {
   await requireAdmin()
   const count = await autoFillSchedule(weeksAhead)
-  revalidatePath('/', 'layout')
+  await revalidateScheduleCache()
   
   return count
 }
@@ -209,4 +207,6 @@ export async function bulkStopRecurringTemplates(ids: string[]) {
       console.error(`Failed to stop template ${id}:`, e)
     }
   }
+
+  await revalidateScheduleCache()
 }
