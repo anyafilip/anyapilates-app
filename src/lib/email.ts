@@ -128,3 +128,64 @@ export async function sendReceiptEmail(email: string, userName: string, packageN
     `
   })
 }
+
+export async function sendPassExpirationEmail({
+  email,
+  userName,
+  packageName,
+  remainingCount,
+  expirationDateStrTh,
+  expirationDateStrEn,
+}: {
+  email: string
+  userName?: string | null
+  packageName?: string
+  remainingCount: number
+  expirationDateStrTh: string
+  expirationDateStrEn: string
+}) {
+  const bookingLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://anyapilatesstudio.com'}/account/schedule`
+  const greetingTh = userName ? `สวัสดีค่ะ คุณ${userName}` : 'สวัสดีค่ะ คุณลูกค้า'
+  const greetingEn = userName ? `Hello ${userName},` : 'Hello,'
+
+  return resend.emails.send({
+    from: SENDER_EMAIL,
+    to: email,
+    subject: 'Package Expiration Reminder / แจ้งเตือนแพ็กเกจ Pilates ใกล้หมดอายุ',
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #2C2523; line-height: 1.6; padding: 24px; background-color: #FAF8F5;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h1 style="font-size: 20px; font-weight: 500; color: #3C2A1E; letter-spacing: 0.12em; margin: 0;">ANYA PILATES</h1>
+          <p style="font-size: 10px; text-transform: uppercase; color: #8C7A6B; letter-spacing: 0.25em; margin: 4px 0 0 0;">Studio Bangkok</p>
+        </div>
+
+        <div style="background-color: #EDE8E2; padding: 24px; border-radius: 16px; margin-bottom: 24px;">
+          <p style="font-size: 15px; margin-top: 0; font-weight: 500; color: #3C2A1E;">${greetingTh}</p>
+          <p style="font-size: 14px; margin: 12px 0;">ทาง ANYA Pilates ขอแจ้งให้คุณลูกค้าทราบว่า แพ็กเกจ Pilates ของคุณลูกค้าจะหมดอายุในวันที่ <strong>${expirationDateStrTh}</strong></p>
+          ${packageName ? `<p style="font-size: 13px; color: #5C4A3E; margin: 8px 0;"><strong>แพ็กเกจ:</strong> ${packageName} (คงเหลือ ${remainingCount} คลาส)</p>` : ''}
+          <p style="font-size: 14px; margin: 12px 0;">หากคุณลูกค้ายังมีคลาสคงเหลือ สามารถวางแผนจองคลาสเพื่อใช้สิทธิ์ที่เหลือให้ครบก่อนวันหมดอายุนะคะ</p>
+          <p style="font-size: 14px; margin: 12px 0;">คุณลูกค้าสามารถตรวจสอบจำนวนคลาสคงเหลือและจองคลาสได้ผ่านระบบจองของเรา</p>
+          <p style="font-size: 14px; margin: 12px 0 0 0;">ขอบคุณที่เลือกใช้บริการ ANYA Pilates ค่ะ</p>
+        </div>
+
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="${bookingLink}" style="display: inline-block; padding: 12px 32px; background-color: #3C2A1E; color: #FAF8F5; text-decoration: none; border-radius: 9999px; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;">
+            Book Class / จองคลาส
+          </a>
+        </div>
+
+        <div style="border-top: 1px dashed #D6CCC2; margin: 24px 0;"></div>
+
+        <div style="padding: 4px 8px; color: #4A3E39;">
+          <p style="font-size: 15px; margin-top: 0; font-weight: 500; color: #3C2A1E;">${greetingEn}</p>
+          <p style="font-size: 14px; margin: 12px 0;">This is a friendly reminder that your Pilates package at ANYA Pilates will expire on <strong>${expirationDateStrEn}</strong>.</p>
+          ${packageName ? `<p style="font-size: 13px; color: #5C4A3E; margin: 8px 0;"><strong>Package:</strong> ${packageName} (${remainingCount} class${remainingCount === 1 ? '' : 'es'} remaining)</p>` : ''}
+          <p style="font-size: 14px; margin: 12px 0;">If you have any remaining sessions, we encourage you to book your classes and enjoy your remaining sessions before the expiration date.</p>
+          <p style="font-size: 14px; margin: 12px 0;">You can check your remaining sessions and book your next class through our booking system.</p>
+          <p style="font-size: 14px; margin: 12px 0 0 0;">Thank you for being a part of ANYA Pilates,</p>
+          <p style="font-size: 14px; font-weight: 500; color: #3C2A1E; margin-top: 4px;">ANYA Pilates Studio</p>
+        </div>
+      </div>
+    `
+  })
+}

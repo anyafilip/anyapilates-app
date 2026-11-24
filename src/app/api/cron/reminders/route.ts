@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendClassReminderEmail } from '@/lib/email'
+import { checkAndSendPassExpirationReminders } from '@/lib/pass-expiration'
 
 export async function GET(req: Request) {
   // Simple auth for cron: typically you'd check an Authorization header 
@@ -87,7 +88,15 @@ export async function GET(req: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, sentCount })
+    // Process expiring passes (1-week expiration reminder)
+    const expirationResult = await checkAndSendPassExpirationReminders()
+
+    return NextResponse.json({
+      success: true,
+      bookingRemindersSent: sentCount,
+      passExpirationRemindersSent: expirationResult.sentCount,
+      passExpirationErrors: expirationResult.errors,
+    })
   } catch (error: any) {
     console.error('Error processing reminders:', error)
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })

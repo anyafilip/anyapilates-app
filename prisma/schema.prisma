@@ -145,6 +145,7 @@ model UserPass {
   expiresAt      DateTime
   activatedAt    DateTime?
   validityDays   Int       @default(180)
+  expiryReminderSent Boolean @default(false)
 
   payment   Payment? @relation(fields: [paymentId], references: [id])
   paymentId String?  @unique
